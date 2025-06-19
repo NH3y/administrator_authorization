@@ -1,0 +1,15 @@
+{
+  "_fv": 73,
+  "_type": "keybind",
+  "definition": {
+    "triggerKey": "R",
+    "keyBindingName": "Router Button",
+    "keyBindingCategoryKey": "misc",
+    "onKeyPressed": {
+      "name": "AuthorizePlayer"
+    },
+    "onKeyReleased": {
+      "name": "AuthorizePlayer"
+    }
+  }
+}

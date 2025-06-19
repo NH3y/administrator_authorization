@@ -1,0 +1,117 @@
+{
+  "_fv": 73,
+  "_type": "overlay",
+  "definition": {
+    "priority": "HIGH",
+    "components": [
+      {
+        "type": "label",
+        "data": {
+          "name": "label_damage",
+          "text": {
+            "fixedValue": "Damage"
+          },
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "anchorPoint": "CENTER",
+          "x": 246,
+          "y": 53,
+          "locked": false
+        }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_kill",
+          "text": {
+            "fixedValue": "Kill"
+          },
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "anchorPoint": "CENTER",
+          "x": 278,
+          "y": 89,
+          "locked": false
+        }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_defeat",
+          "text": {
+            "fixedValue": "Defeat"
+          },
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "anchorPoint": "CENTER",
+          "x": 278,
+          "y": 143,
+          "locked": false
+        }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_annihilate",
+          "text": {
+            "fixedValue": "Annihilate"
+          },
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "anchorPoint": "CENTER",
+          "x": 246,
+          "y": 179,
+          "locked": false
+        }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_obliterate",
+          "text": {
+            "fixedValue": "Obliterate"
+          },
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "anchorPoint": "CENTER",
+          "x": 126,
+          "y": 179,
+          "locked": false
+        }
+      },
+      {
+        "type": "image",
+        "data": {
+          "image": "circle.png",
+          "use1Xscale": false,
+          "anchorPoint": "CENTER",
+          "x": 118,
+          "y": 26,
+          "locked": false
+        }
+      }
+    ],
+    "baseTexture": "",
+    "overlayTarget": "Ingame",
+    "displayCondition": {
+      "name": "ShowRouter"
+    },
+    "gridSettings": {
+      "sx": 16,
+      "sy": 18,
+      "ox": 11,
+      "oy": 15,
+      "snapOnGrid": true
+    }
+  }
+}

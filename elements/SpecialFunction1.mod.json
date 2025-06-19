@@ -1,0 +1,15 @@
+{
+  "_fv": 73,
+  "_type": "keybind",
+  "definition": {
+    "triggerKey": "LSHIFT",
+    "keyBindingName": "Destroyer Alternative Behavior",
+    "keyBindingCategoryKey": "adm_auth",
+    "onKeyPressed": {
+      "name": "AuthorizePlayer"
+    },
+    "onKeyReleased": {
+      "name": "AuthorizePlayer"
+    }
+  }
+}

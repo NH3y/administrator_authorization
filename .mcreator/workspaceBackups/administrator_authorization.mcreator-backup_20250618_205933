@@ -1,0 +1,306 @@
+{
+  "mod_elements": [
+    {
+      "name": "ChaoticVoid",
+      "type": "damagetype",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "chaotic_void",
+      "metadata": {
+        "files": [
+          "src/main/resources/data/administrator_authorization/damage_type/chaotic_void.json"
+        ]
+      }
+    },
+    {
+      "name": "TheSword",
+      "type": "item",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "the_sword",
+      "metadata": {
+        "files": [
+          "src/main/resources/assets/administrator_authorization/models/item/the_sword.json",
+          "src/main/java/net/mcreator/administratorauthorization/item/TheSwordItem.java"
+        ]
+      }
+    },
+    {
+      "name": "EntityMixin",
+      "type": "mixin",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "entity_mixin",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/mixins/EntityMixinMixin.java"
+        ]
+      }
+    },
+    {
+      "name": "LivingEntityMixin",
+      "type": "mixin",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "living_entity_mixin",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/mixins/LivingEntityMixinMixin.java"
+        ]
+      }
+    },
+    {
+      "name": "ThePaper",
+      "type": "item",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "the_paper",
+      "metadata": {
+        "files": [
+          "src/main/resources/assets/administrator_authorization/models/item/the_paper.json",
+          "src/main/java/net/mcreator/administratorauthorization/item/ThePaperItem.java"
+        ]
+      }
+    },
+    {
+      "name": "RealityDestroyer",
+      "type": "item",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "reality_destroyer",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/item/RealityDestroyerItem.java",
+          "src/main/resources/assets/administrator_authorization/models/item/reality_destroyer.json"
+        ]
+      }
+    },
+    {
+      "name": "Authorizer",
+      "type": "item",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "authorizer",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/item/AuthorizerItem.java",
+          "src/main/resources/assets/administrator_authorization/models/item/authorizer.json"
+        ]
+      }
+    },
+    {
+      "name": "DetectPermission",
+      "type": "procedure",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "detect_permission",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/procedures/DetectPermissionProcedure.java"
+        ],
+        "dependencies": [
+          {
+            "name": "entity",
+            "type": "entity"
+          },
+          {
+            "name": "itemstack",
+            "type": "itemstack"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuthorizePlayer",
+      "type": "procedure",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "authorize_player",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/procedures/AuthorizePlayerProcedure.java"
+        ],
+        "dependencies": [
+          {
+            "name": "entity",
+            "type": "entity"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwitchAuthority",
+      "type": "keybind",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "switch_authority",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/network/SwitchAuthorityMessage.java"
+        ]
+      }
+    },
+    {
+      "name": "CallAuthoritySwitch",
+      "type": "procedure",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "call_authority_switch",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/procedures/CallAuthoritySwitchProcedure.java"
+        ],
+        "dependencies": []
+      }
+    },
+    {
+      "name": "PlayerMixin",
+      "type": "mixin",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "player_mixin",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/mixins/PlayerMixinMixin.java"
+        ]
+      }
+    },
+    {
+      "name": "DestroyRouter",
+      "type": "procedure",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "destroy_router",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/procedures/DestroyRouterProcedure.java"
+        ],
+        "dependencies": [
+          {
+            "name": "entity",
+            "type": "entity"
+          },
+          {
+            "name": "sourceentity",
+            "type": "entity"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SpecialFunction1",
+      "type": "keybind",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "special_function_1",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/network/SpecialFunction1Message.java"
+        ]
+      }
+    },
+    {
+      "name": "RouterButton",
+      "type": "keybind",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "router_button",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/network/RouterButtonMessage.java"
+        ]
+      }
+    },
+    {
+      "name": "RouterScreen",
+      "type": "overlay",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "router_screen",
+      "metadata": {
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/client/screens/RouterScreenOverlay.java"
+        ]
+      }
+    },
+    {
+      "name": "ShowRouter",
+      "type": "procedure",
+      "compiles": true,
+      "locked_code": true,
+      "registry_name": "show_router",
+      "metadata": {
+        "return_type": "logic",
+        "files": [
+          "src/main/java/net/mcreator/administratorauthorization/procedures/ShowRouterProcedure.java"
+        ],
+        "dependencies": [
+          {
+            "name": "entity",
+            "type": "entity"
+          }
+        ]
+      }
+    }
+  ],
+  "variable_elements": [],
+  "sound_elements": [],
+  "tag_elements": {
+    "DAMAGE_TYPES:minecraft:bypasses_cooldown": [
+      "CUSTOM:ChaoticVoid"
+    ],
+    "DAMAGE_TYPES:minecraft:bypasses_shield": [
+      "CUSTOM:ChaoticVoid"
+    ],
+    "DAMAGE_TYPES:minecraft:bypasses_enchantments": [
+      "CUSTOM:ChaoticVoid"
+    ],
+    "DAMAGE_TYPES:minecraft:bypasses_armor": [
+      "CUSTOM:ChaoticVoid"
+    ],
+    "DAMAGE_TYPES:minecraft:bypasses_effects": [
+      "CUSTOM:ChaoticVoid"
+    ]
+  },
+  "tab_element_order": {},
+  "language_map": {
+    "en_us": {
+      "item.administrator_authorization.reality_destroyer": "Reality Destroyer",
+      "death.attack.chaotic_void.player": "%1$s died whilst trying to escape %2$s",
+      "item.administrator_authorization.authorizer": "Authorizer",
+      "key.administrator_authorization.switch_authority": "Switch Authority",
+      "gui.administrator_authorization.router_screen.label_obliterate": "Obliterate",
+      "key.administrator_authorization.special_function_1": "Destroyer Alternative Behavior",
+      "gui.administrator_authorization.router_screen.label_annihilate": "Annihilate",
+      "gui.administrator_authorization.router_screen.label_kill": "Kill",
+      "gui.administrator_authorization.router_screen.label_defeat": "Defeat",
+      "key.administrator_authorization.router_button": "Router Button",
+      "death.attack.chaotic_void": "%1$s died",
+      "death.attack.chaotic_void.item": "%1$s was killed by %2$s using %3$s",
+      "item.administrator_authorization.the_sword": "The Sword",
+      "item.administrator_authorization.the_paper": "The Paper",
+      "gui.administrator_authorization.router_screen.label_damage": "Damage"
+    }
+  },
+  "foldersRoot": {
+    "name": "~",
+    "children": []
+  },
+  "workspaceSettings": {
+    "modid": "administrator_authorization",
+    "modName": "Administrator Authorization",
+    "version": "1.0.0",
+    "author": "bliss, MCreator",
+    "websiteURL": "https://mcreator.net",
+    "license": "Not specified",
+    "serverSideOnly": false,
+    "requiredMods": [],
+    "dependencies": [],
+    "dependants": [],
+    "mcreatorDependencies": [],
+    "currentGenerator": "forge-1.20.1",
+    "credits": "Created using mod maker MCreator - https://mcreator.net/about",
+    "modElementsPackage": "net.mcreator.administratorauthorization"
+  },
+  "mcreatorVersion": 202400452410
+}

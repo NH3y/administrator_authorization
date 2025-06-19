@@ -1,0 +1,95 @@
+---- Minecraft Crash Report ----
+// Witty comment unavailable :(
+
+Time: 2025-06-19 11:59:58
+Description: Exception in server tick loop
+
+java.lang.NullPointerException: Exception in server tick loop
+	at org.lwjgl.system.JNI.invokeD(Native Method) ~[lwjgl-3.3.1.jar%23175!/:build 7] {}
+	at org.lwjgl.glfw.GLFW.glfwGetTime(GLFW.java:4775) ~[lwjgl-glfw-3.3.1.jar%23163!/:build 7] {}
+	at com.mojang.blaze3d.platform.GLX.lambda$_initGlfw$2(GLX.java:69) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:runtimedistcleaner:A}
+	at net.minecraft.Util.getNanos(Util.java:119) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading}
+	at net.minecraft.Util.getMillis(Util.java:115) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading}
+	at net.minecraft.server.MinecraftServer.haveTime(MinecraftServer.java:746) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.lambda$waitUntilNextTick$8(MinecraftServer.java:755) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:144) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.waitUntilNextTick(MinecraftServer.java:754) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:683) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:accesstransformer:B}
+	at net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:251) ~[forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.20.1-recomp.jar%23191!/:?] {re:classloading,pl:accesstransformer:B}
+	at java.lang.Thread.run(Thread.java:833) ~[?:?] {}
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.20.1
+	Minecraft Version ID: 1.20.1
+	Operating System: Windows 10 (amd64) version 10.0
+	Java Version: 17.0.2, Oracle Corporation
+	Java VM Version: Java HotSpot(TM) 64-Bit Server VM (mixed mode, sharing), Oracle Corporation
+	Memory: 851369096 bytes (811 MiB) / 1730150400 bytes (1650 MiB) up to 3191865344 bytes (3044 MiB)
+	CPUs: 4
+	Processor Vendor: GenuineIntel
+	Processor Name: Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz
+	Identifier: Intel64 Family 6 Model 142 Stepping 9
+	Microarchitecture: Amber Lake
+	Frequency (GHz): 2.71
+	Number of physical packages: 1
+	Number of physical CPUs: 2
+	Number of logical CPUs: 4
+	Graphics card #0 name: NVIDIA GeForce 930MX
+	Graphics card #0 vendor: NVIDIA (0x10de)
+	Graphics card #0 VRAM (MB): 2048.00
+	Graphics card #0 deviceId: 0x134e
+	Graphics card #0 versionInfo: DriverVersion=32.0.15.6636
+	Graphics card #1 name: Intel(R) HD Graphics 620
+	Graphics card #1 vendor: Intel Corporation (0x8086)
+	Graphics card #1 VRAM (MB): 1024.00
+	Graphics card #1 deviceId: 0x5916
+	Graphics card #1 versionInfo: DriverVersion=27.20.100.8682
+	Memory slot #0 capacity (MB): 8192.00
+	Memory slot #0 clockSpeed (GHz): 3.20
+	Memory slot #0 type: DDR4
+	Memory slot #1 capacity (MB): 4096.00
+	Memory slot #1 clockSpeed (GHz): 2.40
+	Memory slot #1 type: DDR4
+	Virtual memory max (MB): 25998.77
+	Virtual memory used (MB): 22145.25
+	Swap memory total (MB): 13824.00
+	Swap memory used (MB): 1840.02
+	JVM Flags: 1 total; -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump
+	Server Running: true
+	Player Count: 1 / 8; [ServerPlayer['Dev'/3, l='ServerLevel[新的世界]', x=-4.50, y=-60.00, z=0.50]]
+	Data Packs: vanilla, mod:forge, mod:administrator_authorization
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'forge'; Server brand changed to 'forge'
+	Launched Version: MOD_DEV
+	ModLauncher: 10.0.9+10.0.9+main.dcd20f30
+	ModLauncher launch target: forgeclientuserdev
+	ModLauncher naming: mcp
+	ModLauncher services: 
+		mixin-0.8.5.jar mixin PLUGINSERVICE 
+		eventbus-6.0.5.jar eventbus PLUGINSERVICE 
+		fmlloader-1.20.1-47.3.0.jar slf4jfixer PLUGINSERVICE 
+		fmlloader-1.20.1-47.3.0.jar object_holder_definalize PLUGINSERVICE 
+		fmlloader-1.20.1-47.3.0.jar runtime_enum_extender PLUGINSERVICE 
+		fmlloader-1.20.1-47.3.0.jar capability_token_subclass PLUGINSERVICE 
+		accesstransformers-8.0.4.jar accesstransformer PLUGINSERVICE 
+		fmlloader-1.20.1-47.3.0.jar runtimedistcleaner PLUGINSERVICE 
+		modlauncher-10.0.9.jar mixin TRANSFORMATIONSERVICE 
+		modlauncher-10.0.9.jar fml TRANSFORMATIONSERVICE 
+	FML Language Providers: 
+		minecraft@1.0
+		lowcodefml@null
+		javafml@null
+	Mod List: 
+		forge-1.20.1-47.3.0_mapped_parchment_2023.09.03-1.|Minecraft                     |minecraft                     |1.20.1              |DONE      |Manifest: a1:d4:5e:04:4f:d3:d6:e0:7b:37:97:cf:77:b0:de:ad:4a:47:ce:8c:96:49:5f:0a:cf:8c:ae:b2:6d:4b:8a:3f
+		                                                  |Forge                         |forge                         |47.3.0              |DONE      |Manifest: NOSIGNATURE
+		main                                              |Administrator Authorization   |administrator_authorization   |1.0.0               |DONE      |Manifest: NOSIGNATURE
+	Crash Report UUID: 04e788f5-12a0-448a-8e36-0a5830e1adaa
+	FML: 47.3
+	Forge: net.minecraftforge:47.3.0

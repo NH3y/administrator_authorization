@@ -1,0 +1,6 @@
+{
+  "parent": "item/handheld",
+  "textures": {
+    "layer0": "minecraft:item/empty_slot_smithing_template_netherite_upgrade"
+  }
+}

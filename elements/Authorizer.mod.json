@@ -1,0 +1,65 @@
+{
+  "_fv": 73,
+  "_type": "item",
+  "definition": {
+    "renderType": 0,
+    "texture": "minecraft:empty_slot_smithing_template_netherite_upgrade",
+    "customModelName": "Tool",
+    "customProperties": {},
+    "states": [],
+    "name": "Authorizer",
+    "rarity": "EPIC",
+    "creativeTabs": [],
+    "stackSize": 1,
+    "enchantability": 0,
+    "useDuration": 100,
+    "toolType": 1.0,
+    "damageCount": 0,
+    "recipeRemainder": {
+      "value": ""
+    },
+    "destroyAnyBlock": false,
+    "immuneToFire": true,
+    "stayInGridWhenCrafting": false,
+    "damageOnCrafting": false,
+    "enableMeleeDamage": false,
+    "damageVsEntity": 0.0,
+    "specialInformation": {
+      "fixedValue": []
+    },
+    "glowCondition": {
+      "fixedValue": true
+    },
+    "inventorySize": 9,
+    "inventoryStackSize": 64,
+    "onItemInUseTick": {
+      "name": "DetectPermission"
+    },
+    "onFinishUsingItem": {
+      "name": "AuthorizePlayer"
+    },
+    "enableRanged": false,
+    "shootConstantly": false,
+    "rangedItemChargesPower": false,
+    "projectile": {
+      "value": "Arrow"
+    },
+    "projectileDisableAmmoCheck": false,
+    "isFood": false,
+    "nutritionalValue": 4,
+    "saturation": 0.3,
+    "eatResultItem": {
+      "value": ""
+    },
+    "isMeat": false,
+    "isAlwaysEdible": false,
+    "animation": "bow",
+    "isMusicDisc": false,
+    "musicDiscMusic": {
+      "value": ""
+    },
+    "musicDiscDescription": "",
+    "musicDiscLengthInTicks": 100,
+    "musicDiscAnalogOutput": 0
+  }
+}

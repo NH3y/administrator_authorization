@@ -1,0 +1,9 @@
+{
+  "_fv": 73,
+  "_type": "mixin",
+  "definition": {
+    "mixins": "LivingEntityMixinMixin",
+    "isClient": false,
+    "mixinClass": "LivingEntity"
+  }
+}
