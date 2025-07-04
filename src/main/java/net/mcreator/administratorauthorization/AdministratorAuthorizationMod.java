@@ -1,6 +1,5 @@
 package net.mcreator.administratorauthorization;
 
-import net.mcreator.administratorauthorization.network.RouterIndexPacket;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -19,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.FriendlyByteBuf;
 
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
+import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModBlocks;
 
 import java.util.function.Supplier;
 import java.util.function.Function;
@@ -40,10 +40,11 @@ public class AdministratorAuthorizationMod {
 		MinecraftForge.EVENT_BUS.register(this);
 		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
+		AdministratorAuthorizationModBlocks.REGISTRY.register(bus);
+
 		AdministratorAuthorizationModItems.REGISTRY.register(bus);
 
 		// Start of user code block mod init
-		registerPacket();
 		// End of user code block mod init
 	}
 
@@ -63,12 +64,6 @@ public class AdministratorAuthorizationMod {
 	public static void queueServerWork(int tick, Runnable action) {
 		if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
 			workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
-	}
-
-	private void registerPacket() {
-		int id = 0;
-		PACKET_HANDLER.registerMessage(id++, RouterIndexPacket.class
-				, RouterIndexPacket::encode, RouterIndexPacket::decode, RouterIndexPacket::handle);
 	}
 
 	@SubscribeEvent

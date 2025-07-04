@@ -16,7 +16,9 @@ public class MouseDetect {
         MouseHandler mouse = minecraft.mouseHandler;
         double fixedX = getMouseY(mouse) - ((double) height / 2);
         double fixedY = getMouseX(mouse) - ((double) width / 2);
-        if (fixedX * fixedX + fixedY * fixedY <= 10) return -1;
+        double scale = minecraft.getWindow().getGuiScale();
+        if (fixedX * fixedX + fixedY * fixedY <= 170* scale*scale) return 32;
+        if (fixedX * fixedX + fixedY * fixedY >= 9216* scale*scale) return -1;
         double degree = Math.atan2(fixedX, fixedY) * 180 / Math.PI;
         int district =  (int) Math.floor(degree / 45) + 2;
         return district>=0 ? district : district + 8;

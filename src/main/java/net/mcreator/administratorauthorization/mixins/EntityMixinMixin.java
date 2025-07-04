@@ -1,5 +1,6 @@
 package net.mcreator.administratorauthorization.mixins;
 
+import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
@@ -11,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(Entity.class)
+@Mixin(value = Entity.class, priority = Integer.MAX_VALUE)
 public abstract class EntityMixinMixin implements EntityAccess {
     @Unique
     private boolean administrator_authorization$Authorized = false;
@@ -42,8 +43,9 @@ public abstract class EntityMixinMixin implements EntityAccess {
 
     @Inject(method = "isInvulnerableTo", at = @At("RETURN"), cancellable = true)
     public void isInvulnerableTo(DamageSource p_20122_, CallbackInfoReturnable<Boolean> cir){
-        if(this.administrator_authorization$getAuthorization()){
+        if(this.administrator_authorization$getAuthorization() && !cir.getReturnValue()){
             cir.setReturnValue(true);
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
         }
     }
 

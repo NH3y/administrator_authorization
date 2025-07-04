@@ -1,0 +1,13 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "down": "administrator_authorization:block/white",
+    "up": "administrator_authorization:block/white",
+    "north": "administrator_authorization:block/white",
+    "east": "administrator_authorization:block/white",
+    "south": "administrator_authorization:block/white",
+    "west": "administrator_authorization:block/white",
+    "particle": "administrator_authorization:block/white"
+  },
+  "render_type": "solid"
+}

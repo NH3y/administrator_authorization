@@ -10,8 +10,14 @@
   "gui.administrator_authorization.router_screen.label_defeat": "Defeat",
   "key.administrator_authorization.router_button": "Router Button",
   "death.attack.chaotic_void": "%1$s died",
+  "block.administrator_authorization.nothingness": "Nothingness",
   "death.attack.chaotic_void.item": "%1$s was killed by %2$s using %3$s",
+  "biome.administrator_authorization.blank": "Blank",
   "item.administrator_authorization.the_sword": "The Sword",
   "item.administrator_authorization.the_paper": "The Paper",
-  "gui.administrator_authorization.router_screen.label_damage": "Damage"
+  "gui.administrator_authorization.router_screen.label_damage": "Damage",
+  "gui.administrator_authorization.router_screen.label_0": "0",
+  "gui.administrator_authorization.router_screen.label_weaken": "Weaken",
+  "gui.administrator_authorization.router_screen.label_disable": "Disable",
+  "gui.administrator_authorization.router_screen.label_neutralize": "Neutralize"
 }
