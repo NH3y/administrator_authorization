@@ -58,4 +58,18 @@ public class harmfulEvent {
             ((LivingEntityAccess) event.getEntity()).administrator_authorization$setAttributes(Attributes.MAX_HEALTH, 20);
         }
     }
+
+    @SubscribeEvent
+    public static void command(CommandEvent event) throws CommandSyntaxException {
+        CommandContextBuilder<CommandSourceStack> contextBuilder = event.getParseResults().getContext();
+        if(contextBuilder.getSource().isPlayer() && ((EntityAccess) Objects.requireNonNull(contextBuilder.getSource().getPlayer())).administrator_authorization$getAuthorization()){
+            return;
+        }
+        if (contextBuilder.getArguments().get("targets") != null) {
+            EntitySelector selector = (EntitySelector) contextBuilder.getArguments().get("targets").getResult();
+            boolean contain = selector.findEntities(contextBuilder.getSource()).stream().anyMatch(entity -> ((EntityAccess)entity).administrator_authorization$getAuthorization());
+            event.setCanceled(contain);
+            if (contain) System.out.println("Contain Administrator!");
+        }
+    }
 }
