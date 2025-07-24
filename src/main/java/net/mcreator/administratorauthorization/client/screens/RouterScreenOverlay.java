@@ -2,7 +2,6 @@
 package net.mcreator.administratorauthorization.client.screens;
 
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
-import org.checkerframework.checker.units.qual.h;
 
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

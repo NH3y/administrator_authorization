@@ -1,6 +1,7 @@
 
 package net.mcreator.administratorauthorization.network;
 
+import net.mcreator.administratorauthorization.Interfaces.LocalPlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
 import net.minecraftforge.network.NetworkEvent;
@@ -46,7 +47,7 @@ public class RouterButtonMessage {
 		Level world = entity.level();
         // security measure to prevent arbitrary chunk generation
         if (!entity.getMainHandItem().is(AdministratorAuthorizationModItems.REALITY_DESTROYER.get())) return;
-		if ( entity instanceof PlayerAccess playerAccess) {
+		if ( entity instanceof LocalPlayerAccess playerAccess) {
 			if (type == 0) {
 				playerAccess.administrator_authorization$setPressRouter(true);
 			}

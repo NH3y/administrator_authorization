@@ -23,11 +23,18 @@ public abstract class SynchedEntityDataMixin {
         return null;
     }
 
+    @Shadow public abstract <T> void set(EntityDataAccessor<T> pKey, T pValue, boolean pForce);
+
     @Inject(method = "set(Lnet/minecraft/network/syncher/EntityDataAccessor;Ljava/lang/Object;Z)V", at = @At("HEAD"), cancellable = true)
     public <T> void set(EntityDataAccessor<T> pKey, T pValue, boolean pForce, CallbackInfo ci) {
         if(((EntityAccess) this.entity).administrator_authorization$getAuthorization()){
-            if(((LivingEntityAccess) this.entity).administrator_authorization$getAccessorHeath().equals(pKey) && !(((Float) pValue) > 0.0f)){
+            if(this.entity instanceof LivingEntityAccess access && access.administrator_authorization$getAccessorHealth().equals(pKey) && !(((Float) pValue) > 0.0f)){
                 ci.cancel();
+                this.set(
+                        access.administrator_authorization$getAccessorHealth(),
+                        access.administrator_authorization$getFixedMaxHealth(),
+                        true
+                );
                 AdministratorAuthorizationMod.LOGGER.info("Mixin : setHealthData");
             }
         }

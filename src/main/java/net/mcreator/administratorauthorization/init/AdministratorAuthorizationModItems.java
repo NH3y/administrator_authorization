@@ -20,10 +20,10 @@ import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 
 public class AdministratorAuthorizationModItems {
 	public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, AdministratorAuthorizationMod.MODID);
-	public static final RegistryObject<Item> THE_SWORD = REGISTRY.register("the_sword", () -> new TheSwordItem());
-	public static final RegistryObject<Item> THE_PAPER = REGISTRY.register("the_paper", () -> new ThePaperItem());
-	public static final RegistryObject<Item> REALITY_DESTROYER = REGISTRY.register("reality_destroyer", () -> new RealityDestroyerItem());
-	public static final RegistryObject<Item> AUTHORIZER = REGISTRY.register("authorizer", () -> new AuthorizerItem());
+	public static final RegistryObject<Item> THE_SWORD = REGISTRY.register("the_sword", TheSwordItem::new);
+	public static final RegistryObject<Item> THE_PAPER = REGISTRY.register("the_paper", ThePaperItem::new);
+	public static final RegistryObject<Item> REALITY_DESTROYER = REGISTRY.register("reality_destroyer", RealityDestroyerItem::new);
+	public static final RegistryObject<Item> AUTHORIZER = REGISTRY.register("authorizer", AuthorizerItem::new);
 	public static final RegistryObject<Item> NOTHINGNESS = block(AdministratorAuthorizationModBlocks.NOTHINGNESS);
 
 	// Start of user code block custom items

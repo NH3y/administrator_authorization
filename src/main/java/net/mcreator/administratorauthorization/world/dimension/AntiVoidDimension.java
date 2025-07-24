@@ -26,7 +26,7 @@ public class AntiVoidDimension {
 
 				@Override
 				public boolean isFoggyAt(int x, int y) {
-					return true;
+					return false;
 				}
 			};
 			event.register(new ResourceLocation("administrator_authorization:anti_void"), customEffect);

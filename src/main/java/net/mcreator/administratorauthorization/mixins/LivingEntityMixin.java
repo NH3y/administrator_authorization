@@ -119,7 +119,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         }
 
         try {
-            ((AttributeAccess) this.attributes).administrator_authorization$replaceValue(attribute, this.administrator_authorization$getFixedMaxHealth());
+            ((AttributeAccess) this.attributes).administrator_authorization$replaceValue(attribute, value);
         } catch (RuntimeException ignored) {
 
         }
@@ -138,7 +138,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Override
-    public EntityDataAccessor<Float> administrator_authorization$getAccessorHeath(){
+    public EntityDataAccessor<Float> administrator_authorization$getAccessorHealth(){
         return DATA_HEALTH_ID;
     }
 }

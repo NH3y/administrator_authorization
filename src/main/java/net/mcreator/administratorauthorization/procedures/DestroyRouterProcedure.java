@@ -7,7 +7,6 @@ import net.mcreator.administratorauthorization.network.HealthDataPacket;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,17 +20,16 @@ public class DestroyRouterProcedure {
 			return;
         if (entity instanceof LivingEntity living) {
 			int route = RouterDataOperant.getPlayerRouterIndex((Player)sourceentity);
-			if(entity instanceof PlayerAccess player && player.administrator_authorization$isPressAlter()){
+			if(sourceentity instanceof PlayerAccess player && player.administrator_authorization$isPressAlter()){
                 switch (route){
-                    case 1 -> disable(living);
-                    case 2 -> weaken(living);
+                    case 1 -> weaken(living);
+                    case 2 -> disable(living);
                     case 3 -> neutralize(living);
                 }
             }else{
                 switch (route) {
                     case 1 -> damage(living, world);
                     case 2 -> kill(living, world);
-
                     case 3 -> defeat(living, world);
                     case 4 -> annihilate(living, world);
                     case 5 -> obliterate(living);

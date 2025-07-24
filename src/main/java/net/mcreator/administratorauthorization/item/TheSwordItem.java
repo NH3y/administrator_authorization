@@ -15,6 +15,7 @@ import net.mcreator.administratorauthorization.procedures.DetectPermissionProced
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMultimap;
+import org.jetbrains.annotations.NotNull;
 
 public class TheSwordItem extends Item {
 	public TheSwordItem() {
@@ -22,7 +23,7 @@ public class TheSwordItem extends Item {
 	}
 
 	@Override
-	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot equipmentSlot) {
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot equipmentSlot) {
 		if (equipmentSlot == EquipmentSlot.MAINHAND) {
 			ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
 			builder.putAll(super.getDefaultAttributeModifiers(equipmentSlot));
@@ -34,7 +35,7 @@ public class TheSwordItem extends Item {
 	}
 
 	@Override
-	public void inventoryTick(ItemStack itemstack, Level world, Entity entity, int slot, boolean selected) {
+	public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level world, @NotNull Entity entity, int slot, boolean selected) {
 		super.inventoryTick(itemstack, world, entity, slot, selected);
 		if (selected)
 			DetectPermissionProcedure.execute(entity, itemstack);

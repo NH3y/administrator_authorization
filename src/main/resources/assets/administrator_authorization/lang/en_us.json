@@ -17,7 +17,7 @@
   "item.administrator_authorization.the_paper": "The Paper",
   "gui.administrator_authorization.router_screen.label_damage": "Damage",
   "gui.administrator_authorization.router_screen.label_0": "0",
-  "gui.administrator_authorization.router_screen.label_weaken": "Weaken",
-  "gui.administrator_authorization.router_screen.label_disable": "Disable",
-  "gui.administrator_authorization.router_screen.label_neutralize": "Neutralize"
+  "gui.administrator_authorization.router_screen.label_weaken": "weaken",
+  "gui.administrator_authorization.router_screen.label_disable": "disable",
+  "gui.administrator_authorization.router_screen.label_neutralize": "neutralize"
 }

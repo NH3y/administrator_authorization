@@ -1,6 +1,5 @@
 package net.mcreator.administratorauthorization.mixins;
 
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +17,34 @@ public abstract class EntityMixinMixin implements EntityAccess {
     private boolean administrator_authorization$Authorized = false;
     @Unique
     private boolean administrator_authorization$authorizeSwitch = true;
+
+    @Inject(method = "isOnFire", at = @At("HEAD"), cancellable = true)
+    public void isOnFire(CallbackInfoReturnable<Boolean> cir){
+        if (this.administrator_authorization$Authorized){
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "fireImmune", at = @At("HEAD"), cancellable = true)
+    public void fireImmune(CallbackInfoReturnable<Boolean> cir){
+        if (this.administrator_authorization$Authorized){
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "isFreezing", at = @At("HEAD"), cancellable = true)
+    public void isFreezing(CallbackInfoReturnable<Boolean> cir){
+        if (this.administrator_authorization$Authorized){
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "canFreeze", at = @At("HEAD"), cancellable = true)
+    public void canFreeze(CallbackInfoReturnable<Boolean> cir){
+        if (this.administrator_authorization$Authorized){
+            cir.setReturnValue(false);
+        }
+    }
 
     @Override
     public boolean administrator_authorization$getAuthorization() {
@@ -45,7 +72,7 @@ public abstract class EntityMixinMixin implements EntityAccess {
     public void isInvulnerableTo(DamageSource p_20122_, CallbackInfoReturnable<Boolean> cir){
         if(this.administrator_authorization$getAuthorization() && !cir.getReturnValue()){
             cir.setReturnValue(true);
-            AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
+            //AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
         }
     }
 

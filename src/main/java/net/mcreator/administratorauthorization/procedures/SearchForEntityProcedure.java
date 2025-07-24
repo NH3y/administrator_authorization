@@ -22,21 +22,12 @@ public class SearchForEntityProcedure {
 				level.sendParticles(ParticleTypes.ASH,
 						source.getX() + i *source.getLookAngle().x(),
 						source.getEyeY() + i *source.getLookAngle().y(),
-						source.getY() + i *source.getLookAngle().z(),
-						50,
+						source.getZ() + i *source.getLookAngle().z(),
+						25,
 						0,
 						0,
 						0,
 						0.1
-						);
-			}else{
-				world.addParticle(ParticleTypes.END_ROD,
-						source.getX() + i *source.getLookAngle().x(),
-						source.getEyeY() + i *source.getLookAngle().y(),
-						source.getY() + i *source.getLookAngle().z(),
-						0,
-						0,
-						0
 						);
 			}
 			if(!targets.isEmpty() && !AADestroyerConfiguration.ACCEPT_MULTIPLE.get()){

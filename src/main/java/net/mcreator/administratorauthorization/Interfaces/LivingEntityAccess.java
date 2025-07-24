@@ -16,5 +16,5 @@ public interface LivingEntityAccess {
 
     void administrator_authorization$setHealth(float value);
 
-    EntityDataAccessor<Float> administrator_authorization$getAccessorHeath();
+    EntityDataAccessor<Float> administrator_authorization$getAccessorHealth();
 }

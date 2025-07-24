@@ -6,12 +6,13 @@
   "mixins": [
     "AttributeMapMixin",
     "EntityMixinMixin",
-    "ItemCooldownMixin",
+    "LevelMixin",
     "LivingEntityMixin",
     "PlayerMixin",
     "SynchedEntityDataMixin"
   ],
   "client": [
+    "ItemCooldownMixin",
     "LocalPlayerMixin"
   ],
   "minVersion": "0.8"

@@ -50,10 +50,7 @@ public class AuthorizerItem extends Item {
 	@Override
 	public @NotNull ItemStack finishUsingItem(@NotNull ItemStack itemstack, @NotNull Level world, @NotNull LivingEntity entity) {
 		ItemStack retval = super.finishUsingItem(itemstack, world, entity);
-		double x = entity.getX();
-		double y = entity.getY();
-		double z = entity.getZ();
-		AuthorizePlayerProcedure.execute(entity);
+        AuthorizePlayerProcedure.execute(entity);
 		return retval;
 	}
 

@@ -1,16 +1,26 @@
 package net.mcreator.administratorauthorization.EventTrackers;
 
+import com.mojang.brigadier.context.CommandContextBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.selector.EntitySelector;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent.Applicable;
 
+import java.util.Objects;
 import java.util.logging.Logger;
 
 @Mod.EventBusSubscriber
@@ -71,5 +81,17 @@ public class harmfulEvent {
             event.setCanceled(contain);
             if (contain) System.out.println("Contain Administrator!");
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void harmfulEffect(Applicable event){
+        event.getEffectInstance();
+        if (((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization() && isHarmfulEffect(event.getEffectInstance().getEffect())) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+
+    private static boolean isHarmfulEffect(MobEffect effect){
+        return effect.getCategory().equals(MobEffectCategory.HARMFUL);
     }
 }
