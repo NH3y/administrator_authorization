@@ -5,7 +5,6 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.classes.PlayerRouter;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 
 import net.minecraft.world.entity.player.Player;
@@ -15,13 +14,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = Player.class, priority = Integer.MAX_VALUE)
+@Mixin(value = Player.class, priority = Integer.MIN_VALUE)
 public abstract class PlayerMixin implements PlayerAccess {
     @Unique
     private boolean administrator_authorization$pressAlter = false;
 
     @Unique
-    private PlayerRouter administrator_authorization$router = new PlayerRouter((Player)(Object)this);
+    private final PlayerRouter administrator_authorization$router = new PlayerRouter((Player)(Object)this);
 
     @Unique
     private int administrator_authorization$RDSlot = Integer.MAX_VALUE;
@@ -48,11 +47,10 @@ public abstract class PlayerMixin implements PlayerAccess {
         }
     }
 
-    @Inject(method = "remove", at = @At("HEAD"), cancellable = true)
-    public void remove(Entity.RemovalReason pReason, CallbackInfo ci) {
-        if (pReason.name().equals(Entity.RemovalReason.KILLED.name())){
+    @Inject(method = "animateHurt", at = @At("HEAD"), cancellable = true)
+    public void animateHurt(float pYaw, CallbackInfo ci){
+        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
             ci.cancel();
-            AdministratorAuthorizationMod.LOGGER.info("Mixin : Remove");
         }
     }
 

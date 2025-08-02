@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber
 public class beneficialEvent {
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onHeal(LivingHealEvent event){
         LivingEntity entity = event.getEntity();
         if (HealthDataOperant.getHealthLock(entity) && HealthDataOperant.getHealthLimit(entity) < entity.getHealth()){

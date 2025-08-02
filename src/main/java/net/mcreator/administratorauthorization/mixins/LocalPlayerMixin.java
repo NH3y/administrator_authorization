@@ -1,11 +1,16 @@
 package net.mcreator.administratorauthorization.mixins;
 
+import com.mojang.authlib.GameProfile;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
+import net.mcreator.administratorauthorization.Interfaces.LocalPlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.spongepowered.asm.mixin.Final;
@@ -18,8 +23,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @OnlyIn(Dist.CLIENT)
-@Mixin(value = LocalPlayer.class, priority = Integer.MAX_VALUE)
-public abstract class LocalPlayerMixin implements net.mcreator.administratorauthorization.Interfaces.LocalPlayerAccess {
+@Mixin(value = LocalPlayer.class, priority = Integer.MIN_VALUE)
+public abstract class LocalPlayerMixin extends AbstractClientPlayer implements LocalPlayerAccess {
+
+    public LocalPlayerMixin(ClientLevel pClientLevel, GameProfile pGameProfile) {
+        super(pClientLevel, pGameProfile);
+    }
     @Shadow @Final protected Minecraft minecraft;
 
     @Shadow public abstract void setShowDeathScreen(boolean pShow);
@@ -37,6 +46,7 @@ public abstract class LocalPlayerMixin implements net.mcreator.administratorauth
         if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
             AdministratorAuthorizationMod.LOGGER.info("Mixin : tickDeath");
+            this.deathTime = 0;
         }
     }
     @Inject(method = "setShowDeathScreen", at = @At("HEAD"), cancellable = true)
@@ -53,6 +63,27 @@ public abstract class LocalPlayerMixin implements net.mcreator.administratorauth
         if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
             AdministratorAuthorizationMod.LOGGER.info("Mixin : getShowScreen");
+        }
+    }
+
+    @Inject(method = "hurtTo", at = @At("HEAD"), cancellable = true)
+    public void hurt(float pHealth, CallbackInfo ci) {
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
+    public void actuallyHurt(DamageSource pDamageSrc, float pDamageAmount, CallbackInfo ci) {
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "respawn", at = @At("HEAD"), cancellable = true)
+    public void respawn(CallbackInfo ci){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            ci.cancel();
         }
     }
 

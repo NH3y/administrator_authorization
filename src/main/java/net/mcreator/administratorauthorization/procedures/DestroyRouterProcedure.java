@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.procedures;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
+import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.network.HealthDataPacket;
@@ -16,7 +17,7 @@ import net.minecraft.world.level.LevelAccessor;
 
 public class DestroyRouterProcedure {
 	public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
-		if (entity == null || sourceentity == null)
+		if (entity == null || sourceentity == null || entity.is(sourceentity))
 			return;
         if (entity instanceof LivingEntity living) {
 			int route = RouterDataOperant.getPlayerRouterIndex((Player)sourceentity);
@@ -54,18 +55,12 @@ public class DestroyRouterProcedure {
 										Registries.DAMAGE_TYPE,
 										new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
 				Float.MAX_VALUE);
-		HealthDataOperant.updateHealthLock(victim, true);
-		HealthDataOperant.updateHealthLimit(victim, 0.0F);
-		AdministratorAuthorizationMod.PACKET_HANDLER
-				.sendToServer(new HealthDataPacket(0.0F, true));
+		restrictHealth(victim);
 	}
 
 	private static void defeat(LivingEntity victim, LevelAccessor world){
 		((LivingEntityAccess)victim).administrator_authorization$setHealth(0.0F);
-		HealthDataOperant.updateHealthLock(victim, true);
-		HealthDataOperant.updateHealthLimit(victim, 0.0F);
-		AdministratorAuthorizationMod.PACKET_HANDLER
-						.sendToServer(new HealthDataPacket(0.0F, true));
+		restrictHealth(victim);
 		victim.die(new DamageSource(
 						world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
 								.getHolderOrThrow(ResourceKey.create(
@@ -75,17 +70,24 @@ public class DestroyRouterProcedure {
 	}
 
 	private static void annihilate(LivingEntity victim, LevelAccessor world){
-		((LivingEntityAccess) victim).administrator_authorization$accessDropLoot(world);
-		obliterate(victim);
+        try {
+            ((LivingEntityAccess) victim).administrator_authorization$accessDropLoot(world);
+        } catch (Exception e) {
+            victim.baseTick();
+        }
+        obliterate(victim);
 	}
 
 	private static void obliterate(LivingEntity victim){
-		victim.remove(Entity.RemovalReason.KILLED);
-		victim.remove(Entity.RemovalReason.DISCARDED);
-		victim.remove(Entity.RemovalReason.CHANGED_DIMENSION);
-		victim.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
-		victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
-
+		if(victim instanceof EntityAccess access){
+			access.administrator_authorization$forceRemove();
+		}else {
+			victim.remove(Entity.RemovalReason.KILLED);
+			victim.remove(Entity.RemovalReason.DISCARDED);
+			victim.remove(Entity.RemovalReason.CHANGED_DIMENSION);
+			victim.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+			victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+		}
 	}
 
 	private static void weaken(LivingEntity victim){
@@ -94,6 +96,7 @@ public class DestroyRouterProcedure {
 			entity.administrator_authorization$setAttributes(Attributes.ARMOR_TOUGHNESS,0);
 			entity.administrator_authorization$setAttributes(Attributes.ARMOR,0);
 			entity.administrator_authorization$setAttributes(Attributes.MAX_HEALTH, victim.getAttributeBaseValue(Attributes.MAX_HEALTH));
+			restrictHealth(victim);
 		}
 	}
 
@@ -108,5 +111,12 @@ public class DestroyRouterProcedure {
 		weaken(victim);
 		disable(victim);
 		((LivingEntityAccess) victim).Administrator_authorization$setNoAI(true);
+	}
+
+	private static void restrictHealth(LivingEntity victim){
+		HealthDataOperant.updateHealthLock(victim, true);
+		HealthDataOperant.updateHealthLimit(victim, 0.0F);
+		AdministratorAuthorizationMod.PACKET_HANDLER
+				.sendToServer(new HealthDataPacket(0.0F, true));
 	}
 }

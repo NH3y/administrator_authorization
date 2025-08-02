@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableMultimap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RealityDestroyerItem extends Item {
 	private final Multimap<Attribute, AttributeModifier> reality_destroyer;
@@ -80,7 +81,7 @@ public class RealityDestroyerItem extends Item {
 		if(AADestroyerConfiguration.RANGED.get()){
 			double range = AADestroyerConfiguration.RADIUS.get();
 			AABB aabb = new AABB(entity.position().subtract(range,0, range), entity.getEyePosition().subtract(-range, -1, -range));
-			ArrayList<Entity> targets = (ArrayList<Entity>) entity.level().getEntities(entity, aabb);
+			List<Entity> targets = entity.level().getEntities(entity, aabb).stream().toList();
 			for(Entity victim : targets){
 				DestroyRouterProcedure.execute(victim, sourceentity, sourceentity.level());
 			}

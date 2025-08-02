@@ -5,7 +5,7 @@ import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 public class TickRepeater {
     final int total;
     int current;
-    Runnable task;
+    final Runnable task;
 
     public TickRepeater(int all, Runnable task){
         this.total = all;

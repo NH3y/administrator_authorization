@@ -2,7 +2,6 @@
 package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.Interfaces.LocalPlayerAccess;
-import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;

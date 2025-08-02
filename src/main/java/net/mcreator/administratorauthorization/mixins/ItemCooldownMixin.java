@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @OnlyIn(Dist.CLIENT)
-@Mixin(value = ItemCooldowns.class,priority = Integer.MAX_VALUE)
+@Mixin(value = ItemCooldowns.class,priority = Integer.MIN_VALUE)
 public class ItemCooldownMixin {
     @Inject(method = "addCooldown", at = @At("HEAD"), cancellable = true)
     public void addCooldown(Item pItem, int pTicks, CallbackInfo ci){

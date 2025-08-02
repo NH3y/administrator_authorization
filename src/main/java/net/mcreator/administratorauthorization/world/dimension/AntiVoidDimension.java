@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber
 public class AntiVoidDimension {
@@ -20,7 +21,7 @@ public class AntiVoidDimension {
 		public static void registerDimensionSpecialEffects(RegisterDimensionSpecialEffectsEvent event) {
 			DimensionSpecialEffects customEffect = new DimensionSpecialEffects(Float.NaN, true, DimensionSpecialEffects.SkyType.NONE, false, false) {
 				@Override
-				public Vec3 getBrightnessDependentFogColor(Vec3 color, float sunHeight) {
+				public @NotNull Vec3 getBrightnessDependentFogColor(@NotNull Vec3 color, float sunHeight) {
 					return color;
 				}
 

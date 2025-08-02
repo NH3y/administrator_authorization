@@ -13,4 +13,5 @@ public interface EntityAccess {
 
     void administrator_authorization$setSwitch(boolean select);
 
+    void administrator_authorization$forceRemove();
 }

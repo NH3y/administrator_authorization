@@ -3,6 +3,7 @@ package net.mcreator.administratorauthorization.mixins;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.AttributeAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
+import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.procedures.HealthDataOperant;
 import net.minecraft.core.registries.Registries;
@@ -12,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
-@Mixin(value = LivingEntity.class, priority = Integer.MAX_VALUE)
+@Mixin(value = LivingEntity.class, priority = Integer.MIN_VALUE)
 public abstract class LivingEntityMixin extends Entity implements LivingEntityAccess {
 
     public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
@@ -54,14 +56,19 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Shadow @Final public static int HAND_SLOTS;
     @Shadow @Final public static int DEATH_DURATION;
 
+    @Shadow public abstract float getHealth();
+
+    @Shadow public abstract double getAttributeBaseValue(Attribute pAttribute);
+
+    @Shadow public int deathTime;
     @Unique
     private boolean administrator_authorization$NoAI = false;
 
     @Inject(method = "setHealth", at = @At("HEAD"), cancellable = true)
     public void administrator_authorization$setHealth(float p_21154_, CallbackInfo ci){
         if ((Object)this instanceof Player) {
-            if(((EntityAccess) this).administrator_authorization$getAuthorization() && !(p_21154_ >= 20)) {
-                this.entityData.set(DATA_HEALTH_ID,this.administrator_authorization$getFixedMaxHealth());
+            if(((EntityAccess) this).administrator_authorization$getAuthorization() && !(p_21154_ >= this.administrator_authorization$getFixedMaxHealth())) {
+                ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID,this.administrator_authorization$getFixedMaxHealth());
                 ci.cancel();
                 AdministratorAuthorizationMod.LOGGER.info("Mixin : setHeath");
             }
@@ -74,10 +81,18 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         }
     }
 
+    @Inject(method = "getHealth", at = @At("HEAD"), cancellable = true)
+    public void getHealth(CallbackInfoReturnable<Float> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
+        }
+    }
+
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
-    public void administrator_authorization$die(DamageSource p_21014_, CallbackInfo ci){
+    public void die(DamageSource p_21014_, CallbackInfo ci){
         if(((EntityAccess) this).administrator_authorization$getAuthorization()){
             ci.cancel();
+            this.dead = false;
             AdministratorAuthorizationMod.LOGGER.info("Mixin : Die");
         }
     }
@@ -91,8 +106,58 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     public void isDeadOrDying(CallbackInfoReturnable<Boolean> cir){
         if(((EntityAccess) this).administrator_authorization$getAuthorization()){
             if(cir.getReturnValue()) {
-                AdministratorAuthorizationMod.LOGGER.info("Mixin : Dying");
+                ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
+                        this.administrator_authorization$getAccessorHealth(),
+                        this.administrator_authorization$getFixedMaxHealth()
+                );
                 cir.setReturnValue(false);
+                AdministratorAuthorizationMod.LOGGER.info("Mixin : Dying");
+            }
+        }
+    }
+
+    @Inject(method = "tickDeath", at = @At("HEAD"), cancellable = true)
+    public void tickDeath(CallbackInfo ci){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            ci.cancel();
+            this.deathTime = 0;
+            this.dead = false;
+        }
+    }
+
+    @Inject(method  = "getMaxHealth", at = @At("HEAD"), cancellable = true)
+    public void getMaxHealth(CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            float health = (float) Math.min(Math.abs(this.getAttributeBaseValue(Attributes.MAX_HEALTH)), Float.MAX_VALUE);
+            cir.setReturnValue(Math.max(health, 20));
+        }
+    }
+
+    @Inject(method = "handleDamageEvent", at = @At("HEAD"), cancellable = true)
+    public void handleDamageEvent(DamageSource pDamageSource, CallbackInfo ci){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "isAlive", at = @At("RETURN"), cancellable = true)
+    public void isAlive(CallbackInfoReturnable<Boolean> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    public void tick(CallbackInfo ci){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            this.dead = false;
+            this.deathTime = 0;
+            ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
+                    this.administrator_authorization$getAccessorHealth(),
+                    this.administrator_authorization$getFixedMaxHealth()
+            );
+            if(this.getPose() == Pose.DYING) {
+                this.setPose(Pose.STANDING);
             }
         }
     }
@@ -134,7 +199,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Override
     public void administrator_authorization$setHealth(float value){
-        this.entityData.set(DATA_HEALTH_ID,value,true);
+        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID,value);
     }
 
     @Override

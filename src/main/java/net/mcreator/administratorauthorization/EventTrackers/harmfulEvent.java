@@ -4,31 +4,36 @@ import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
+import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
+import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModBlocks;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent.Applicable;
+import net.minecraftforge.event.level.ExplosionEvent.Start;
+import net.minecraftforge.event.level.BlockEvent.BreakEvent;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class harmfulEvent {
-    static Logger logger = Logger.getLogger("Event_Harmful");
+    static final Logger logger = Logger.getLogger("Event_Harmful");
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void hurt(LivingHurtEvent event) {
+        if(event.getEntity() == null) return;
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
         if (protect) {
             event.setAmount(0.0F);
@@ -38,8 +43,9 @@ public class harmfulEvent {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void death(LivingDeathEvent event) {
+        if(event.getEntity() == null) return;
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
         if (protect) {
             event.setCanceled(protect);
@@ -48,7 +54,7 @@ public class harmfulEvent {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void damage(LivingDamageEvent event) {
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
         if (protect) {
@@ -59,7 +65,16 @@ public class harmfulEvent {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void attack(LivingAttackEvent event){
+        final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
+        if(protect){
+            event.setCanceled(protect);
+            logger.info("Block Attack");
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void knockBack(LivingKnockBackEvent event) {
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
         if (protect) {
@@ -83,7 +98,7 @@ public class harmfulEvent {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void harmfulEffect(Applicable event){
         event.getEffectInstance();
         if (((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization() && isHarmfulEffect(event.getEffectInstance().getEffect())) {
@@ -92,6 +107,25 @@ public class harmfulEvent {
     }
 
     private static boolean isHarmfulEffect(MobEffect effect){
-        return effect.getCategory().equals(MobEffectCategory.HARMFUL);
+        MobEffectCategory category = effect.getCategory();
+        if(AAAuthorizationConfiguration.BAN_NEUTRAL.get()){
+            return category.equals(MobEffectCategory.HARMFUL) || category.equals(MobEffectCategory.NEUTRAL);
+        }
+        return category.equals(MobEffectCategory.HARMFUL);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void explosion(Start event){
+        for (Map.Entry<Player, Vec3> entry : event.getExplosion().getHitPlayers().entrySet()) {
+            if(((EntityAccess) entry.getKey()).administrator_authorization$getAuthorization()){
+                event.setCanceled(true);
+                break;
+            }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void breakNothingness(BreakEvent event){
+        event.setCanceled(event.getState().getBlock().equals(AdministratorAuthorizationModBlocks.NOTHINGNESS.get()));
     }
 }

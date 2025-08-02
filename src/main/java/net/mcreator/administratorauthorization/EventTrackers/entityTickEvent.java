@@ -3,10 +3,12 @@ package net.mcreator.administratorauthorization.EventTrackers;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.*;
 import net.mcreator.administratorauthorization.capabilities.InventoryDataProvider;
+import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
 import net.mcreator.administratorauthorization.network.InventoryDataPacket;
 import net.mcreator.administratorauthorization.procedures.HealthDataOperant;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -21,18 +23,19 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber
 public class entityTickEvent {
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void LivingTickClient(LivingTickEvent event){
+        if(event.getEntity() == null) return;
         Entity entity = event.getEntity();
         if(!entity.level().isClientSide()) return;
         if(entity instanceof LivingEntity living && HealthDataOperant.getHealthLock(living)){
             ((LivingEntityAccess) living).administrator_authorization$setHealth(HealthDataOperant.getHealthLimit(living));
         }
         if(entity instanceof PlayerAccess access){
-            if(((LocalPlayerAccess) entity).administrator_authorization$isPressRouter()) {
+            if(entity instanceof LocalPlayerAccess local && local.administrator_authorization$isPressRouter()) {
                 access.administrator_authorization$getRouter().inputRouter();
             }
-            if(AADestroyerConfiguration.KEEP_IN_INVENTORY.get()){
+            if(AADestroyerConfiguration.KEEP_IN_INVENTORY.get() && ((EntityAccess) entity).administrator_authorization$getAuthorization()){
                 if(access.administrator_authorization$getRDSlot() != Integer.MAX_VALUE && !((Player)entity).getInventory().contains(AdministratorAuthorizationModItems.REALITY_DESTROYER.get().getDefaultInstance())){
                     Inventory inventory = ((Player) entity).getInventory();
                     ItemStack stack = new ItemStack(AdministratorAuthorizationModItems.REALITY_DESTROYER.get());
@@ -45,16 +48,19 @@ public class entityTickEvent {
             }
         }
 
-        if (entity instanceof EntityAccess entityAccess && entity instanceof Player && entity instanceof LivingEntityAccess livingEntityAccess){
+        if (entity instanceof EntityAccess entityAccess && entity instanceof Player player && entity instanceof LivingEntityAccess livingEntityAccess){
             final boolean protect = entityAccess.administrator_authorization$getAuthorization();
             if(!protect) return;
             livingEntityAccess.administrator_authorization$setAttributes(Attributes.MAX_HEALTH, livingEntityAccess.administrator_authorization$getFixedMaxHealth());
-            ((LivingEntity)entity).setHealth(livingEntityAccess.administrator_authorization$getFixedMaxHealth());
+            ((EntityDataAccess) entity.getEntityData()).administrator_authorization$forceSet(
+                    livingEntityAccess.administrator_authorization$getAccessorHealth(), livingEntityAccess.administrator_authorization$getFixedMaxHealth());
+            player.getFoodData().setFoodLevel(20);
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void LivingTickServer(LivingTickEvent event){
+        if(event.getEntity() == null) return;
         Entity entity = event.getEntity();
         if(entity.level().isClientSide()){
             return;
@@ -67,6 +73,23 @@ public class entityTickEvent {
                 player.getInventory().setItem(index, new ItemStack(
                         AdministratorAuthorizationModItems.REALITY_DESTROYER.get()
                 ).copyWithCount(1));
+            }
+        }
+        if (entity instanceof EntityAccess entityAccess && entity instanceof Player player && entity instanceof LivingEntityAccess livingEntityAccess){
+            final boolean protect = entityAccess.administrator_authorization$getAuthorization();
+            if(!protect) return;
+            livingEntityAccess.administrator_authorization$setAttributes(Attributes.MAX_HEALTH, livingEntityAccess.administrator_authorization$getFixedMaxHealth());
+            ((EntityDataAccess) entity.getEntityData()).administrator_authorization$forceSet(
+                    livingEntityAccess.administrator_authorization$getAccessorHealth(), livingEntityAccess.administrator_authorization$getFixedMaxHealth());
+            player.getFoodData().setFoodLevel(20);
+            if(AAAuthorizationConfiguration.RECORD_DEATH_POS.get()){
+                ((ServerPlayer) player).setRespawnPosition(
+                        player.level().dimension(),
+                        player.blockPosition(),
+                        player.bob,
+                        true,
+                        false
+                );
             }
         }
     }
