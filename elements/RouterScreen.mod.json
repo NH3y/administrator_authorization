@@ -16,7 +16,7 @@
             "falpha": 0.0
           },
           "anchorPoint": "CENTER",
-          "x": 246,
+          "x": 230,
           "y": 53,
           "locked": false
         }
@@ -33,7 +33,7 @@
             "falpha": 0.0
           },
           "anchorPoint": "CENTER",
-          "x": 278,
+          "x": 270,
           "y": 89,
           "locked": false
         }
@@ -50,7 +50,7 @@
             "falpha": 0.0
           },
           "anchorPoint": "CENTER",
-          "x": 278,
+          "x": 270,
           "y": 143,
           "locked": false
         }
@@ -67,8 +67,8 @@
             "falpha": 0.0
           },
           "anchorPoint": "CENTER",
-          "x": 246,
-          "y": 179,
+          "x": 222,
+          "y": 188,
           "locked": false
         }
       },
@@ -84,8 +84,8 @@
             "falpha": 0.0
           },
           "anchorPoint": "CENTER",
-          "x": 126,
-          "y": 179,
+          "x": 158,
+          "y": 188,
           "locked": false
         }
       },
@@ -99,6 +99,24 @@
           "y": 26,
           "locked": false
         }
+      },
+      {
+        "type": "label",
+        "data": {
+          "name": "label_0",
+          "text": {
+            "fixedValue": "0",
+            "name": "ReturnCurrentIndex"
+          },
+          "color": {
+            "value": -1,
+            "falpha": 0.0
+          },
+          "anchorPoint": "CENTER",
+          "x": 210,
+          "y": 8,
+          "locked": false
+        }
       }
     ],
     "baseTexture": "",
@@ -107,7 +125,7 @@
       "name": "ShowRouter"
     },
     "gridSettings": {
-      "sx": 16,
+      "sx": 8,
       "sy": 18,
       "ox": 11,
       "oy": 15,

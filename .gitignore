@@ -2,3 +2,8 @@
 /.gradle/
 /build/
 /build/classes/java/main/
+/elements/
+/run/
+administrator_authorization.mcreator
+
+*.log

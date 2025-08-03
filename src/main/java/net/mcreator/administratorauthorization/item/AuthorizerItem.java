@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionHand;
 
 import net.mcreator.administratorauthorization.procedures.DetectPermissionProcedure;
 import net.mcreator.administratorauthorization.procedures.AuthorizePlayerProcedure;
+import org.jetbrains.annotations.NotNull;
 
 public class AuthorizerItem extends Item {
 	public AuthorizerItem() {
@@ -24,40 +25,37 @@ public class AuthorizerItem extends Item {
 	}
 
 	@Override
-	public UseAnim getUseAnimation(ItemStack itemstack) {
+	public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemstack) {
 		return UseAnim.BOW;
 	}
 
 	@Override
-	public int getUseDuration(ItemStack itemstack) {
+	public int getUseDuration(@NotNull ItemStack itemstack) {
 		return 100;
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public boolean isFoil(ItemStack itemstack) {
+	public boolean isFoil(@NotNull ItemStack itemstack) {
 		return true;
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player entity, InteractionHand hand) {
+	public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player entity, @NotNull InteractionHand hand) {
 		InteractionResultHolder<ItemStack> ar = super.use(world, entity, hand);
 		entity.startUsingItem(hand);
 		return ar;
 	}
 
 	@Override
-	public ItemStack finishUsingItem(ItemStack itemstack, Level world, LivingEntity entity) {
+	public @NotNull ItemStack finishUsingItem(@NotNull ItemStack itemstack, @NotNull Level world, @NotNull LivingEntity entity) {
 		ItemStack retval = super.finishUsingItem(itemstack, world, entity);
-		double x = entity.getX();
-		double y = entity.getY();
-		double z = entity.getZ();
-		AuthorizePlayerProcedure.execute(entity);
+        AuthorizePlayerProcedure.execute(entity);
 		return retval;
 	}
 
 	@Override
-	public void inventoryTick(ItemStack itemstack, Level world, Entity entity, int slot, boolean selected) {
+	public void inventoryTick(@NotNull ItemStack itemstack, @NotNull Level world, @NotNull Entity entity, int slot, boolean selected) {
 		super.inventoryTick(itemstack, world, entity, slot, selected);
 		if (selected)
 			DetectPermissionProcedure.execute(entity, itemstack);

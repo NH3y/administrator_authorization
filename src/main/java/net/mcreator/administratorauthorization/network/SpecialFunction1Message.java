@@ -37,9 +37,7 @@ public class SpecialFunction1Message {
 
 	public static void handler(SpecialFunction1Message message, Supplier<NetworkEvent.Context> contextSupplier) {
 		NetworkEvent.Context context = contextSupplier.get();
-		context.enqueueWork(() -> {
-			pressAction(Objects.requireNonNull(context.getSender()), message.type, message.pressedms);
-		});
+		context.enqueueWork(() -> pressAction(Objects.requireNonNull(context.getSender()), message.type, message.pressedms));
 		context.setPacketHandled(true);
 	}
 

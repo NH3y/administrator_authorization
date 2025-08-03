@@ -5,9 +5,9 @@ plugins {
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
-version = '1.0'
-group = 'com.yourname.modid'
-archivesBaseName = 'modid'
+version = '1.8'
+group = 'net.mcreator.administratorauthorization'
+archivesBaseName = 'administrator_authorization'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 

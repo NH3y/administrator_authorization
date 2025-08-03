@@ -1,8 +1,10 @@
 package net.mcreator.administratorauthorization.procedures;
 
+import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
+import net.mcreator.administratorauthorization.network.HealthDataPacket;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -15,40 +17,23 @@ import net.minecraft.world.level.LevelAccessor;
 
 public class DestroyRouterProcedure {
 	public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
-		if (entity == null || sourceentity == null)
+		if (entity == null || sourceentity == null || entity.is(sourceentity))
 			return;
         if (entity instanceof LivingEntity living) {
 			int route = RouterDataOperant.getPlayerRouterIndex((Player)sourceentity);
-			if(entity instanceof PlayerAccess player && player.administrator_authorization$isPressAlter()){
+			if(sourceentity instanceof PlayerAccess player && player.administrator_authorization$isPressAlter()){
                 switch (route){
-                    case 1 ->{
-                        disable(living);
-					}
-                    case 2 ->{
-                        weaken(living);
-					}
-                    case 3 ->{
-                        neutralize(living);
-					}
+                    case 1 -> weaken(living);
+                    case 2 -> disable(living);
+                    case 3 -> neutralize(living);
                 }
             }else{
                 switch (route) {
-                    case 1 ->{
-                        damage(living, world);
-					}
-                    case 2 ->{
-                        kill(living, world);
-					}
-
-                    case 3 ->{
-                        defeat(living, world);
-					}
-                    case 4 ->{
-                        annihilate(living, world);
-					}
-                    case 5 ->{
-                        obliterate(living);
-					}
+                    case 1 -> damage(living, world);
+                    case 2 -> kill(living, world);
+                    case 3 -> defeat(living, world);
+                    case 4 -> annihilate(living, world);
+                    case 5 -> obliterate(living);
                 }
             }
         }
@@ -59,7 +44,7 @@ public class DestroyRouterProcedure {
 				world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
 						.getHolderOrThrow(ResourceKey.create(
 								Registries.DAMAGE_TYPE,
-								new ResourceLocation("administrator_authorization:chaotic	_void"))), victim.getKillCredit()),
+								new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
 				(float) 1024.0);
 	}
 
@@ -68,33 +53,41 @@ public class DestroyRouterProcedure {
 						world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
 								.getHolderOrThrow(ResourceKey.create(
 										Registries.DAMAGE_TYPE,
-										new ResourceLocation("administrator_authorization:chaotic	_void"))), victim.getKillCredit()),
+										new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
 				Float.MAX_VALUE);
+		restrictHealth(victim);
 	}
 
 	private static void defeat(LivingEntity victim, LevelAccessor world){
-		victim.setHealth(((float) 0));
-		((LivingEntityAccess) victim).administrator_authorization$setHealthCap(0);
+		((LivingEntityAccess)victim).administrator_authorization$setHealth(0.0F);
+		restrictHealth(victim);
 		victim.die(new DamageSource(
 						world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
 								.getHolderOrThrow(ResourceKey.create(
 										Registries.DAMAGE_TYPE,
-										new ResourceLocation("administrator_authorization:chaotic	_void"))),victim.getKillCredit())
+										new ResourceLocation("administrator_authorization:chaotic_void"))),victim.getKillCredit())
 				);
 	}
 
 	private static void annihilate(LivingEntity victim, LevelAccessor world){
-		((LivingEntityAccess) victim).administrator_authorization$accessDropLoot(world);
-		obliterate(victim);
+        try {
+            ((LivingEntityAccess) victim).administrator_authorization$accessDropLoot(world);
+        } catch (Exception e) {
+            victim.baseTick();
+        }
+        obliterate(victim);
 	}
 
 	private static void obliterate(LivingEntity victim){
-		victim.remove(Entity.RemovalReason.KILLED);
-		victim.remove(Entity.RemovalReason.DISCARDED);
-		victim.remove(Entity.RemovalReason.CHANGED_DIMENSION);
-		victim.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
-		victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
-
+		if(victim instanceof EntityAccess access){
+			access.administrator_authorization$forceRemove();
+		}else {
+			victim.remove(Entity.RemovalReason.KILLED);
+			victim.remove(Entity.RemovalReason.DISCARDED);
+			victim.remove(Entity.RemovalReason.CHANGED_DIMENSION);
+			victim.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
+			victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+		}
 	}
 
 	private static void weaken(LivingEntity victim){
@@ -103,6 +96,7 @@ public class DestroyRouterProcedure {
 			entity.administrator_authorization$setAttributes(Attributes.ARMOR_TOUGHNESS,0);
 			entity.administrator_authorization$setAttributes(Attributes.ARMOR,0);
 			entity.administrator_authorization$setAttributes(Attributes.MAX_HEALTH, victim.getAttributeBaseValue(Attributes.MAX_HEALTH));
+			restrictHealth(victim);
 		}
 	}
 
@@ -117,5 +111,12 @@ public class DestroyRouterProcedure {
 		weaken(victim);
 		disable(victim);
 		((LivingEntityAccess) victim).Administrator_authorization$setNoAI(true);
+	}
+
+	private static void restrictHealth(LivingEntity victim){
+		HealthDataOperant.updateHealthLock(victim, true);
+		HealthDataOperant.updateHealthLimit(victim, 0.0F);
+		AdministratorAuthorizationMod.PACKET_HANDLER
+				.sendToServer(new HealthDataPacket(0.0F, true));
 	}
 }

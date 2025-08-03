@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "administrator_authorization:block/nothingness"
+    }
+  }
+}

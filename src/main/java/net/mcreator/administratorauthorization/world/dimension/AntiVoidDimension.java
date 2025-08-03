@@ -1,0 +1,36 @@
+
+package net.mcreator.administratorauthorization.world.dimension;
+
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import org.jetbrains.annotations.NotNull;
+
+@Mod.EventBusSubscriber
+public class AntiVoidDimension {
+	@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+	public static class AntiVoidSpecialEffectsHandler {
+		@SubscribeEvent
+		@OnlyIn(Dist.CLIENT)
+		public static void registerDimensionSpecialEffects(RegisterDimensionSpecialEffectsEvent event) {
+			DimensionSpecialEffects customEffect = new DimensionSpecialEffects(Float.NaN, true, DimensionSpecialEffects.SkyType.NONE, false, false) {
+				@Override
+				public @NotNull Vec3 getBrightnessDependentFogColor(@NotNull Vec3 color, float sunHeight) {
+					return color;
+				}
+
+				@Override
+				public boolean isFoggyAt(int x, int y) {
+					return false;
+				}
+			};
+			event.register(new ResourceLocation("administrator_authorization:anti_void"), customEffect);
+		}
+	}
+}

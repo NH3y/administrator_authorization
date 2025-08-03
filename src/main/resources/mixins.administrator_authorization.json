@@ -4,14 +4,23 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "mixins.administrator_authorization.refmap.json",
   "mixins": [
-            "EntityMixinMixin",
-            "LivingEntityMixin",
-            "PlayerMixin",
-            "LocalPlayerMixin",
-            "AttributeMapMixin"
+    "AttributeMapMixin",
+    "DataItemMixin",
+    "EntityDataAccessorMixin",
+    "EntityEventCorruption",
+    "EntityMixinMixin",
+    "EventBusMixin",
+    "ForgeHooksMixin",
+    "LevelMixin",
+    "LivingEntityMixin",
+    "PlayerListMixin",
+    "PlayerMixin",
+    "ServerPlayerMixin",
+    "SynchedEntityDataMixin"
   ],
   "client": [
-
+    "ItemCooldownMixin",
+    "LocalPlayerMixin"
   ],
   "minVersion": "0.8"
 }
