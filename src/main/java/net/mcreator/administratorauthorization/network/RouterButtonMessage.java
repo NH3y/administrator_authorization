@@ -19,7 +19,8 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class RouterButtonMessage {
-	int type, pressedms;
+	final int type;
+    final int pressedms;
 
 	public RouterButtonMessage(int type, int pressedms) {
 		this.type = type;

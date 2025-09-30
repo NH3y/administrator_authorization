@@ -49,6 +49,14 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             this.deathTime = 0;
         }
     }
+
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(false);
+        }
+    }
+
     @Inject(method = "setShowDeathScreen", at = @At("HEAD"), cancellable = true)
     public void setShowDeathScreen(CallbackInfo ci){
         if(((EntityAccess) this).administrator_authorization$getAuthorization()) {

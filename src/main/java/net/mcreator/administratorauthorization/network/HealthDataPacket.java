@@ -12,18 +12,10 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class HealthDataPacket {
-    private final float healthLimit;
-    private final boolean healthLock;
+public record HealthDataPacket(float healthLimit, boolean healthLock) {
 
-    public HealthDataPacket(float limit, boolean lock) {
-        this.healthLimit = limit;
-        this.healthLock = lock;
-    }
-
-    public HealthDataPacket(){
-        this.healthLimit = Float.MAX_VALUE;
-        this.healthLock = false;
+    public HealthDataPacket() {
+        this(Float.MAX_VALUE, false);
     }
 
     public static void encode(HealthDataPacket msg, FriendlyByteBuf buf) {
@@ -40,8 +32,9 @@ public class HealthDataPacket {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
                 player.getCapability(HealthDataProvider.HEALTH_DATA).ifPresent(data -> {
-                    data.setHealthLimit(msg.healthLimit);
-                    data.setHealthLock(msg.healthLock);}
+                            data.setHealthLimit(msg.healthLimit);
+                            data.setHealthLock(msg.healthLock);
+                        }
                 );
             }
         });
@@ -49,7 +42,7 @@ public class HealthDataPacket {
     }
 
     @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event){
+    public static void registerMessage(FMLCommonSetupEvent event) {
         AdministratorAuthorizationMod.addNetworkMessage(
                 HealthDataPacket.class
                 , HealthDataPacket::encode

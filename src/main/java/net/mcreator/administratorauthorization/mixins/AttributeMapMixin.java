@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-@Mixin(value = AttributeMap.class,priority = Integer.MAX_VALUE)
+@Mixin(value = AttributeMap.class,priority = Integer.MIN_VALUE)
 public abstract class AttributeMapMixin implements AttributeAccess {
     @Shadow @Final private Map<Attribute, AttributeInstance> attributes;
 

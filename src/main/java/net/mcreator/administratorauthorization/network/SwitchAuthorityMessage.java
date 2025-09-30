@@ -18,7 +18,8 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SwitchAuthorityMessage {
-	int type, pressedms;
+	final int type;
+    final int pressedms;
 
 	public SwitchAuthorityMessage(int type, int pressedms) {
 		this.type = type;

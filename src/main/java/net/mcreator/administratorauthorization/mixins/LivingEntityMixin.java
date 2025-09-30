@@ -10,6 +10,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -18,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -38,42 +41,125 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         super(pEntityType, pLevel);
     }
 
-    @Shadow protected abstract void dropAllDeathLoot(DamageSource p_21192_);
+    @Shadow
+    protected abstract void dropAllDeathLoot(DamageSource p_21192_);
 
-    @Shadow @Nullable public abstract LivingEntity getKillCredit();
+    @Shadow
+    @Nullable
+    public abstract LivingEntity getKillCredit();
 
-    @Shadow @Final private AttributeMap attributes;
+    @Shadow
+    @Final
+    private AttributeMap attributes;
 
-    @Shadow protected boolean dead;
+    @Shadow
+    protected boolean dead;
 
-    @Shadow public abstract void setHealth(float pHealth);
+    @Shadow
+    public abstract void setHealth(float pHealth);
 
-    @Shadow @Final
+    @Shadow
+    @Final
     private static EntityDataAccessor<Float> DATA_HEALTH_ID;
 
-    @Shadow public abstract float getMaxHealth();
+    @Shadow
+    public abstract float getMaxHealth();
 
-    @Shadow @Final public static int HAND_SLOTS;
-    @Shadow @Final public static int DEATH_DURATION;
+    @Shadow
+    @Final
+    public static int HAND_SLOTS;
+    @Shadow
+    @Final
+    public static int DEATH_DURATION;
 
-    @Shadow public abstract float getHealth();
+    @Shadow
+    public abstract float getHealth();
 
-    @Shadow public abstract double getAttributeBaseValue(Attribute pAttribute);
+    @Shadow
+    public abstract double getAttributeBaseValue(Attribute pAttribute);
 
-    @Shadow public int deathTime;
+    @Shadow
+    public int deathTime;
+
+    @Shadow
+    public abstract boolean isSleeping();
+
+    @Shadow
+    protected int fallFlyTicks;
+
+    @Shadow
+    public abstract boolean isFallFlying();
+
+    @Shadow
+    protected float animStep;
+    @Shadow
+    public float yHeadRot;
+    @Shadow
+    public float yHeadRotO;
+    @Shadow
+    public float yBodyRot;
+    @Shadow
+    public float yBodyRotO;
+
+    @Shadow
+    protected abstract float tickHeadTurn(float pYRot, float pAnimStep);
+
+    @Shadow
+    protected float run;
+    @Shadow
+    public float attackAnim;
+    @Shadow
+    protected float oRun;
+
+    @Shadow
+    public abstract void aiStep();
+
+    @Shadow
+    protected abstract boolean checkBedExists();
+
+    @Shadow
+    public abstract CombatTracker getCombatTracker();
+
+    @Shadow
+    protected abstract void detectEquipmentUpdates();
+
+    @Shadow
+    public abstract void setStingerCount(int pStingerCount);
+
+    @Shadow
+    public int removeStingerTime;
+
+    @Shadow
+    public abstract int getStingerCount();
+
+    @Shadow
+    public abstract void setArrowCount(int pCount);
+
+    @Shadow
+    public int removeArrowTime;
+
+    @Shadow
+    public abstract int getArrowCount();
+
+    @Shadow
+    protected abstract void updateSwimAmount();
+
+    @Shadow
+    protected abstract void updatingUsingItem();
+
     @Unique
     private boolean administrator_authorization$NoAI = false;
 
     @Inject(method = "setHealth", at = @At("HEAD"), cancellable = true)
-    public void administrator_authorization$setHealth(float p_21154_, CallbackInfo ci){
-        if ((Object)this instanceof Player) {
-            if(((EntityAccess) this).administrator_authorization$getAuthorization() && !(p_21154_ >= this.administrator_authorization$getFixedMaxHealth())) {
-                ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID,this.administrator_authorization$getFixedMaxHealth());
+    public void administrator_authorization$setHealth(float p_21154_, CallbackInfo ci) {
+        if ((Object) this instanceof Player) {
+            if (((EntityAccess) this).administrator_authorization$getAuthorization() && !(p_21154_ >= this.administrator_authorization$getFixedMaxHealth())) {
+                ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID, this.administrator_authorization$getFixedMaxHealth());
                 ci.cancel();
                 AdministratorAuthorizationMod.LOGGER.info("Mixin : setHeath");
             }
         }
-        if((Object)this instanceof LivingEntity living) {
+        if ((Object) this instanceof LivingEntity living) {
             if (HealthDataOperant.getHealthLimit(living) < p_21154_ && HealthDataOperant.getHealthLock(living)) {
                 System.out.println("Health Limit : " + HealthDataOperant.getHealthLimit(living) + " Excess!");
                 ci.cancel();
@@ -82,15 +168,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Inject(method = "getHealth", at = @At("HEAD"), cancellable = true)
-    public void getHealth(CallbackInfoReturnable<Float> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void getHealth(CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
         }
     }
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
-    public void die(DamageSource p_21014_, CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void die(DamageSource p_21014_, CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
             this.dead = false;
             AdministratorAuthorizationMod.LOGGER.info("Mixin : Die");
@@ -98,34 +184,33 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Inject(method = "aiStep", at = @At("HEAD"), cancellable = true)
-    public void blockAI(CallbackInfo ci){
-        if(this.administrator_authorization$NoAI) ci.cancel();
+    public void blockAI(CallbackInfo ci) {
+        if (this.administrator_authorization$NoAI) ci.cancel();
     }
 
     @Inject(method = "isDeadOrDying", at = @At("RETURN"), cancellable = true)
-    public void isDeadOrDying(CallbackInfoReturnable<Boolean> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
-            if(cir.getReturnValue()) {
+    public void isDeadOrDying(CallbackInfoReturnable<Boolean> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            if (cir.getReturnValue()) {
                 ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
                         this.administrator_authorization$getAccessorHealth(),
                         this.administrator_authorization$getFixedMaxHealth()
                 );
                 cir.setReturnValue(false);
-                AdministratorAuthorizationMod.LOGGER.info("Mixin : Dying");
             }
         }
     }
 
     @Inject(method = "tickDeath", at = @At("HEAD"), cancellable = true)
-    public void tickDeath(CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void tickDeath(CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
             this.deathTime = 0;
             this.dead = false;
         }
     }
 
-    @Inject(method  = "getMaxHealth", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getMaxHealth", at = @At("HEAD"), cancellable = true)
     public void getMaxHealth(CallbackInfoReturnable<Float> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             float health = (float) Math.min(Math.abs(this.getAttributeBaseValue(Attributes.MAX_HEALTH)), Float.MAX_VALUE);
@@ -134,18 +219,41 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Inject(method = "handleDamageEvent", at = @At("HEAD"), cancellable = true)
-    public void handleDamageEvent(DamageSource pDamageSource, CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void handleDamageEvent(DamageSource pDamageSource, CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
+    public void handleEntityEvent(byte pId, CallbackInfo ci){
+        if (pId == 3 && ((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "isAlive", at = @At("RETURN"), cancellable = true)
-    public void isAlive(CallbackInfoReturnable<Boolean> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void isAlive(CallbackInfoReturnable<Boolean> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(true);
         }
     }
+
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    public void tickHead(CallbackInfo ci) {
+        if(((EntityAccess)this).administrator_authorization$getAuthorization()){
+            if(((EntityAccess)this).administrator_authorization$isEmergency()){
+                this.administrator_authorization$protectedTick();
+                ci.cancel();
+            }
+            this.dead = false;
+            this.deathTime = 0;
+            ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
+                    this.administrator_authorization$getAccessorHealth(),
+                    this.administrator_authorization$getFixedMaxHealth()
+            );
+        }
+}
 
     @Inject(method = "tick", at = @At("TAIL"))
     public void tick(CallbackInfo ci){
@@ -159,6 +267,182 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
             if(this.getPose() == Pose.DYING) {
                 this.setPose(Pose.STANDING);
             }
+        }
+    }
+
+    @Inject(method = "isDamageSourceBlocked", at = @At("HEAD"), cancellable = true)
+    public void isDamageSourceBlocked(DamageSource pDamageSource, CallbackInfoReturnable<Boolean> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "knockback", at = @At("HEAD"), cancellable = true)
+    public void knockback(double pStrength, double pX, double pZ, CallbackInfo ci){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "getDamageAfterArmorAbsorb", at = @At("HEAD"), cancellable = true)
+    public void getDamageAfterArmorAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(0.0F);
+        }
+    }
+
+    @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"), cancellable = true)
+    public void getDamageAfterMagicAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(0.0F);
+        }
+    }
+
+    @Inject(method = "getWaterSlowDown", at = @At("RETURN"), cancellable = true)
+    public void getWaterSlowDown(CallbackInfoReturnable<Float> cir){
+        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+            cir.setReturnValue(1.0F);
+        }
+    }
+
+    @Unique
+    private void administrator_authorization$protectedTick(){
+        ((EntityAccess) this).administrator_authorization$tickEmergency();
+        this.dead = false;
+        this.deathTime = 0;
+        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
+                this.administrator_authorization$getAccessorHealth(),
+                this.administrator_authorization$getFixedMaxHealth()
+        );
+
+        if (ForgeHooks.onLivingTick((LivingEntity) (Object)this)) return;
+        super.tick();
+        this.updatingUsingItem();
+        this.updateSwimAmount();
+        if (!this.level().isClientSide) {
+            int i = this.getArrowCount();
+            if (i > 0) {
+                if (this.removeArrowTime <= 0) {
+                    this.removeArrowTime = 20 * (30 - i);
+                }
+
+                --this.removeArrowTime;
+                if (this.removeArrowTime <= 0) {
+                    this.setArrowCount(i - 1);
+                }
+            }
+
+            int j = this.getStingerCount();
+            if (j > 0) {
+                if (this.removeStingerTime <= 0) {
+                    this.removeStingerTime = 20 * (30 - j);
+                }
+
+                --this.removeStingerTime;
+                if (this.removeStingerTime <= 0) {
+                    this.setStingerCount(j - 1);
+                }
+            }
+
+            this.detectEquipmentUpdates();
+            if (this.tickCount % 20 == 0) {
+                this.getCombatTracker().recheckStatus();
+            }
+
+            if (this.isSleeping() && !this.checkBedExists()) {
+                this.stopRiding();
+            }
+        }
+
+        if (!this.isRemoved()) {
+            this.aiStep();
+        }
+
+        double d1 = this.getX() - this.xo;
+        double d0 = this.getZ() - this.zo;
+        float f = (float)(d1 * d1 + d0 * d0);
+        float f1 = this.yBodyRot;
+        float f2 = 0.0F;
+        this.oRun = this.run;
+        float f3 = 0.0F;
+        if (f > 0.0025000002F) {
+            f3 = 1.0F;
+            f2 = (float)Math.sqrt((double)f) * 3.0F;
+            float f4 = (float) Mth.atan2(d0, d1) * (180F / (float)Math.PI) - 90.0F;
+            float f5 = Mth.abs(Mth.wrapDegrees(this.getYRot()) - f4);
+            if (95.0F < f5 && f5 < 265.0F) {
+                f1 = f4 - 180.0F;
+            } else {
+                f1 = f4;
+            }
+        }
+
+        if (this.attackAnim > 0.0F) {
+            f1 = this.getYRot();
+        }
+
+        if (!this.onGround()) {
+            f3 = 0.0F;
+        }
+
+        this.run += (f3 - this.run) * 0.3F;
+        this.level().getProfiler().push("headTurn");
+        f2 = this.tickHeadTurn(f1, f2);
+        this.level().getProfiler().pop();
+        this.level().getProfiler().push("rangeChecks");
+
+        while(this.getYRot() - this.yRotO < -180.0F) {
+            this.yRotO -= 360.0F;
+        }
+
+        while(this.getYRot() - this.yRotO >= 180.0F) {
+            this.yRotO += 360.0F;
+        }
+
+        while(this.yBodyRot - this.yBodyRotO < -180.0F) {
+            this.yBodyRotO -= 360.0F;
+        }
+
+        while(this.yBodyRot - this.yBodyRotO >= 180.0F) {
+            this.yBodyRot += 360.0F;
+        }
+
+        while(this.getXRot() - this.xRotO < -180.0F) {
+            this.xRotO -= 360.0F;
+        }
+
+        while(this.getXRot() - this.xRotO >= 180.0F) {
+            this.xRotO += 360.0F;
+        }
+
+        while(this.yHeadRot - this.yHeadRotO < -180.0F) {
+            this.yHeadRotO -= 360.0F;
+        }
+
+        while(this.yHeadRot - this.yHeadRotO >= 180.0F) {
+            this.yHeadRotO += 360.0F;
+        }
+
+        this.level().getProfiler().pop();
+        this.animStep += f2;
+        if (this.isFallFlying()) {
+            ++this.fallFlyTicks;
+        } else {
+            this.fallFlyTicks = 0;
+        }
+
+        if (this.isSleeping()) {
+            this.setXRot(0.0F);
+        }
+
+        this.dead = false;
+        this.deathTime = 0;
+        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
+                this.administrator_authorization$getAccessorHealth(),
+                this.administrator_authorization$getFixedMaxHealth()
+        );
+        if(this.getPose() == Pose.DYING) {
+            this.setPose(Pose.STANDING);
         }
     }
 

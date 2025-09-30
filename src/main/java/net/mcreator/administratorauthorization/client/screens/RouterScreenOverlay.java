@@ -3,6 +3,7 @@ package net.mcreator.administratorauthorization.client.screens;
 
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -46,20 +47,24 @@ public class RouterScreenOverlay {
 		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		if (ShowRouterProcedure.execute(entity)) {
-			event.getGuiGraphics().blit(new ResourceLocation("administrator_authorization:textures/screens/circle.png"), w / 2 - 96, h / 2 - 96, 0, 0, 192, 192, 192, 192);
+            GuiGraphics guiGraphics = event.getGuiGraphics();
+            guiGraphics.blit(new ResourceLocation("administrator_authorization:textures/screens/circle.png"), w / 2 - 96, h / 2 - 96, 0, 0, 192, 192, 192, 192);
 
 			if(!((PlayerAccess) entity).administrator_authorization$isPressAlter()) {
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_damage"), w / 2 + 17, h / 2 - 67, -1, false);
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_kill"), w / 2 + 57, h / 2 - 31, -1, false);
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_defeat"), w / 2 + 57, h / 2 + 23, -1, false);
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_annihilate"), w / 2 + 9, h / 2 + 68, -1, false);
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_obliterate"), w / 2 - 55, h / 2 + 68, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_damage"), w / 2 + 17, h / 2 - 67, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_kill"), w / 2 + 57, h / 2 - 31, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_defeat"), w / 2 + 57, h / 2 + 23, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_annihilate"), w / 2 + 9, h / 2 + 68, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_obliterate"), w / 2 - 55, h / 2 + 68, -1, false);
+                guiGraphics.drawString(Minecraft.getInstance().font, "יוםהדין", w / 2 -47, h / 2 -67, -1, false);
 			}else {
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_weaken"), w / 2 + 17, h / 2 - 67, -1, false);
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_disable"), w / 2 + 37, h / 2 - 31, -1, false);
-				event.getGuiGraphics().drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_neutralize"), w / 2 + 37, h / 2 + 23, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_weaken"), w / 2 + 17, h / 2 - 67, -1, false);
+				guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_disable"), w / 2 + 37, h / 2 - 31, -1, false);
+                guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_neutralize"), w / 2 + 37, h / 2 + 23, -1, false);
+                guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_damnatio_memoriae_A"), w / 2 + 9, h / 2 + 54, -1, false);
+                guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_damnatio_memoriae_B"), w / 2 + 9, h / 2 + 64, -1, false);
 			}
-            event.getGuiGraphics().drawString(Minecraft.getInstance().font,
+            guiGraphics.drawString(Minecraft.getInstance().font,
                     ReturnCurrentIndexProcedure.execute(entity), w / 2, h / 2 - 112, -1, false);
             RenderSystem.depthMask(true);
 			RenderSystem.defaultBlendFunc();

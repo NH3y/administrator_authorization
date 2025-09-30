@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 
 @Mod.EventBusSubscriber
 public class playerShift {
-    static Logger logger = Logger.getLogger("Event_Clone");
+    static final Logger logger = Logger.getLogger("Event_Clone");
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPlayerClone(Clone event){
         event.getOriginal().getCapability(RouterDataProvider.ROUTER_DATA).ifPresent(oldData -> event.getEntity().getCapability(RouterDataProvider.ROUTER_DATA).ifPresent(newData -> newData.setRouterIndex(oldData.getRouterIndex())));

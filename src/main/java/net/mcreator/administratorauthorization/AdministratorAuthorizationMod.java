@@ -38,7 +38,8 @@ public class AdministratorAuthorizationMod {
 		// Start of user code block mod constructor
 		// End of user code block mod constructor
 		MinecraftForge.EVENT_BUS.register(this);
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
 		AdministratorAuthorizationModBlocks.REGISTRY.register(bus);
 

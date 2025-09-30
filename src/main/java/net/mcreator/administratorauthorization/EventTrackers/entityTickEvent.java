@@ -67,7 +67,6 @@ public class entityTickEvent {
         }
         if(entity instanceof Player player){
             LazyOptional<IInventoryData> optional = player.getCapability(InventoryDataProvider.SLOT_DATA);
-            if(!optional.isPresent()) return;
             int index = optional.map(IInventoryData::getSlotIndex).orElse(Integer.MAX_VALUE);
             if(index != Integer.MAX_VALUE && !player.getInventory().contains(AdministratorAuthorizationModItems.REALITY_DESTROYER.get().getDefaultInstance())){
                 player.getInventory().setItem(index, new ItemStack(

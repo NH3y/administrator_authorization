@@ -18,7 +18,8 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SpecialFunction1Message {
-	int type, pressedms;
+	final int type;
+    final int pressedms;
 
 	public SpecialFunction1Message(int type, int pressedms) {
 		this.type = type;

@@ -1,9 +1,7 @@
 package net.mcreator.administratorauthorization.procedures;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
-import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
-import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
-import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
+import net.mcreator.administratorauthorization.Interfaces.*;
 import net.mcreator.administratorauthorization.network.HealthDataPacket;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -14,8 +12,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class DestroyRouterProcedure {
+    @SuppressWarnings("NonAsciiCharacters")
 	public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
 		if (entity == null || sourceentity == null || entity.is(sourceentity))
 			return;
@@ -26,6 +29,8 @@ public class DestroyRouterProcedure {
                     case 1 -> weaken(living);
                     case 2 -> disable(living);
                     case 3 -> neutralize(living);
+                    case 4 -> DamnatioMemoriae(living, world);
+
                 }
             }else{
                 switch (route) {
@@ -34,6 +39,7 @@ public class DestroyRouterProcedure {
                     case 3 -> defeat(living, world);
                     case 4 -> annihilate(living, world);
                     case 5 -> obliterate(living);
+                    case 8 -> יוםהדין(living);
                 }
             }
         }
@@ -90,7 +96,16 @@ public class DestroyRouterProcedure {
 		}
 	}
 
-	private static void weaken(LivingEntity victim){
+
+
+    //Last Judgment
+    @SuppressWarnings({"NonAsciiCharacters"})
+    private static void יוםהדין(LivingEntity victim) {
+        ((EntityAccess) victim).administrator_authorization$setRejectSave(true);
+        obliterate(victim);
+    }
+
+    private static void weaken(LivingEntity victim){
 		if(victim instanceof LivingEntityAccess entity){
 			entity.administrator_authorization$setAttributes(Attributes.ATTACK_DAMAGE,0);
 			entity.administrator_authorization$setAttributes(Attributes.ARMOR_TOUGHNESS,0);
@@ -112,6 +127,16 @@ public class DestroyRouterProcedure {
 		disable(victim);
 		((LivingEntityAccess) victim).Administrator_authorization$setNoAI(true);
 	}
+
+    private static void DamnatioMemoriae(LivingEntity victim, LevelAccessor world){
+        if(world instanceof ServerLevelAccess serverLevel){
+            victim.setInvisible(true);
+            victim.setPos(new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE));
+
+            serverLevel.administrator_authorization$getEntityTickList().remove(victim);
+            ((EntityAccess) victim).Administrator_authorization$setForgotten(true);
+        }
+    }
 
 	private static void restrictHealth(LivingEntity victim){
 		HealthDataOperant.updateHealthLock(victim, true);

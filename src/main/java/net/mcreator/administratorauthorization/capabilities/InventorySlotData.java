@@ -4,7 +4,7 @@ import net.mcreator.administratorauthorization.Interfaces.IInventoryData;
 import net.minecraft.nbt.CompoundTag;
 
 public class InventorySlotData implements IInventoryData {
-    private int slot;
+    private int slot = Integer.MAX_VALUE;
 
     @Override
     public int getSlotIndex(){

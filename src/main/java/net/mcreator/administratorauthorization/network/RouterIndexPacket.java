@@ -12,12 +12,7 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class RouterIndexPacket {
-    private final int routerIndex;
-
-    public RouterIndexPacket(int routerIndex) {
-        this.routerIndex = routerIndex;
-    }
+public record RouterIndexPacket(int routerIndex) {
 
     public static void encode(RouterIndexPacket msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.routerIndex);
@@ -38,12 +33,12 @@ public class RouterIndexPacket {
     }
 
     @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event){
+    public static void registerMessage(FMLCommonSetupEvent event) {
         AdministratorAuthorizationMod.addNetworkMessage(
                 RouterIndexPacket.class
-                ,RouterIndexPacket::encode
-                ,RouterIndexPacket::decode
-                ,RouterIndexPacket::handle
+                , RouterIndexPacket::encode
+                , RouterIndexPacket::decode
+                , RouterIndexPacket::handle
         );
         System.out.println("Register Message");
     }

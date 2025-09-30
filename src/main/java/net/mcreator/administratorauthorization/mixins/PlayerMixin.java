@@ -5,6 +5,9 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.classes.PlayerRouter;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Player.class, priority = Integer.MIN_VALUE)
-public abstract class PlayerMixin implements PlayerAccess {
+public abstract class PlayerMixin extends LivingEntity implements PlayerAccess {
     @Unique
     private boolean administrator_authorization$pressAlter = false;
 
@@ -24,6 +27,10 @@ public abstract class PlayerMixin implements PlayerAccess {
 
     @Unique
     private int administrator_authorization$RDSlot = Integer.MAX_VALUE;
+
+    protected PlayerMixin(EntityType<? extends LivingEntity> pEntityType, Level pLevel) {
+        super(pEntityType, pLevel);
+    }
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     public void hurt(DamageSource p_36154_, float p_36155_, CallbackInfoReturnable<Boolean> cir){
@@ -51,6 +58,20 @@ public abstract class PlayerMixin implements PlayerAccess {
     public void animateHurt(float pYaw, CallbackInfo ci){
         if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
+    public void actuallyHurt(DamageSource pDamageSrc, float pDamageAmount, CallbackInfo ci){
+        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "isImmobile", at = @At("RETURN"), cancellable = true)
+    public void isImmobile(CallbackInfoReturnable<Boolean> cir){
+        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
+            cir.setReturnValue(this.isSleeping());
         }
     }
 

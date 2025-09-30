@@ -5,6 +5,7 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -43,14 +44,18 @@ public class serverTickEvent {
                 ServerPlayer tickedPlayer = event.getServer().getPlayerList().getPlayer(healthData.getKey().getUUID());
                 if(tickedPlayer != null && tickedPlayer.getHealth() < healthData.getValue() && tickedPlayer instanceof LivingEntityAccess living){
                     AdministratorAuthorizationMod.LOGGER.warn("Admin Hurt!");
+                    living.administrator_authorization$setAttributes(Attributes.MAX_HEALTH, 1024);
                     living.administrator_authorization$setHealth(living.administrator_authorization$getFixedMaxHealth());
                     ((EntityDataAccess) tickedPlayer.getEntityData()).administrator_authorization$forceSet(
                             living.administrator_authorization$getAccessorHealth(),
-                            living.administrator_authorization$getFixedMaxHealth()
+                            1024.0F
+                    );
+                    ((EntityAccess) living).administrator_authorization$setEmergency(
+                            true
                     );
                 }
-                healthMap.remove(tickedPlayer);
             }
+            healthMap.clear();
         }
     }
 }
