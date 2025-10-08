@@ -11,29 +11,29 @@ import net.minecraft.world.phys.AABB;
 import java.util.ArrayList;
 
 public class SearchForEntityProcedure {
-	public static ArrayList<Entity> execute(LevelAccessor world, Entity source){
-		final ArrayList<Entity> targets = new ArrayList<>();
-		AABB aabb = new AABB(source.getEyePosition(), source.getEyePosition()).inflate(0.5);
-		for (int i = 0; i < AADestroyerConfiguration.SEARCH_DISTANCE.get(); i++) {
-			targets.addAll(world.getEntities(EntityTypeTest.forClass(Entity.class), aabb.move(source.getLookAngle().scale(i)), entity ->
-					entity != null && !entity.is(source)
-			));
-			if(world instanceof ServerLevel level){
-				level.sendParticles(ParticleTypes.ASH,
-						source.getX() + i *source.getLookAngle().x(),
-						source.getEyeY() + i *source.getLookAngle().y(),
-						source.getZ() + i *source.getLookAngle().z(),
-						25,
-						0,
-						0,
-						0,
-						0.1
-						);
-			}
-			if(!targets.isEmpty() && !AADestroyerConfiguration.ACCEPT_MULTIPLE.get()){
-				break;
-			}
-		}
-		return targets;
-	}
+    public static ArrayList<Entity> execute(LevelAccessor world, Entity source) {
+        final ArrayList<Entity> targets = new ArrayList<>();
+        AABB aabb = new AABB(source.getEyePosition(), source.getEyePosition()).inflate(0.5);
+        for (int i = 0; i < AADestroyerConfiguration.SEARCH_DISTANCE.get(); i++) {
+            targets.addAll(world.getEntities(EntityTypeTest.forClass(Entity.class), aabb.move(source.getLookAngle().scale(i)), entity ->
+                    entity != null && !entity.is(source)
+            ));
+            if (world instanceof ServerLevel level) {
+                level.sendParticles(ParticleTypes.ASH,
+                        source.getX() + i * source.getLookAngle().x(),
+                        source.getEyeY() + i * source.getLookAngle().y(),
+                        source.getZ() + i * source.getLookAngle().z(),
+                        25,
+                        0,
+                        0,
+                        0,
+                        0.1
+                );
+            }
+            if (!targets.isEmpty() && !AADestroyerConfiguration.ACCEPT_MULTIPLE.get()) {
+                break;
+            }
+        }
+        return targets;
+    }
 }

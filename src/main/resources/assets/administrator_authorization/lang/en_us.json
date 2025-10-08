@@ -9,7 +9,7 @@
   "gui.administrator_authorization.router_screen.label_kill": "Kill",
   "gui.administrator_authorization.router_screen.label_defeat": "Defeat",
   "key.administrator_authorization.router_button": "Router Button",
-  "death.attack.chaotic_void": "%1$s died",
+  "death.attack.chaotic_void": "%1$s was shattered by the chaotic void",
   "block.administrator_authorization.nothingness": "Nothingness",
   "death.attack.chaotic_void.item": "%1$s was killed by %2$s using %3$s",
   "biome.administrator_authorization.blank": "Blank",
@@ -19,5 +19,8 @@
   "gui.administrator_authorization.router_screen.label_0": "0",
   "gui.administrator_authorization.router_screen.label_weaken": "weaken",
   "gui.administrator_authorization.router_screen.label_disable": "disable",
-  "gui.administrator_authorization.router_screen.label_neutralize": "neutralize"
+  "gui.administrator_authorization.router_screen.label_neutralize": "neutralize",
+  "key.categories.adm_auth": "admin author",
+  "gui.administrator_authorization.router_screen.label_damnatio_memoriae_A": "damnatio",
+  "gui.administrator_authorization.router_screen.label_damnatio_memoriae_B": "memoriae"
 }

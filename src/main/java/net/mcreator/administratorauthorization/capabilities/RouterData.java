@@ -3,16 +3,16 @@ package net.mcreator.administratorauthorization.capabilities;
 import net.mcreator.administratorauthorization.Interfaces.IRouterData;
 import net.minecraft.nbt.CompoundTag;
 
-public class RouterData implements IRouterData{
+public class RouterData implements IRouterData {
     private int RouterIndex = 0;
 
     @Override
-    public int getRouterIndex(){
+    public int getRouterIndex() {
         return RouterIndex;
     }
 
     @Override
-    public void setRouterIndex(int index){
+    public void setRouterIndex(int index) {
         this.RouterIndex = index;
     }
 
@@ -22,7 +22,7 @@ public class RouterData implements IRouterData{
         return tag;
     }
 
-    public void deserializeNBT(CompoundTag tag){
+    public void deserializeNBT(CompoundTag tag) {
         RouterIndex = tag.getInt("routerIndex");
     }
 }

@@ -1,10 +1,10 @@
 modLoader="javafml"
 loaderVersion="[47,)"
-license="Not specified"
+license="GPL-3.0"
 
 [[mods]]
 modId="administrator_authorization"
-version="1.1.8"
+version="1.1.9"
 displayName="Administrator Authorization"
 displayURL="https://mcreator.net"
 credits="mod maker MCreator help with dimension and registeries- https://mcreator.net/about"

@@ -12,15 +12,10 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class InventoryDataPacket {
-    private final int slot;
+public record InventoryDataPacket(int slot) {
 
-    public InventoryDataPacket(int slot) {
-        this.slot = slot;
-    }
-
-    public InventoryDataPacket(){
-        this.slot = Integer.MAX_VALUE;
+    public InventoryDataPacket() {
+        this(Integer.MAX_VALUE);
     }
 
     public static void encode(InventoryDataPacket msg, FriendlyByteBuf buf) {
@@ -42,7 +37,7 @@ public class InventoryDataPacket {
     }
 
     @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event){
+    public static void registerMessage(FMLCommonSetupEvent event) {
         AdministratorAuthorizationMod.addNetworkMessage(
                 InventoryDataPacket.class
                 , InventoryDataPacket::encode

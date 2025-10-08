@@ -23,8 +23,8 @@
       "name": "administrator_authorization:anti_void",
       "sea_level": 63,
       "legacy_random_source": false,
-      "disable_mob_generation": false,
-      "aquifers_enabled": true,
+      "disable_mob_generation": true,
+      "aquifers_enabled": false,
       "ore_veins_enabled": false,
       "default_block": {
         "Name": "administrator_authorization:nothingness"
@@ -351,7 +351,7 @@
             "then_run": {
               "type": "minecraft:block",
               "result_state": {
-                "Name": "minecraft:bedrock"
+                "Name": "administrator_authorization:nothingness"
               }
             }
           },

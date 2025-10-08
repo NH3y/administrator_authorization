@@ -3,10 +3,7 @@ package net.mcreator.administratorauthorization.mixins;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
-import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
-import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
-import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
-import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
+import net.mcreator.administratorauthorization.Interfaces.*;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -14,19 +11,26 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 
 @Mixin(value = SynchedEntityData.class, priority = Integer.MIN_VALUE)
 public abstract class SynchedEntityDataMixin implements EntityDataAccess {
-    @Shadow @Final private Entity entity;
+    @Shadow
+    @Final
+    private Entity entity;
 
     @Shadow
     public static <T> EntityDataAccessor<T> defineId(Class<? extends Entity> pClazz, EntityDataSerializer<T> pSerializer) {
@@ -38,47 +42,70 @@ public abstract class SynchedEntityDataMixin implements EntityDataAccess {
         return null;
     }
 
-    @Shadow public abstract <T> void set(EntityDataAccessor<T> pKey, T pValue, boolean pForce);
+    @Shadow
+    public abstract <T> void set(EntityDataAccessor<T> pKey, T pValue, boolean pForce);
 
-    @Shadow private boolean isDirty;
+    @Shadow
+    private boolean isDirty;
 
-    @Shadow @Final private ReadWriteLock lock;
+    @Shadow
+    @Final
+    private ReadWriteLock lock;
 
-    @Shadow @Final private Int2ObjectMap<SynchedEntityData.DataItem<?>> itemsById;
+    @Shadow
+    @Final
+    private Int2ObjectMap<SynchedEntityData.DataItem<?>> itemsById;
 
-    @Shadow public abstract <T> T get(EntityDataAccessor<T> pKey);
+    @Shadow
+    public abstract <T> T get(EntityDataAccessor<T> pKey);
+
+    @Shadow
+    @Final
+    private static Logger LOGGER;
+    @Unique
+    private final Set<Integer> administrator_authorization$bannedId = new HashSet<>(4);
 
     @Inject(method = "set(Lnet/minecraft/network/syncher/EntityDataAccessor;Ljava/lang/Object;Z)V", at = @At("HEAD"), cancellable = true)
     public <T> void set(EntityDataAccessor<T> pKey, T pValue, boolean pForce, CallbackInfo ci) {
-        if(((EntityAccess) this.entity).administrator_authorization$getAuthorization()){
-            if(this.entity instanceof LivingEntityAccess access && access.administrator_authorization$getAccessorHealth().equals(pKey) && !(((Float) pValue) >= access.administrator_authorization$getFixedMaxHealth())){
+        if (((EntityAccess) this.entity).administrator_authorization$getAuthorization()) {
+            if (this.administrator_authorization$bannedId.contains(pKey.getId())) {
                 ci.cancel();
-                this.administrator_authorization$forceSet(
-                        access.administrator_authorization$getAccessorHealth(),
-                        access.administrator_authorization$getFixedMaxHealth()
-                );
-                AdministratorAuthorizationMod.LOGGER.info("Mixin : setHealthData");
-            } else if (AAAuthorizationConfiguration.BAN_SUSPECT.get() && this.get(pKey).getClass().isAssignableFrom(Float.class)) {
-                AdministratorAuthorizationMod.LOGGER.info("Mixin : Ban Suspicious Data( id:{} )",pKey.getId());
-                ci.cancel();
+                AdministratorAuthorizationMod.LOGGER.info("Mixin : setEntityData");
             }
+            @SuppressWarnings("unchecked")
+            DataItemAccess<T> item = (DataItemAccess<T>) this.getItem(pKey);
 
+            if (item != null && (pForce || ObjectUtils.notEqual(pValue, item.administrator_authorization$directlyInteract(false, null)))) {
+                item.administrator_authorization$directlyInteract(true, pValue);
+                this.entity.onSyncedDataUpdated(pKey);
+                item.administrator_authorization$dirty();
+                this.isDirty = true;
+            }
+            ci.cancel();
         }
     }
 
     @Inject(method = "get", at = @At("HEAD"), cancellable = true)
-    public <T> void get(EntityDataAccessor<T> pKey, CallbackInfoReturnable<Float> cir){
-        if(((EntityAccess) this.entity).administrator_authorization$getAuthorization()){
-            if(this.entity instanceof LivingEntityAccess access && access.administrator_authorization$getAccessorHealth().equals(pKey)){
+    public <T> void get(EntityDataAccessor<T> pKey, CallbackInfoReturnable<T> cir) {
+        if (((EntityAccess) this.entity).administrator_authorization$getAuthorization()) {
+            @SuppressWarnings("unchecked")
+            DataItemAccess<T> item = (DataItemAccess<T>) this.getItem(pKey);
+
+            if (item != null) {
                 cir.setReturnValue(
-                        access.administrator_authorization$getFixedMaxHealth()
+                        item.administrator_authorization$directlyInteract(false, null)
+                );
+            } else if (this.getItem(pKey) != null){
+                //noinspection DataFlowIssue
+                cir.setReturnValue(
+                        this.getItem(pKey).getValue()
                 );
             }
         }
     }
 
     @Override
-    public <T> void administrator_authorization$forceSet(EntityDataAccessor<T> pKey, T pValue){
+    public <T> void administrator_authorization$forceSet(EntityDataAccessor<T> pKey, T pValue) {
         SynchedEntityData.DataItem<T> dataitem = this.getItem(pKey);
         if (dataitem != null) {
             dataitem.setValue(pValue);
@@ -88,13 +115,14 @@ public abstract class SynchedEntityDataMixin implements EntityDataAccess {
         this.isDirty = true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> SynchedEntityData.DataItem<T> administrator_authorization$publicGetItem(EntityDataAccessor<T> pKey) {
         this.lock.readLock().lock();
 
         SynchedEntityData.DataItem<T> dataitem;
         try {
-            dataitem = (SynchedEntityData.DataItem<T>)this.itemsById.get(pKey.getId());
+            dataitem = (SynchedEntityData.DataItem<T>) this.itemsById.get(pKey.getId());
         } catch (Throwable throwable) {
             CrashReport crashreport = CrashReport.forThrowable(throwable, "Getting synched entity data");
             CrashReportCategory crashreportcategory = crashreport.addCategory("Synched entity data");
@@ -108,7 +136,12 @@ public abstract class SynchedEntityDataMixin implements EntityDataAccess {
     }
 
     @Override
-    public ObjectCollection<SynchedEntityData.DataItem<?>> administrator_authorization$getAllItems(){
-       return this.itemsById.values();
+    public ObjectCollection<SynchedEntityData.DataItem<?>> administrator_authorization$getAllItems() {
+        return this.itemsById.values();
+    }
+
+    @Override
+    public Set<Integer> Administrator_authorization$getBannedId() {
+        return administrator_authorization$bannedId;
     }
 }

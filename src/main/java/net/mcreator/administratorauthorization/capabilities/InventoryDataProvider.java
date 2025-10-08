@@ -20,8 +20,8 @@ public class InventoryDataProvider implements ICapabilityProvider, INBTSerializa
     private final LazyOptional<IInventoryData> lazyOptional = LazyOptional.of(() -> slotData);
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side){
-        if(cap == SLOT_DATA) {
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == SLOT_DATA) {
             return lazyOptional.cast();
         }
         return LazyOptional.empty();
@@ -29,16 +29,16 @@ public class InventoryDataProvider implements ICapabilityProvider, INBTSerializa
 
     @Override
     public CompoundTag serializeNBT() {
-        if (slotData instanceof InventorySlotData){
-            ((InventorySlotData)slotData).serializeNBT();
+        if (slotData instanceof InventorySlotData) {
+            ((InventorySlotData) slotData).serializeNBT();
         }
         return new CompoundTag();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        if (slotData instanceof InventorySlotData){
-            ((InventorySlotData)slotData).deserializeNBT(nbt);
+        if (slotData instanceof InventorySlotData) {
+            ((InventorySlotData) slotData).deserializeNBT(nbt);
         }
     }
 

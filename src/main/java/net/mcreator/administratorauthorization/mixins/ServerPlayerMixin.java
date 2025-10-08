@@ -21,29 +21,29 @@ public abstract class ServerPlayerMixin extends Player {
     }
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
-    public void die(DamageSource pCause, CallbackInfo ci){
-        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
+    public void die(DamageSource pCause, CallbackInfo ci) {
+        if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir){
-        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
+    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir) {
+        if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "indicateDamage", at = @At("HEAD"), cancellable = true)
-    public void indicateDamage(double pXDistance, double pZDistance, CallbackInfo ci){
-        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
+    public void indicateDamage(double pXDistance, double pZDistance, CallbackInfo ci) {
+        if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
-    public void isInvulnerableTo(DamageSource pSource, CallbackInfoReturnable<Boolean> cir){
-        if(((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()){
+    public void isInvulnerableTo(DamageSource pSource, CallbackInfoReturnable<Boolean> cir) {
+        if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(true);
         }
     }

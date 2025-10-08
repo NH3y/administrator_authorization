@@ -13,15 +13,15 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.living.MobEffectEvent.Applicable;
+import net.minecraftforge.event.level.BlockEvent.BreakEvent;
+import net.minecraftforge.event.level.ExplosionEvent.Start;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.event.entity.living.MobEffectEvent.Applicable;
-import net.minecraftforge.event.level.ExplosionEvent.Start;
-import net.minecraftforge.event.level.BlockEvent.BreakEvent;
 
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class harmfulEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void hurt(LivingHurtEvent event) {
-        if(event.getEntity() == null) return;
+        if (event.getEntity() == null) return;
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
         if (protect) {
             event.setAmount(0.0F);
@@ -45,7 +45,7 @@ public class harmfulEvent {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void death(LivingDeathEvent event) {
-        if(event.getEntity() == null) return;
+        if (event.getEntity() == null) return;
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
         if (protect) {
             event.setCanceled(protect);
@@ -66,9 +66,9 @@ public class harmfulEvent {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void attack(LivingAttackEvent event){
+    public static void attack(LivingAttackEvent event) {
         final boolean protect = ((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization();
-        if(protect){
+        if (protect) {
             event.setCanceled(protect);
             logger.info("Block Attack");
         }
@@ -86,38 +86,40 @@ public class harmfulEvent {
 
     @SubscribeEvent
     public static void command(CommandEvent event) throws CommandSyntaxException {
-        CommandContextBuilder<CommandSourceStack> contextBuilder = event.getParseResults().getContext();
-        if(contextBuilder.getSource().isPlayer() && ((EntityAccess) Objects.requireNonNull(contextBuilder.getSource().getPlayer())).administrator_authorization$getAuthorization()){
-            return;
-        }
-        if (contextBuilder.getArguments().get("targets") != null) {
-            EntitySelector selector = (EntitySelector) contextBuilder.getArguments().get("targets").getResult();
-            boolean contain = selector.findEntities(contextBuilder.getSource()).stream().anyMatch(entity -> ((EntityAccess)entity).administrator_authorization$getAuthorization());
-            event.setCanceled(contain);
-            if (contain) System.out.println("Contain Administrator!");
+        if (AAAuthorizationConfiguration.COMMAND_PROTECT.get()) {
+            CommandContextBuilder<CommandSourceStack> contextBuilder = event.getParseResults().getContext();
+            if (contextBuilder.getSource().isPlayer() && ((EntityAccess) Objects.requireNonNull(contextBuilder.getSource().getPlayer())).administrator_authorization$getAuthorization()) {
+                return;
+            }
+            if (contextBuilder.getArguments().get("targets") != null) {
+                EntitySelector selector = (EntitySelector) contextBuilder.getArguments().get("targets").getResult();
+                boolean contain = selector.findEntities(contextBuilder.getSource()).stream().anyMatch(entity -> ((EntityAccess) entity).administrator_authorization$getAuthorization());
+                event.setCanceled(contain);
+                if (contain) System.out.println("Contain Administrator!");
+            }
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void harmfulEffect(Applicable event){
+    public static void harmfulEffect(Applicable event) {
         event.getEffectInstance();
         if (((EntityAccess) event.getEntity()).administrator_authorization$getAuthorization() && isHarmfulEffect(event.getEffectInstance().getEffect())) {
             event.setResult(Event.Result.DENY);
         }
     }
 
-    private static boolean isHarmfulEffect(MobEffect effect){
+    private static boolean isHarmfulEffect(MobEffect effect) {
         MobEffectCategory category = effect.getCategory();
-        if(AAAuthorizationConfiguration.BAN_NEUTRAL.get()){
+        if (AAAuthorizationConfiguration.BAN_NEUTRAL.get()) {
             return category.equals(MobEffectCategory.HARMFUL) || category.equals(MobEffectCategory.NEUTRAL);
         }
         return category.equals(MobEffectCategory.HARMFUL);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void explosion(Start event){
+    public static void explosion(Start event) {
         for (Map.Entry<Player, Vec3> entry : event.getExplosion().getHitPlayers().entrySet()) {
-            if(((EntityAccess) entry.getKey()).administrator_authorization$getAuthorization()){
+            if (((EntityAccess) entry.getKey()).administrator_authorization$getAuthorization()) {
                 event.setCanceled(true);
                 break;
             }
@@ -125,7 +127,7 @@ public class harmfulEvent {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void breakNothingness(BreakEvent event){
+    public static void breakNothingness(BreakEvent event) {
         event.setCanceled(event.getState().getBlock().equals(AdministratorAuthorizationModBlocks.NOTHINGNESS.get()));
     }
 }

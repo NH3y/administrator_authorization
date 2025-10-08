@@ -5,20 +5,27 @@
   "refmap": "mixins.administrator_authorization.refmap.json",
   "mixins": [
     "AttributeMapMixin",
+    "CompoundTagMixin",
     "DataItemMixin",
     "EntityDataAccessorMixin",
-    "EntityEventCorruption",
+    "EntityDataAccessorsMixin",
     "EntityMixinMixin",
+    "EntitySectionMixin",
     "EventBusMixin",
     "ForgeHooksMixin",
     "LevelMixin",
     "LivingEntityMixin",
+    "PersistentEntitySectionManagerMixin",
     "PlayerListMixin",
     "PlayerMixin",
+    "ServerLevelMixin",
     "ServerPlayerMixin",
-    "SynchedEntityDataMixin"
+    "SynchedEntityDataMixin",
+    "TransientEntitySectionManagerMixin",
+    "overrider.PlayerToLivingEntityOverrider"
   ],
   "client": [
+    "ClientLevelMixin",
     "ItemCooldownMixin",
     "LocalPlayerMixin"
   ],

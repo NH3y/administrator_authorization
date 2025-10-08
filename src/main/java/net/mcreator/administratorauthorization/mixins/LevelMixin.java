@@ -20,26 +20,27 @@ import java.util.function.Predicate;
 
 @Mixin(value = Level.class, priority = Integer.MIN_VALUE)
 public abstract class LevelMixin implements LevelAccess {
-    @Shadow public abstract BlockState getBlockState(BlockPos pPos);
+    @Shadow
+    public abstract BlockState getBlockState(BlockPos pPos);
 
     @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true)
     public void destroyBlock(BlockPos pPos, boolean pDropBlock, Entity pEntity, int pRecursionLeft, CallbackInfoReturnable<Boolean> cir) {
         BlockState blockState = this.getBlockState(pPos);
-        if(blockState.getBlock() == AdministratorAuthorizationModBlocks.NOTHINGNESS.get()){
+        if (blockState.getBlock() == AdministratorAuthorizationModBlocks.NOTHINGNESS.get()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "shouldTickDeath", at = @At("RETURN"), cancellable = true)
-    public void shouldTickDeath(Entity pEntity, CallbackInfoReturnable<Boolean> cir){
-        if(pEntity instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
+    public void shouldTickDeath(Entity pEntity, CallbackInfoReturnable<Boolean> cir) {
+        if (pEntity instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;", at = @At("RETURN"), cancellable = true)
-    public void getEntities(Entity pEntity, AABB pBoundingBox, Predicate<? super Entity> pPredicate, CallbackInfoReturnable<List<Entity>> cir){
-        if(AAAuthorizationConfiguration.SPACE_INTERFERE.get()) {
+    public void getEntities(Entity pEntity, AABB pBoundingBox, Predicate<? super Entity> pPredicate, CallbackInfoReturnable<List<Entity>> cir) {
+        if (AAAuthorizationConfiguration.SPACE_INTERFERE.get()) {
             cir.setReturnValue(
                     cir.getReturnValue().stream().filter(entity ->
                                     !((EntityAccess) entity).administrator_authorization$getAuthorization())
@@ -49,7 +50,7 @@ public abstract class LevelMixin implements LevelAccess {
     }
 
     @Override
-    public boolean administrator_authorization$destroyBlock(){
+    public boolean administrator_authorization$destroyBlock() {
         return true;
     }
 }

@@ -21,8 +21,8 @@ public class HealthDataProvider implements ICapabilityProvider, INBTSerializable
     private final LazyOptional<IHealthData> lazyOptional = LazyOptional.of(() -> healthData);
 
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side){
-        if(cap == HEALTH_DATA) {
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == HEALTH_DATA) {
             return lazyOptional.cast();
         }
         return LazyOptional.empty();
@@ -30,16 +30,16 @@ public class HealthDataProvider implements ICapabilityProvider, INBTSerializable
 
     @Override
     public CompoundTag serializeNBT() {
-        if (healthData instanceof HealthData){
-            ((HealthData)healthData).serializeNBT();
+        if (healthData instanceof HealthData) {
+            ((HealthData) healthData).serializeNBT();
         }
         return new CompoundTag();
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        if (healthData instanceof HealthData){
-            ((HealthData)healthData).deserializeNBT(nbt);
+        if (healthData instanceof HealthData) {
+            ((HealthData) healthData).deserializeNBT(nbt);
         }
     }
 

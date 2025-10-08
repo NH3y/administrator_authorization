@@ -8,12 +8,12 @@ public class HealthData implements IHealthData {
     private boolean HealthLock = false;
 
     @Override
-    public float getHealthLimit(){
+    public float getHealthLimit() {
         return HealthLimit;
     }
 
     @Override
-    public void setHealthLimit(float limit){
+    public void setHealthLimit(float limit) {
         this.HealthLimit = limit;
     }
 
@@ -24,13 +24,13 @@ public class HealthData implements IHealthData {
         return tag;
     }
 
-    public void deserializeNBT(CompoundTag tag){
+    public void deserializeNBT(CompoundTag tag) {
         HealthLimit = tag.getFloat("healthLimit");
         HealthLock = tag.getBoolean("healthLock");
     }
 
     @Override
-    public void setHealthLock(boolean lock){
+    public void setHealthLock(boolean lock) {
         this.HealthLock = lock;
     }
 
