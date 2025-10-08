@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(CompoundTag.class)
 public class CompoundTagMixin {
     @Inject(method = "getList", at = @At("RETURN"), cancellable = true)
-    public void getList(String pKey, int pTagType, CallbackInfoReturnable<ListTag> cir){
-        if(!cir.getReturnValue().isEmpty() && pKey.equals("Entities")) {
+    public void getList(String pKey, int pTagType, CallbackInfoReturnable<ListTag> cir) {
+        if (!cir.getReturnValue().isEmpty() && pKey.equals("Entities")) {
             ListTag returnValue = cir.getReturnValue();
             returnValue.removeIf(tag -> {
                 if (((CompoundTag) tag).get("LostEntity") != null) {

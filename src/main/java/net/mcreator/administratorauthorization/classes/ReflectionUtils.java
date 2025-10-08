@@ -15,17 +15,20 @@ public class ReflectionUtils {
     private final Class<?> targetClass;
     private final boolean INDEPENDENT;
 
-    public ReflectionUtils(Class<?> target){
+    public ReflectionUtils(Class<?> target) {
+        if (target == null) {
+            throw new IllegalArgumentException("Target class can't be null");
+        }
         this.targetClass = target;
         this.INDEPENDENT = target.getSuperclass() == null;
     }
 
-    public Object getValue(String name, Object body){
+    public Object getValue(String name, Object body) {
         ArrayList<Field> fields = getFieldsWithName(name);
-        if(fields.size() == 1){
+        if (fields.size() == 1) {
             Field source = fields.get(0);
             source.setAccessible(true);
-            try{
+            try {
                 return source.get(body);
             } catch (IllegalAccessException ignored) {
 
@@ -36,7 +39,7 @@ public class ReflectionUtils {
 
     public void setValue(String name, Object body, Object value) {
         ArrayList<Field> fields = getFieldsWithName(name);
-        if(fields.size() == 1){
+        if (fields.size() == 1) {
             Field injector = fields.get(0);
             try {
                 injector.setAccessible(true);
@@ -50,7 +53,7 @@ public class ReflectionUtils {
     private @NotNull ArrayList<Field> getFieldsWithName(String name) {
         ArrayList<Field> fields = new ArrayList<>();
         for (Class<?> aClass : this.getAllClasses()) {
-            try{
+            try {
                 fields.add(aClass.getDeclaredField(name));
             } catch (NoSuchFieldException e) {
                 throw new RuntimeException(e);
@@ -59,15 +62,15 @@ public class ReflectionUtils {
         return fields;
     }
 
-    public ArrayList<Field> getAllFieldsWithType(Class<?> type){
+    public ArrayList<Field> getAllFieldsWithType(Class<?> type) {
         ArrayList<Field> fields = new ArrayList<>();
-        for(Class<?> aClass : this.getAllClasses()){
+        for (Class<?> aClass : this.getAllClasses()) {
             fields.addAll(Arrays.stream(aClass.getDeclaredFields()).filter(field -> type.isAssignableFrom(field.getType())).collect(Collectors.toSet()));
         }
         return fields;
     }
 
-    public ArrayList<Field> getSuspiciousFields(String involve){
+    public ArrayList<Field> getSuspiciousFields(String involve) {
         ArrayList<Field> fields = new ArrayList<>();
         for (Class<?> aClass : this.getAllClasses()) {
             fields.addAll(Arrays.stream(aClass.getDeclaredFields()).filter(field -> field.getName().toLowerCase().contains(involve)).collect(Collectors.toSet()));
@@ -75,17 +78,17 @@ public class ReflectionUtils {
         return fields;
     }
 
-    public ArrayList<Method> getSuspiciousMethod(String involve){
+    public ArrayList<Method> getSuspiciousMethod(String involve) {
         ArrayList<Method> methods = new ArrayList<>();
-        for(Class<?> aClass : this.getAllClasses()){
+        for (Class<?> aClass : this.getAllClasses()) {
             methods.addAll(Arrays.stream(aClass.getDeclaredMethods()).filter(method -> method.getName().toLowerCase().contains(involve)).collect(Collectors.toSet()));
         }
         return methods;
     }
 
-    public Set<Class<?>> getAllClasses(){
+    public Set<Class<?>> getAllClasses() {
         Set<Class<?>> classes = new HashSet<>(16);
-        if(this.INDEPENDENT){
+        if (this.INDEPENDENT) {
             classes.add(this.targetClass);
             return classes;
         }

@@ -14,27 +14,28 @@ public class ForgeHooksMixin {
 
     @Inject(method = "onLivingDeath", at = @At("RETURN"), cancellable = true)
     private static void onLivingDeath(LivingEntity entity, DamageSource src, CallbackInfoReturnable<Boolean> cir) {
-        if (((EntityAccess) entity).administrator_authorization$getAuthorization()){
+        if (((EntityAccess) entity).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "onLivingDamage", at = @At("RETURN"), cancellable = true)
     private static void onLivingDamage(LivingEntity entity, DamageSource src, float amount, CallbackInfoReturnable<Float> cir) {
-        if (((EntityAccess) entity).administrator_authorization$getAuthorization()){
+        if (((EntityAccess) entity).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(0.0f);
         }
     }
 
     @Inject(method = "onLivingHurt", at = @At("RETURN"), cancellable = true)
     private static void onLivingHurt(LivingEntity entity, DamageSource src, float amount, CallbackInfoReturnable<Float> cir) {
-        if (((EntityAccess) entity).administrator_authorization$getAuthorization()){
+        if (((EntityAccess) entity).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(0.0f);
         }
     }
+
     @Inject(method = "onLivingAttack", at = @At("RETURN"), cancellable = true)
     private static void onLivingAttack(LivingEntity entity, DamageSource src, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (((EntityAccess) entity).administrator_authorization$getAuthorization()){
+        if (((EntityAccess) entity).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }

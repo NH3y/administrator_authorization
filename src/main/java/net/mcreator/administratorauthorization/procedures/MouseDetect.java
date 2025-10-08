@@ -4,23 +4,25 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 
 public class MouseDetect {
-    public static double getMouseX(MouseHandler mouse){
+    public static double getMouseX(MouseHandler mouse) {
         return mouse.xpos();
     }
-    public static double getMouseY(MouseHandler mouse){
+
+    public static double getMouseY(MouseHandler mouse) {
         return mouse.ypos();
     }
-    public static int mouseDistrict(Minecraft minecraft){
+
+    public static int mouseDistrict(Minecraft minecraft) {
         int height = minecraft.getWindow().getScreenHeight();
         int width = minecraft.getWindow().getScreenWidth();
         MouseHandler mouse = minecraft.mouseHandler;
         double fixedX = getMouseY(mouse) - ((double) height / 2);
         double fixedY = getMouseX(mouse) - ((double) width / 2);
         double scale = minecraft.getWindow().getGuiScale();
-        if (fixedX * fixedX + fixedY * fixedY <= 170* scale*scale) return 32;
-        if (fixedX * fixedX + fixedY * fixedY >= 9216* scale*scale) return -1;
+        if (fixedX * fixedX + fixedY * fixedY <= 170 * scale * scale) return 32;
+        if (fixedX * fixedX + fixedY * fixedY >= 9216 * scale * scale) return -1;
         double degree = Math.atan2(fixedX, fixedY) * 180 / Math.PI;
-        int district =  (int) Math.floor(degree / 45) + 2;
-        return district>=0 ? district : district + 8;
+        int district = (int) Math.floor(degree / 45) + 2;
+        return district >= 0 ? district : district + 8;
     }
 }

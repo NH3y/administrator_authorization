@@ -20,5 +20,7 @@
   "gui.administrator_authorization.router_screen.label_weaken": "虛弱化",
   "gui.administrator_authorization.router_screen.label_disable": "無力化",
   "gui.administrator_authorization.router_screen.label_neutralize": "無效化",
-  "key.categories.adm_auth": "admin author"
+  "key.categories.adm_auth": "admin author",
+  "gui.administrator_authorization.router_screen.label_damnatio_memoriae_A": "記憶",
+  "gui.administrator_authorization.router_screen.label_damnatio_memoriae_B": "抹煞"
 }

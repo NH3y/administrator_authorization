@@ -26,9 +26,9 @@ public class ClientLevelMixin {
     private TransientEntitySectionManager<Entity> entityStorage;
 
     @Inject(method = "tickEntities", at = @At("HEAD"))
-    public void tick(CallbackInfo ci){
+    public void tick(CallbackInfo ci) {
         this.tickingEntities.forEach(entity -> {
-            if(((EntityAccess) entity).Administrator_authorization$isForgotten()){
+            if (((EntityAccess) entity).Administrator_authorization$isForgotten()) {
                 this.tickingEntities.remove(entity);
                 LevelCallback<Entity> callback = (LevelCallback<Entity>) ((TransientEntitySectionManagerAccess<?>) this.entityStorage).administrator_authorization$getLevelCallbackBack();
                 callback.onTrackingEnd(entity);

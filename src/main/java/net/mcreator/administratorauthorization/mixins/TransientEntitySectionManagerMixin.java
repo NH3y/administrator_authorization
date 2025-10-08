@@ -13,7 +13,7 @@ public class TransientEntitySectionManagerMixin<T> implements net.mcreator.admin
     LevelCallback<T> callbacks;
 
     @Override
-    public LevelCallback<T> administrator_authorization$getLevelCallbackBack(){
+    public LevelCallback<T> administrator_authorization$getLevelCallbackBack() {
         return this.callbacks;
     }
 }

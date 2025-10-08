@@ -29,21 +29,25 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     public LocalPlayerMixin(ClientLevel pClientLevel, GameProfile pGameProfile) {
         super(pClientLevel, pGameProfile);
     }
-    @Shadow @Final protected Minecraft minecraft;
 
-    @Shadow public abstract void setShowDeathScreen(boolean pShow);
+    @Shadow
+    @Final
+    protected Minecraft minecraft;
+
+    @Shadow
+    public abstract void setShowDeathScreen(boolean pShow);
 
     @Unique
     private boolean administrator_authorization$pressRouter = false;
 
     @Override
-    public Minecraft administrator_authorization$getMinecraft(){
+    public Minecraft administrator_authorization$getMinecraft() {
         return this.minecraft;
     }
 
     @Inject(method = "tickDeath", at = @At("HEAD"), cancellable = true)
-    public void tickDeath(CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+    public void tickDeath(CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
             AdministratorAuthorizationMod.LOGGER.info("Mixin : tickDeath");
             this.deathTime = 0;
@@ -51,15 +55,15 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     }
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "setShowDeathScreen", at = @At("HEAD"), cancellable = true)
-    public void setShowDeathScreen(CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+    public void setShowDeathScreen(CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             this.setShowDeathScreen(false);
             ci.cancel();
             AdministratorAuthorizationMod.LOGGER.info("Mixin : setShowScreen");
@@ -68,7 +72,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Inject(method = "shouldShowDeathScreen", at = @At("RETURN"), cancellable = true)
     public void shouldShowDeathScreen(CallbackInfoReturnable<Boolean> cir) {
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
             AdministratorAuthorizationMod.LOGGER.info("Mixin : getShowScreen");
         }
@@ -76,21 +80,21 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Inject(method = "hurtTo", at = @At("HEAD"), cancellable = true)
     public void hurt(float pHealth, CallbackInfo ci) {
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
     public void actuallyHurt(DamageSource pDamageSrc, float pDamageAmount, CallbackInfo ci) {
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "respawn", at = @At("HEAD"), cancellable = true)
-    public void respawn(CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void respawn(CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
@@ -109,7 +113,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 mouse.releaseMouse();
             } else if (!mouse.isMouseGrabbed()) {
                 player.administrator_authorization$getRouter().updateCapability();
-                if(!administrator_authorization$safeGuard) {
+                if (!administrator_authorization$safeGuard) {
                     administrator_authorization$safeGuard = true;
                     mouse.grabMouse();
                 }
@@ -119,7 +123,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     }
 
     @Override
-    public boolean administrator_authorization$isPressRouter(){
+    public boolean administrator_authorization$isPressRouter() {
         return this.administrator_authorization$pressRouter;
     }
 }

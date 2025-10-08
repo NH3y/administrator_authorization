@@ -1,8 +1,6 @@
 package net.mcreator.administratorauthorization.mixins;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.entity.PersistentEntitySectionManager;
@@ -27,17 +25,13 @@ public abstract class PersistentEntitySectionManagerMixin<T extends EntityAccess
     protected abstract void requestChunkLoad(long pChunkPosValue);
 
     @Override
-    public LevelCallback<T> administrator_authorization$getLevelCallbackBack(){
+    public LevelCallback<T> administrator_authorization$getLevelCallbackBack() {
         return this.callbacks;
     }
 
     @Override
-    public void administrator_authorization$removeUuid(Entity entity){
+    public void administrator_authorization$removeUuid(Entity entity) {
         this.knownUuids.remove(entity.getUUID());
     }
 
-    @Override
-    public void administrator_authorization$publicRequestChunkLoad(BlockPos blockPos){
-        this.requestChunkLoad(ChunkPos.asLong(blockPos));
-    }
 }

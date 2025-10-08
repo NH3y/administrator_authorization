@@ -21,7 +21,8 @@
     "ServerLevelMixin",
     "ServerPlayerMixin",
     "SynchedEntityDataMixin",
-    "TransientEntitySectionManagerMixin"
+    "TransientEntitySectionManagerMixin",
+    "overrider.PlayerToLivingEntityOverrider"
   ],
   "client": [
     "ClientLevelMixin",

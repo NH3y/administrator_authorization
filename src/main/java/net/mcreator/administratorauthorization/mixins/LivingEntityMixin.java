@@ -15,16 +15,18 @@ import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.ai.attributes.*;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-
-import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -168,7 +170,21 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Inject(method = "getHealth", at = @At("HEAD"), cancellable = true)
-    public void getHealth(CallbackInfoReturnable<Float> cir) {
+    public void getHealth0(CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
+        }
+    }
+
+    @Inject(method = "getHealth", at = @At("RETURN"), cancellable = true)
+    public void getHealthR(CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
+        }
+    }
+
+    @Inject(method = "getHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/syncher/SynchedEntityData;get(Lnet/minecraft/network/syncher/EntityDataAccessor;)Ljava/lang/Object;"), cancellable = true)
+    public void getHealthC(CallbackInfoReturnable<Float> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
         }
@@ -226,7 +242,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
-    public void handleEntityEvent(byte pId, CallbackInfo ci){
+    public void handleEntityEvent(byte pId, CallbackInfo ci) {
         if (pId == 3 && ((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
@@ -241,8 +257,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     public void tickHead(CallbackInfo ci) {
-        if(((EntityAccess)this).administrator_authorization$getAuthorization()){
-            if(((EntityAccess)this).administrator_authorization$isEmergency()){
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            if (((EntityAccess) this).administrator_authorization$isEmergency()) {
                 this.administrator_authorization$protectedTick();
                 ci.cancel();
             }
@@ -253,60 +269,60 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
                     this.administrator_authorization$getFixedMaxHealth()
             );
         }
-}
+    }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    public void tick(CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void tick(CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             this.dead = false;
             this.deathTime = 0;
             ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
                     this.administrator_authorization$getAccessorHealth(),
                     this.administrator_authorization$getFixedMaxHealth()
             );
-            if(this.getPose() == Pose.DYING) {
+            if (this.getPose() == Pose.DYING) {
                 this.setPose(Pose.STANDING);
             }
         }
     }
 
     @Inject(method = "isDamageSourceBlocked", at = @At("HEAD"), cancellable = true)
-    public void isDamageSourceBlocked(DamageSource pDamageSource, CallbackInfoReturnable<Boolean> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void isDamageSourceBlocked(DamageSource pDamageSource, CallbackInfoReturnable<Boolean> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "knockback", at = @At("HEAD"), cancellable = true)
-    public void knockback(double pStrength, double pX, double pZ, CallbackInfo ci){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void knockback(double pStrength, double pX, double pZ, CallbackInfo ci) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }
     }
 
     @Inject(method = "getDamageAfterArmorAbsorb", at = @At("HEAD"), cancellable = true)
-    public void getDamageAfterArmorAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void getDamageAfterArmorAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(0.0F);
         }
     }
 
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"), cancellable = true)
-    public void getDamageAfterMagicAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void getDamageAfterMagicAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(0.0F);
         }
     }
 
     @Inject(method = "getWaterSlowDown", at = @At("RETURN"), cancellable = true)
-    public void getWaterSlowDown(CallbackInfoReturnable<Float> cir){
-        if(((EntityAccess) this).administrator_authorization$getAuthorization()){
+    public void getWaterSlowDown(CallbackInfoReturnable<Float> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(1.0F);
         }
     }
 
     @Unique
-    private void administrator_authorization$protectedTick(){
+    private void administrator_authorization$protectedTick() {
         ((EntityAccess) this).administrator_authorization$tickEmergency();
         this.dead = false;
         this.deathTime = 0;
@@ -315,7 +331,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
                 this.administrator_authorization$getFixedMaxHealth()
         );
 
-        if (ForgeHooks.onLivingTick((LivingEntity) (Object)this)) return;
+        if (ForgeHooks.onLivingTick((LivingEntity) (Object) this)) return;
         super.tick();
         this.updatingUsingItem();
         this.updateSwimAmount();
@@ -360,15 +376,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
         double d1 = this.getX() - this.xo;
         double d0 = this.getZ() - this.zo;
-        float f = (float)(d1 * d1 + d0 * d0);
+        float f = (float) (d1 * d1 + d0 * d0);
         float f1 = this.yBodyRot;
         float f2 = 0.0F;
         this.oRun = this.run;
         float f3 = 0.0F;
         if (f > 0.0025000002F) {
             f3 = 1.0F;
-            f2 = (float)Math.sqrt((double)f) * 3.0F;
-            float f4 = (float) Mth.atan2(d0, d1) * (180F / (float)Math.PI) - 90.0F;
+            f2 = (float) Math.sqrt(f) * 3.0F;
+            float f4 = (float) Mth.atan2(d0, d1) * (180F / (float) Math.PI) - 90.0F;
             float f5 = Mth.abs(Mth.wrapDegrees(this.getYRot()) - f4);
             if (95.0F < f5 && f5 < 265.0F) {
                 f1 = f4 - 180.0F;
@@ -391,35 +407,35 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         this.level().getProfiler().pop();
         this.level().getProfiler().push("rangeChecks");
 
-        while(this.getYRot() - this.yRotO < -180.0F) {
+        while (this.getYRot() - this.yRotO < -180.0F) {
             this.yRotO -= 360.0F;
         }
 
-        while(this.getYRot() - this.yRotO >= 180.0F) {
+        while (this.getYRot() - this.yRotO >= 180.0F) {
             this.yRotO += 360.0F;
         }
 
-        while(this.yBodyRot - this.yBodyRotO < -180.0F) {
+        while (this.yBodyRot - this.yBodyRotO < -180.0F) {
             this.yBodyRotO -= 360.0F;
         }
 
-        while(this.yBodyRot - this.yBodyRotO >= 180.0F) {
+        while (this.yBodyRot - this.yBodyRotO >= 180.0F) {
             this.yBodyRot += 360.0F;
         }
 
-        while(this.getXRot() - this.xRotO < -180.0F) {
+        while (this.getXRot() - this.xRotO < -180.0F) {
             this.xRotO -= 360.0F;
         }
 
-        while(this.getXRot() - this.xRotO >= 180.0F) {
+        while (this.getXRot() - this.xRotO >= 180.0F) {
             this.xRotO += 360.0F;
         }
 
-        while(this.yHeadRot - this.yHeadRotO < -180.0F) {
+        while (this.yHeadRot - this.yHeadRotO < -180.0F) {
             this.yHeadRotO -= 360.0F;
         }
 
-        while(this.yHeadRot - this.yHeadRotO >= 180.0F) {
+        while (this.yHeadRot - this.yHeadRotO >= 180.0F) {
             this.yHeadRotO += 360.0F;
         }
 
@@ -441,17 +457,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
                 this.administrator_authorization$getAccessorHealth(),
                 this.administrator_authorization$getFixedMaxHealth()
         );
-        if(this.getPose() == Pose.DYING) {
+        if (this.getPose() == Pose.DYING) {
             this.setPose(Pose.STANDING);
         }
     }
 
     @Override
-    public void administrator_authorization$accessDropLoot(LevelAccessor world){
+    public void administrator_authorization$accessDropLoot(LevelAccessor world) {
         this.dropAllDeathLoot(new DamageSource(world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(ResourceKey.create(
                         Registries.DAMAGE_TYPE,
-                        new ResourceLocation("administrator_authorization:chaotic_void"))),this.getKillCredit())
+                        new ResourceLocation("administrator_authorization:chaotic_void"))), this.getKillCredit())
         );
     }
 
@@ -461,7 +477,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Override
-    public void administrator_authorization$setAttributes(Attribute attribute, double value){
+    public void administrator_authorization$setAttributes(Attribute attribute, double value) {
         AttributeInstance instance = this.attributes.getInstance(attribute);
         if (instance == null) {
             return;
@@ -476,18 +492,18 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Override
-    public float administrator_authorization$getFixedMaxHealth(){
+    public float administrator_authorization$getFixedMaxHealth() {
         float health = Math.max(0 + Math.abs(this.getMaxHealth()), Math.max(DEATH_DURATION, 20));
         return health < Float.MAX_VALUE ? health : 20;
     }
 
     @Override
-    public void administrator_authorization$setHealth(float value){
-        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID,value);
+    public void administrator_authorization$setHealth(float value) {
+        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID, value);
     }
 
     @Override
-    public EntityDataAccessor<Float> administrator_authorization$getAccessorHealth(){
+    public EntityDataAccessor<Float> administrator_authorization$getAccessorHealth() {
         return DATA_HEALTH_ID;
     }
 }

@@ -4,6 +4,7 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PersistentEntitySectionManagerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.entity.EntityTickList;
@@ -29,19 +30,19 @@ public class ServerLevelMixin implements ServerLevelAccess {
     EntityTickList entityTickList;
 
     @Override
-    public PersistentEntitySectionManager<Entity> administrator_authorization$getEntityManager(){
+    public PersistentEntitySectionManager<Entity> administrator_authorization$getEntityManager() {
         return this.entityManager;
     }
 
     @Override
-    public EntityTickList administrator_authorization$getEntityTickList(){
+    public EntityTickList administrator_authorization$getEntityTickList() {
         return this.entityTickList;
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
-    public void tick(BooleanSupplier pHasTimeLeft, CallbackInfo ci){
+    public void tick(BooleanSupplier pHasTimeLeft, CallbackInfo ci) {
         this.entityTickList.forEach(entity -> {
-            if(((EntityAccess) entity).Administrator_authorization$isForgotten()){
+            if (((EntityAccess) entity).Administrator_authorization$isForgotten()) {
                 entityTickList.remove(entity);
                 LevelCallback<Entity> callback = (LevelCallback<Entity>) ((PersistentEntitySectionManagerAccess<?>) this.entityManager).administrator_authorization$getLevelCallbackBack();
                 callback.onTrackingEnd(entity);
@@ -50,5 +51,19 @@ public class ServerLevelMixin implements ServerLevelAccess {
                 ((PersistentEntitySectionManagerAccess<?>) this.entityManager).administrator_authorization$removeUuid(entity);
             }
         });
+    }
+
+    @Inject(method = "broadcastEntityEvent", at = @At("HEAD"), cancellable = true)
+    public void broadcastEntityEvent(Entity pEntity, byte pState, CallbackInfo ci) {
+        if (pState == 3 && ((EntityAccess) pEntity).administrator_authorization$getAuthorization()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "broadcastDamageEvent", at = @At("HEAD"), cancellable = true)
+    public void broadcastDamageEvent(Entity pEntity, DamageSource pDamageSource, CallbackInfo ci) {
+        if (((EntityAccess) pEntity).administrator_authorization$getAuthorization()) {
+            ci.cancel();
+        }
     }
 }

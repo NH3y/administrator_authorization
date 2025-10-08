@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 @Mixin(EntitySection.class)
 public class EntitySectionMixin<T extends EntityAccess> {
     @Inject(method = "getEntities()Ljava/util/stream/Stream;", at = @At("RETURN"), cancellable = true)
-    public void missingEntity(CallbackInfoReturnable<Stream<T>> cir){
+    public void missingEntity(CallbackInfoReturnable<Stream<T>> cir) {
         cir.setReturnValue(
                 cir.getReturnValue().filter(entity -> !((net.mcreator.administratorauthorization.Interfaces.EntityAccess) entity).administrator_authorization$isRejectSave())
         );

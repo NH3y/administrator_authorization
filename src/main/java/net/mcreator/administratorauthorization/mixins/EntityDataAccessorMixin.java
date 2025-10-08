@@ -16,18 +16,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityDataAccessor.class)
 public class EntityDataAccessorMixin {
-    @Shadow @Final private Entity entity;
+    @Shadow
+    @Final
+    private Entity entity;
     @Unique
     private boolean administrator_authorization$protect;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    public void init(Entity pEntity, CallbackInfo ci){
+    public void init(Entity pEntity, CallbackInfo ci) {
         this.administrator_authorization$protect = ((EntityAccess) this.entity).administrator_authorization$getAuthorization();
     }
 
     @Inject(method = "getData", at = @At("RETURN"), cancellable = true)
-    public void getData(CallbackInfoReturnable<CompoundTag> cir){
-        if(this.administrator_authorization$protect){
+    public void getData(CallbackInfoReturnable<CompoundTag> cir) {
+        if (this.administrator_authorization$protect) {
             CompoundTag tag = cir.getReturnValue();
             tag.putFloat("Health", ((LivingEntityAccess) this.entity).administrator_authorization$getFixedMaxHealth());
             tag.putShort("DeathTime", (short) 0);

@@ -19,13 +19,16 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = AdministratorAuthorizationMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class attachCapability {
-    public static final Capability<IRouterData> ROUTER_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
-    public static final Capability<IHealthData> HEALTH_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
-    public static final Capability<IHealthData> INVENTORY_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<IRouterData> ROUTER_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
+    public static final Capability<IHealthData> HEALTH_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
+    public static final Capability<IHealthData> INVENTORY_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
     @SubscribeEvent
-    public static void attachCapabilities(AttachCapabilitiesEvent<Entity> event){
-        if (event.getObject() instanceof Player){
+    public static void attachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof Player) {
             event.addCapability(new ResourceLocation(AdministratorAuthorizationMod.MODID, "router_data"),
                     new RouterDataProvider());
 
@@ -33,7 +36,7 @@ public class attachCapability {
                     new InventoryDataProvider());
         }
 
-        if (event.getObject() instanceof LivingEntity){
+        if (event.getObject() instanceof LivingEntity) {
             event.addCapability(new ResourceLocation(AdministratorAuthorizationMod.MODID, "health_data"),
                     new HealthDataProvider());
         }

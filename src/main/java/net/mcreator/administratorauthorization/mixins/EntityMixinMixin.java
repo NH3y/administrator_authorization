@@ -1,12 +1,15 @@
 package net.mcreator.administratorauthorization.mixins;
 
+import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.*;
+import net.mcreator.administratorauthorization.classes.VarContainer;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
@@ -16,9 +19,10 @@ import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
 import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.*;
-
-import net.minecraft.world.entity.Entity;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -35,13 +39,18 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
         super(Entity.class);
     }
 
-    @Shadow public abstract void setRemoved(Entity.RemovalReason pRemovalReason);
+    @Shadow
+    public abstract void setRemoved(Entity.RemovalReason pRemovalReason);
 
-    @Shadow private Level level;
+    @Shadow
+    private Level level;
 
-    @Shadow protected abstract void unsetRemoved();
+    @Shadow
+    protected abstract void unsetRemoved();
 
-    @Shadow @Final protected SynchedEntityData entityData;
+    @Shadow
+    @Final
+    protected SynchedEntityData entityData;
 
     @Shadow(remap = false)
     public abstract void revive();
@@ -49,9 +58,13 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     @Shadow(remap = false)
     public abstract void onRemovedFromWorld();
 
-    @Shadow @Nullable private Entity.RemovalReason removalReason;
+    @Shadow
+    @Nullable
+    private Entity.RemovalReason removalReason;
 
-    @Shadow @Final private Set<String> tags;
+    @Shadow
+    @Final
+    private Set<String> tags;
     @Shadow
     private EntityInLevelCallback levelCallback;
 
@@ -92,37 +105,37 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     private int administrator_authorization$emergencyTime = 0;
 
     @Inject(method = "isOnFire", at = @At("HEAD"), cancellable = true)
-    public void isOnFire(CallbackInfoReturnable<Boolean> cir){
-        if (this.administrator_authorization$getAuthorization()){
+    public void isOnFire(CallbackInfoReturnable<Boolean> cir) {
+        if (this.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "fireImmune", at = @At("HEAD"), cancellable = true)
-    public void fireImmune(CallbackInfoReturnable<Boolean> cir){
-        if (this.administrator_authorization$getAuthorization()){
+    public void fireImmune(CallbackInfoReturnable<Boolean> cir) {
+        if (this.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "isFreezing", at = @At("HEAD"), cancellable = true)
-    public void isFreezing(CallbackInfoReturnable<Boolean> cir){
-        if (this.administrator_authorization$getAuthorization()){
+    public void isFreezing(CallbackInfoReturnable<Boolean> cir) {
+        if (this.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(method = "canFreeze", at = @At("HEAD"), cancellable = true)
-    public void canFreeze(CallbackInfoReturnable<Boolean> cir){
-        if (this.administrator_authorization$getAuthorization()){
+    public void canFreeze(CallbackInfoReturnable<Boolean> cir) {
+        if (this.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
         }
     }
 
     @Override
     public boolean administrator_authorization$getAuthorization() {
-        if((Object)this instanceof Player)
-                return this.administrator_authorization$Authorized && this.administrator_authorization$authorizeSwitch;
+        if ((Object) this instanceof Player)
+            return this.administrator_authorization$Authorized && this.administrator_authorization$authorizeSwitch;
         return false;
     }
 
@@ -133,32 +146,52 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
 
     @Override
     public void administrator_authorization$setAuthorization() {
-        if((Object)this instanceof Player player){
+        if ((Object) this instanceof Player player) {
             this.administrator_authorization$Authorized = true;
 
-            if (AAAuthorizationConfiguration.LOCK_HEALTH.get()) {
-                ((DataItemAccess) ((EntityDataAccess) this.entityData).administrator_authorization$publicGetItem(((LivingEntityAccess) player).administrator_authorization$getAccessorHealth())).administrator_authorization$setProtected(true);
+            if (AAAuthorizationConfiguration.LOCK_DATA.get()) {
+                for (VarContainer<?> value : VarContainer.byName.values()) {
+                    if (Float.class.isAssignableFrom(value.get().getClass())) {
+                        value.lock("READ_ONLY");
+                    }
+                }
             }
+
+            DataItemAccess<?> dataItemAccess = (DataItemAccess<?>)
+                    ((EntityDataAccess)
+                            this.entityData)
+                            .administrator_authorization$publicGetItem(
+                                    ((LivingEntityAccess)
+                                            player)
+                                            .administrator_authorization$getAccessorHealth());
+            dataItemAccess.administrator_authorization$toLock(3);
+
             ((EntityDataAccess) this.entityData).Administrator_authorization$getBannedId().add(
                     ((LivingEntityAccess) player).administrator_authorization$getAccessorHealth().getId()
             );
-            //ObjectCollection<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
+            ObjectCollection<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
+            dataItems.forEach(dataItem -> {
+                ((DataItemAccess<?>) dataItem).administrator_authorization$indexingItem();
+            });
+
+
+            //start of attribute part
             Set<Map.Entry<Attribute, AttributeInstance>> entries = ((AttributeAccess) player.getAttributes()).administrator_authorization$getAllAttributes().entrySet();
             for (Map.Entry<Attribute, AttributeInstance> instanceEntry : entries) {
                 if (instanceEntry.getKey().getDescriptionId().toLowerCase().replace("_", "").replace(".", "").contains("resist")
-                && instanceEntry.getKey() instanceof RangedAttribute rangedAttribute) {
-                    try{
+                        && instanceEntry.getKey() instanceof RangedAttribute rangedAttribute) {
+                    try {
                         ((AttributeAccess) player.getAttributes()).administrator_authorization$replaceValue(
                                 instanceEntry.getKey(),
                                 rangedAttribute.getMaxValue()
                         );
-                    }catch (RuntimeException ignore){
+                    } catch (RuntimeException ignore) {
 
                     }
                     System.out.println(instanceEntry.getKey().getDescriptionId());
                 }
             }
-
+            //end of attribute part
         }
     }
 
@@ -168,9 +201,9 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Override
-    public void administrator_authorization$forceRemove(){
+    public void administrator_authorization$forceRemove() {
         Iterator<Entity.RemovalReason> reason = Arrays.stream(Entity.RemovalReason.values()).iterator();
-        while(reason.hasNext()){
+        while (reason.hasNext()) {
             this.administrator_authorization$forceSetRemoved(reason.next());
         }
         this.invalidateCaps();
@@ -178,7 +211,7 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Override
-    public void administrator_authorization$forceSetRemoved(Entity.RemovalReason pRemovalReason){
+    public void administrator_authorization$forceSetRemoved(Entity.RemovalReason pRemovalReason) {
         if (this.removalReason == null) {
             this.removalReason = pRemovalReason;
         }
@@ -191,38 +224,38 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Override
-    public EntityInLevelCallback administrator_authorization$getLevelCallback(){
+    public EntityInLevelCallback administrator_authorization$getLevelCallback() {
         return this.levelCallback;
     }
 
     @Inject(method = "isInvulnerableTo", at = @At("RETURN"), cancellable = true)
-    public void isInvulnerableTo(DamageSource p_20122_, CallbackInfoReturnable<Boolean> cir){
-        if(this.administrator_authorization$getAuthorization() && !cir.getReturnValue()){
+    public void isInvulnerableTo(DamageSource p_20122_, CallbackInfoReturnable<Boolean> cir) {
+        if (this.administrator_authorization$getAuthorization() && !cir.getReturnValue()) {
             cir.setReturnValue(true);
             //AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
         }
     }
 
     @Inject(method = "remove", at = @At("HEAD"), cancellable = true)
-    public void remove(Entity.RemovalReason pReason, CallbackInfo ci){
-        if(this.administrator_authorization$getAuthorization() && pReason.equals(Entity.RemovalReason.KILLED)){
+    public void remove(Entity.RemovalReason pReason, CallbackInfo ci) {
+        if (this.administrator_authorization$getAuthorization() && pReason.equals(Entity.RemovalReason.KILLED)) {
             ci.cancel();
             this.revive();
         }
     }
 
     @Inject(method = "setRemoved", at = @At("HEAD"), cancellable = true)
-    public void setRemoved(Entity.RemovalReason pRemovalReason, CallbackInfo ci){
-        if(this.administrator_authorization$getAuthorization() && pRemovalReason.equals(Entity.RemovalReason.KILLED)){
+    public void setRemoved(Entity.RemovalReason pRemovalReason, CallbackInfo ci) {
+        if (this.administrator_authorization$getAuthorization() && pRemovalReason.equals(Entity.RemovalReason.KILLED)) {
             ci.cancel();
             this.revive();
         }
     }
 
     @Inject(method = "gameEvent(Lnet/minecraft/world/level/gameevent/GameEvent;)V", at = @At("HEAD"), cancellable = true)
-    public void gameEvent(GameEvent pEvent, CallbackInfo ci){
-        if(this.administrator_authorization$getAuthorization()){
-            switch(pEvent.getName()){
+    public void gameEvent(GameEvent pEvent, CallbackInfo ci) {
+        if (this.administrator_authorization$getAuthorization()) {
+            switch (pEvent.getName()) {
                 case "entity_damage", "entity_die" -> {
                     ci.cancel();
                     AdministratorAuthorizationMod.LOGGER.info("Mixin : Block GameEvent");
@@ -232,16 +265,16 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Inject(method = "isAlive", at = @At("RETURN"), cancellable = true)
-    public void isAlive(CallbackInfoReturnable<Boolean> cir){
-        if(this.administrator_authorization$getAuthorization()){
+    public void isAlive(CallbackInfoReturnable<Boolean> cir) {
+        if (this.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    public void tick(CallbackInfo ci){
-        if(this.administrator_authorization$getAuthorization()){
-            if(this.removalReason == Entity.RemovalReason.KILLED){
+    public void tick(CallbackInfo ci) {
+        if (this.administrator_authorization$getAuthorization()) {
+            if (this.removalReason == Entity.RemovalReason.KILLED) {
                 this.removalReason = null;
                 this.revive();
             }
@@ -249,15 +282,10 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Inject(method = "saveWithoutId", at = @At("RETURN"), cancellable = true)
-    public void saveWithoutId(CompoundTag pCompound, CallbackInfoReturnable<CompoundTag> cir){
+    public void saveWithoutId(CompoundTag pCompound, CallbackInfoReturnable<CompoundTag> cir) {
         CompoundTag returnValue = cir.getReturnValue();
         returnValue.putLong("LostEntity", this.administrator_authorization$identityCode);
         cir.setReturnValue(returnValue);
-    }
-
-    @Inject(method = "hurt", at = @At("HEAD"))
-    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir){
-
     }
 
     @Override
@@ -292,16 +320,16 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     @Override
     public void administrator_authorization$setEmergency(boolean administrator_authorization$emergency) {
         this.administrator_authorization$emergency = administrator_authorization$emergency;
-        if(administrator_authorization$emergency){
+        if (administrator_authorization$emergency) {
             this.administrator_authorization$emergencyTime = 1200;
         }
     }
 
     @Override
-    public void administrator_authorization$tickEmergency(){
+    public void administrator_authorization$tickEmergency() {
         if (this.administrator_authorization$emergencyTime > 0) {
             this.administrator_authorization$emergencyTime--;
-        }else {
+        } else {
             this.administrator_authorization$emergency = false;
             this.administrator_authorization$emergencyTime = 0;
         }

@@ -7,12 +7,12 @@ public class InventorySlotData implements IInventoryData {
     private int slot = Integer.MAX_VALUE;
 
     @Override
-    public int getSlotIndex(){
+    public int getSlotIndex() {
         return slot;
     }
 
     @Override
-    public void setSlotIndex(int index){
+    public void setSlotIndex(int index) {
         this.slot = index;
     }
 
@@ -22,7 +22,7 @@ public class InventorySlotData implements IInventoryData {
         return tag;
     }
 
-    public void deserializeNBT(CompoundTag tag){
+    public void deserializeNBT(CompoundTag tag) {
         slot = tag.getInt("slot_data");
     }
 }
