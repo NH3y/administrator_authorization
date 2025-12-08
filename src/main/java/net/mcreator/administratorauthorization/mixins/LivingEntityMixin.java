@@ -158,7 +158,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
             if (((EntityAccess) this).administrator_authorization$getAuthorization() && !(p_21154_ >= this.administrator_authorization$getFixedMaxHealth())) {
                 ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID, this.administrator_authorization$getFixedMaxHealth());
                 ci.cancel();
-                AdministratorAuthorizationMod.LOGGER.info("Mixin : setHeath");
+                AdministratorAuthorizationMod.LOGGER.info("Mixin : setHealth");
             }
         }
         if ((Object) this instanceof LivingEntity living) {
@@ -171,20 +171,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Inject(method = "getHealth", at = @At("HEAD"), cancellable = true)
     public void getHealth0(CallbackInfoReturnable<Float> cir) {
-        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
-            cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
-        }
-    }
-
-    @Inject(method = "getHealth", at = @At("RETURN"), cancellable = true)
-    public void getHealthR(CallbackInfoReturnable<Float> cir) {
-        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
-            cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
-        }
-    }
-
-    @Inject(method = "getHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/syncher/SynchedEntityData;get(Lnet/minecraft/network/syncher/EntityDataAccessor;)Ljava/lang/Object;"), cancellable = true)
-    public void getHealthC(CallbackInfoReturnable<Float> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(this.administrator_authorization$getFixedMaxHealth());
         }
