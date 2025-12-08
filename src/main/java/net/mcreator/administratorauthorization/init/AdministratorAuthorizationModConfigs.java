@@ -3,6 +3,7 @@ package net.mcreator.administratorauthorization.init;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
+import net.mcreator.administratorauthorization.configuration.AAInterceptorConfiguration;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -16,6 +17,7 @@ public class AdministratorAuthorizationModConfigs {
         event.enqueueWork(() -> {
             ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AADestroyerConfiguration.SPEC, "AA-RealityDestroyer(RD).toml");
             ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AAAuthorizationConfiguration.SPEC, "AA-Authorization.toml");
+            ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AAInterceptorConfiguration.SPEC, "AA-Interceptor.toml");
         });
     }
 }
