@@ -3,10 +3,7 @@ package net.mcreator.administratorauthorization.mixins;
 import net.mcreator.administratorauthorization.classes.ReflectionUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,8 +16,11 @@ import java.util.Set;
 @Mixin(value = EntityDataAccessor.class, priority = Integer.MIN_VALUE)
 public abstract class EntityDataAccessorsMixin implements net.mcreator.administratorauthorization.Interfaces.EntityDataAccessorsAccess {
     @Shadow
-    public abstract int getId();
+    public abstract int id();
 
+    @Shadow
+    @Final
+    private int id;
     @Unique
     private String administrator_authorization$name = "None";
 
@@ -64,7 +64,7 @@ public abstract class EntityDataAccessorsMixin implements net.mcreator.administr
                 field.setAccessible(true);
                 try {
                     EntityDataAccessor<?> entityDataAccessor = (EntityDataAccessor<?>) field.get(null);
-                    if (entityDataAccessor.getId() == this.getId()) {
+                    if (entityDataAccessor.id() == this.id()) {
                         this.administrator_authorization$name = MixinEnvironment.getEnvironment(MixinEnvironment.Phase.INIT).getRemappers().unmap(field.getName());
                         break;
                     }
@@ -79,7 +79,7 @@ public abstract class EntityDataAccessorsMixin implements net.mcreator.administr
                 field.setAccessible(true);
                 try {
                     EntityDataAccessor<?> entityDataAccessor = (EntityDataAccessor<?>) field.get(null);
-                    if (entityDataAccessor.getId() == this.getId()) {
+                    if (entityDataAccessor.id() == this.id()) {
                         this.administrator_authorization$name = MixinEnvironment.getEnvironment(MixinEnvironment.Phase.INIT).getRemappers().unmap(field.getName());
                         break;
                     }

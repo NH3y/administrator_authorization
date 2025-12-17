@@ -1,30 +1,22 @@
 package net.mcreator.administratorauthorization.procedures;
 
-import net.mcreator.administratorauthorization.Interfaces.IHealthData;
-import net.mcreator.administratorauthorization.capabilities.HealthDataProvider;
+import net.mcreator.administratorauthorization.init.AttachmentRegistry;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.util.LazyOptional;
 
 public class HealthDataOperant {
     public static float getHealthLimit(LivingEntity living) {
-        LazyOptional<IHealthData> optional = living.getCapability(HealthDataProvider.HEALTH_DATA);
-        return optional
-                .map(IHealthData::getHealthLimit)
-                .orElse((float) 0);
+        return living.getData(AttachmentRegistry.HEALTH_DATA.get()).getHealthLimit();
     }
 
     public static void updateHealthLimit(LivingEntity living, float newFloat) {
-        living.getCapability(HealthDataProvider.HEALTH_DATA).ifPresent(data -> data.setHealthLimit(newFloat));
+        living.getData(AttachmentRegistry.HEALTH_DATA.get()).setHealthLimit(newFloat);
     }
 
     public static boolean getHealthLock(LivingEntity living) {
-        LazyOptional<IHealthData> optional = living.getCapability(HealthDataProvider.HEALTH_DATA);
-        return optional
-                .map(IHealthData::isHealthLock)
-                .orElse(false);
+        return living.getData(AttachmentRegistry.HEALTH_DATA.get()).isHealthLock();
     }
 
     public static void updateHealthLock(LivingEntity living, boolean newBoolean) {
-        living.getCapability(HealthDataProvider.HEALTH_DATA).ifPresent(data -> data.setHealthLock(newBoolean));
+        living.getData(AttachmentRegistry.HEALTH_DATA.get()).setHealthLock(newBoolean);
     }
 }

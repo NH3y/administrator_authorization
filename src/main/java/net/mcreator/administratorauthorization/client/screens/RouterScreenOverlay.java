@@ -2,7 +2,9 @@
 package net.mcreator.administratorauthorization.client.screens;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.procedures.ReturnCurrentIndexProcedure;
 import net.mcreator.administratorauthorization.procedures.ShowRouterProcedure;
@@ -12,19 +14,19 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
-@Mod.EventBusSubscriber({Dist.CLIENT})
+@EventBusSubscriber({Dist.CLIENT})
 public class RouterScreenOverlay {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void eventHandler(RenderGuiEvent.Pre event) {
-        int w = event.getWindow().getGuiScaledWidth();
-        int h = event.getWindow().getGuiScaledHeight();
+        Window window = Minecraft.getInstance().getWindow();
+        int w = window.getGuiScaledWidth();
+        int h = window.getGuiScaledHeight();
         Player entity = Minecraft.getInstance().player;
         if (entity != null) {
         }
@@ -36,7 +38,7 @@ public class RouterScreenOverlay {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         if (ShowRouterProcedure.execute(entity)) {
             GuiGraphics guiGraphics = event.getGuiGraphics();
-            guiGraphics.blit(new ResourceLocation("administrator_authorization:textures/screens/circle.png"), w / 2 - 96, h / 2 - 96, 0, 0, 192, 192, 192, 192);
+            guiGraphics.blit(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "textures/screens/circle.png"), w / 2 - 96, h / 2 - 96, 0, 0, 192, 192, 192, 192);
 
             if (!((PlayerAccess) entity).administrator_authorization$isPressAlter()) {
                 guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_damage"), w / 2 + 17, h / 2 - 67, -1, false);

@@ -3,50 +3,38 @@ package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-import java.util.function.Supplier;
+public record SpecialFunction1Message(int messageType, int pressedms) implements CustomPacketPayload {
+    public static final Type<SpecialFunction1Message> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "special_function"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SpecialFunction1Message> STREAM_CODEC = StreamCodec.of((buffer, message) -> {
+        buffer.writeVarInt(message.messageType());
+        buffer.writeVarInt(message.pressedms());
+    }, (buffer) -> new SpecialFunction1Message(buffer.readVarInt(), buffer.readVarInt()));
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SpecialFunction1Message {
-    final int type;
-    final int pressedms;
-
-    public SpecialFunction1Message(int type, int pressedms) {
-        this.type = type;
-        this.pressedms = pressedms;
-    }
-
-    public SpecialFunction1Message(FriendlyByteBuf buffer) {
-        this.type = buffer.readInt();
-        this.pressedms = buffer.readInt();
-    }
-
-    public static void buffer(SpecialFunction1Message message, FriendlyByteBuf buffer) {
-        buffer.writeInt(message.type);
-        buffer.writeInt(message.pressedms);
-    }
-
-    public static void handler(SpecialFunction1Message message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> pressAction(Objects.requireNonNull(context.getSender()), message.type, message.pressedms));
-        context.setPacketHandled(true);
+    public static void handleData(final SpecialFunction1Message message, final IPayloadContext context) {
+        if (context.flow() == PacketFlow.CLIENTBOUND) {
+            context.enqueueWork(() -> {
+            }).exceptionally(e -> {
+                context.connection().disconnect(Component.literal(e.getMessage()));
+                return null;
+            });
+        }
     }
 
     public static void pressAction(Player entity, int type, int pressedms) {
         Level world = entity.level();
-        double x = entity.getX();
-        double y = entity.getY();
-        double z = entity.getZ();
         // security measure to prevent arbitrary chunk generation
-        if (!world.hasChunkAt(entity.blockPosition()))
+        if (!world.hasChunk(entity.blockPosition().getX(), entity.blockPosition().getZ()))
             return;
         if (type == 0) {
             ((PlayerAccess) entity).administrator_authorization$setPressAlter(true);
@@ -56,8 +44,8 @@ public class SpecialFunction1Message {
         }
     }
 
-    @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event) {
-        AdministratorAuthorizationMod.addNetworkMessage(SpecialFunction1Message.class, SpecialFunction1Message::buffer, SpecialFunction1Message::new, SpecialFunction1Message::handler);
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

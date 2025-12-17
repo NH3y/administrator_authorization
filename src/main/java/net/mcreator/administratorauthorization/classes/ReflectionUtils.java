@@ -26,7 +26,7 @@ public class ReflectionUtils {
     public Object getValue(String name, Object body) {
         ArrayList<Field> fields = getFieldsWithName(name);
         if (fields.size() == 1) {
-            Field source = fields.get(0);
+            Field source = fields.getFirst();
             source.setAccessible(true);
             try {
                 return source.get(body);
@@ -40,7 +40,7 @@ public class ReflectionUtils {
     public void setValue(String name, Object body, Object value) {
         ArrayList<Field> fields = getFieldsWithName(name);
         if (fields.size() == 1) {
-            Field injector = fields.get(0);
+            Field injector = fields.getFirst();
             try {
                 injector.setAccessible(true);
                 injector.set(body, value);

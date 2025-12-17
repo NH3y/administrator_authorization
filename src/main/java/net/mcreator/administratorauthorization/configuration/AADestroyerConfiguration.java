@@ -1,19 +1,20 @@
 package net.mcreator.administratorauthorization.configuration;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class AADestroyerConfiguration {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.ConfigValue<Boolean> RANGED;
-    public static final ForgeConfigSpec.ConfigValue<Double> RADIUS;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> ACCEPT_MULTIPLE;
-    public static final ForgeConfigSpec.ConfigValue<Integer> SEARCH_DISTANCE;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> KEEP_IN_INVENTORY;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> CAN_DESTROY_BLOCK;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> DROP_BLOCK;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> ACCEPT_INTERACT;
+    public static final ModConfigSpec.ConfigValue<Boolean> RANGED;
+    public static final ModConfigSpec.ConfigValue<Double> RADIUS;
+    public static final ModConfigSpec.ConfigValue<Boolean> ACCEPT_MULTIPLE;
+    public static final ModConfigSpec.ConfigValue<Integer> SEARCH_DISTANCE;
+    public static final ModConfigSpec.ConfigValue<Boolean> KEEP_IN_INVENTORY;
+    public static final ModConfigSpec.ConfigValue<Boolean> CAN_DESTROY_BLOCK;
+    public static final ModConfigSpec.ConfigValue<Boolean> DROP_BLOCK;
+    public static final ModConfigSpec.ConfigValue<Boolean> ACCEPT_INTERACT;
 
     static {
         BUILDER.push("Targets");

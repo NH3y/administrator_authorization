@@ -1,49 +1,31 @@
 package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
-import net.mcreator.administratorauthorization.capabilities.InventoryDataProvider;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
+public record InventoryDataPacket(int slot) implements CustomPacketPayload {
+    public static final Type<InventoryDataPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "inventory_data"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, InventoryDataPacket> STREAM_CODEC = StreamCodec.of((buffer, message) -> buffer.writeInt(message.slot()), (buffer) -> new InventoryDataPacket(buffer.readInt()));
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public record InventoryDataPacket(int slot) {
-
-    public InventoryDataPacket() {
-        this(Integer.MAX_VALUE);
+    public static void handleData(final InventoryDataPacket message, final IPayloadContext context) {
+        if (context.flow() == PacketFlow.CLIENTBOUND) {
+            context.enqueueWork(() -> {
+            }).exceptionally(e -> {
+                context.connection().disconnect(Component.literal(e.getMessage()));
+                return null;
+            });
+        }
     }
 
-    public static void encode(InventoryDataPacket msg, FriendlyByteBuf buf) {
-        buf.writeInt(msg.slot);
-    }
-
-    public static InventoryDataPacket decode(FriendlyByteBuf buf) {
-        return new InventoryDataPacket(buf.readInt());
-    }
-
-    public static void handle(InventoryDataPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerPlayer player = ctx.get().getSender();
-            if (player != null) {
-                player.getCapability(InventoryDataProvider.SLOT_DATA).ifPresent(data -> data.setSlotIndex(msg.slot));
-            }
-            ctx.get().setPacketHandled(true);
-        });
-    }
-
-    @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event) {
-        AdministratorAuthorizationMod.addNetworkMessage(
-                InventoryDataPacket.class
-                , InventoryDataPacket::encode
-                , InventoryDataPacket::decode
-                , InventoryDataPacket::handle
-        );
-        System.out.println("Register Message");
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

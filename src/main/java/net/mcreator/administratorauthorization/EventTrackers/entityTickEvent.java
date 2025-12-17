@@ -1,11 +1,10 @@
 package net.mcreator.administratorauthorization.EventTrackers;
 
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.*;
-import net.mcreator.administratorauthorization.capabilities.InventoryDataProvider;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
+import net.mcreator.administratorauthorization.init.AttachmentRegistry;
 import net.mcreator.administratorauthorization.network.InventoryDataPacket;
 import net.mcreator.administratorauthorization.procedures.HealthDataOperant;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,17 +14,16 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class entityTickEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void LivingTickClient(LivingTickEvent event) {
-        if (event.getEntity() == null) return;
+    public static void LivingTickClient(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!entity.level().isClientSide()) return;
         if (entity instanceof LivingEntity living && HealthDataOperant.getHealthLock(living)) {
@@ -43,7 +41,7 @@ public class entityTickEvent {
                     inventory.items.set(access.administrator_authorization$getRDSlot(),
                             stack.copy()
                     );
-                    AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new InventoryDataPacket(access.administrator_authorization$getRDSlot()));
+                    PacketDistributor.sendToServer(new InventoryDataPacket(access.administrator_authorization$getRDSlot()));
                 }
             }
         }
@@ -59,15 +57,13 @@ public class entityTickEvent {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void LivingTickServer(LivingTickEvent event) {
-        if (event.getEntity() == null) return;
+    public static void LivingTickServer(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (entity.level().isClientSide()) {
             return;
         }
         if (entity instanceof Player player) {
-            LazyOptional<IInventoryData> optional = player.getCapability(InventoryDataProvider.SLOT_DATA);
-            int index = optional.map(IInventoryData::getSlotIndex).orElse(Integer.MAX_VALUE);
+            int index = player.getData(AttachmentRegistry.INVENTORY_SLOT_DATA).getSlotIndex();
             if (index != Integer.MAX_VALUE && !player.getInventory().contains(AdministratorAuthorizationModItems.REALITY_DESTROYER.get().getDefaultInstance())) {
                 player.getInventory().setItem(index, new ItemStack(
                         AdministratorAuthorizationModItems.REALITY_DESTROYER.get()

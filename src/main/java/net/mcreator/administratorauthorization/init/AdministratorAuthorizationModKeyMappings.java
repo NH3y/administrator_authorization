@@ -4,20 +4,20 @@
  */
 package net.mcreator.administratorauthorization.init;
 
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.network.RouterButtonMessage;
 import net.mcreator.administratorauthorization.network.SpecialFunction1Message;
 import net.mcreator.administratorauthorization.network.SwitchAuthorityMessage;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = {Dist.CLIENT})
+@EventBusSubscriber( value = {Dist.CLIENT})
 public class AdministratorAuthorizationModKeyMappings {
     public static final KeyMapping SWITCH_AUTHORITY = new KeyMapping("key.administrator_authorization.switch_authority", GLFW.GLFW_KEY_UNKNOWN, "key.categories.adm_auth") {
         private boolean isDownOld = false;
@@ -26,8 +26,10 @@ public class AdministratorAuthorizationModKeyMappings {
         public void setDown(boolean isDown) {
             super.setDown(isDown);
             if (isDownOld != isDown && isDown) {
-                AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new SwitchAuthorityMessage(0, 0));
-                SwitchAuthorityMessage.pressAction(Minecraft.getInstance().player, 0, 0);
+                PacketDistributor.sendToServer(new SwitchAuthorityMessage(0, 0));
+                if (Minecraft.getInstance().player != null) {
+                    SwitchAuthorityMessage.pressAction(Minecraft.getInstance().player, 0, 0);
+                }
             }
             isDownOld = isDown;
         }
@@ -38,13 +40,14 @@ public class AdministratorAuthorizationModKeyMappings {
         @Override
         public void setDown(boolean isDown) {
             super.setDown(isDown);
+            if (Minecraft.getInstance().player == null) return;
             if (isDownOld != isDown && isDown) {
-                AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new SpecialFunction1Message(0, 0));
+                PacketDistributor.sendToServer(new SpecialFunction1Message(0, 0));
                 SpecialFunction1Message.pressAction(Minecraft.getInstance().player, 0, 0);
                 SPECIAL_FUNCTION_1_LASTPRESS = System.currentTimeMillis();
-            } else if (isDownOld != isDown && !isDown) {
+            } else if (isDownOld != isDown) {
                 int dt = (int) (System.currentTimeMillis() - SPECIAL_FUNCTION_1_LASTPRESS);
-                AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new SpecialFunction1Message(1, dt));
+                PacketDistributor.sendToServer(new SpecialFunction1Message(1, dt));
                 SpecialFunction1Message.pressAction(Minecraft.getInstance().player, 1, dt);
             }
             isDownOld = isDown;
@@ -56,13 +59,14 @@ public class AdministratorAuthorizationModKeyMappings {
         @Override
         public void setDown(boolean isDown) {
             super.setDown(isDown);
+            if (Minecraft.getInstance().player == null) return;
             if (isDownOld != isDown && isDown) {
-                AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new RouterButtonMessage(0, 0));
+                PacketDistributor.sendToServer(new RouterButtonMessage(0, 0));
                 RouterButtonMessage.pressAction(Minecraft.getInstance().player, 0, 0);
                 ROUTER_BUTTON_LASTPRESS = System.currentTimeMillis();
-            } else if (isDownOld != isDown && !isDown) {
+            } else if (isDownOld != isDown) {
                 int dt = (int) (System.currentTimeMillis() - ROUTER_BUTTON_LASTPRESS);
-                AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new RouterButtonMessage(1, dt));
+                PacketDistributor.sendToServer(new RouterButtonMessage(1, dt));
                 RouterButtonMessage.pressAction(Minecraft.getInstance().player, 1, dt);
             }
             isDownOld = isDown;
@@ -78,10 +82,10 @@ public class AdministratorAuthorizationModKeyMappings {
         event.register(ROUTER_BUTTON);
     }
 
-    @Mod.EventBusSubscriber({Dist.CLIENT})
+    @EventBusSubscriber({Dist.CLIENT})
     public static class KeyEventListener {
         @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent event) {
+        public static void onClientTick(ClientTickEvent.Post event) {
             if (Minecraft.getInstance().screen == null) {
                 SWITCH_AUTHORITY.consumeClick();
                 SPECIAL_FUNCTION_1.consumeClick();

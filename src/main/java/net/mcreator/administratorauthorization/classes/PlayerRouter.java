@@ -1,12 +1,12 @@
 package net.mcreator.administratorauthorization.classes;
 
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.LocalPlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.network.RouterIndexPacket;
 import net.mcreator.administratorauthorization.procedures.MouseDetect;
 import net.mcreator.administratorauthorization.procedures.RouterDataOperant;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PlayerRouter {
     private int routerMain = 0;
@@ -28,7 +28,7 @@ public class PlayerRouter {
     public void updateCapability() {
         int route = ((PlayerAccess) this.player).administrator_authorization$isPressAlter() ? this.routerAlter : this.routerMain;
         RouterDataOperant.updatePlayerRouterIndex(this.player, route);
-        AdministratorAuthorizationMod.PACKET_HANDLER.sendToServer(new RouterIndexPacket(route));
+        PacketDistributor.sendToServer(new RouterIndexPacket(route));
     }
 
     public void inputRouter() {

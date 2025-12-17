@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.mixins;
 
 import net.mcreator.administratorauthorization.Interfaces.AttributeAccess;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -17,17 +18,17 @@ import java.util.Map;
 public abstract class AttributeMapMixin implements AttributeAccess {
     @Shadow
     @Final
-    private Map<Attribute, AttributeInstance> attributes;
-
-    @Shadow
-    @Nullable
-    public abstract AttributeInstance getInstance(Attribute pAttribute);
+    private Map<Holder<Attribute>, AttributeInstance> attributes;
 
     @Shadow
     public abstract ListTag save();
 
+    @Shadow
+    @Nullable
+    public abstract AttributeInstance getInstance(Holder<Attribute> attribute);
+
     @Override
-    public void administrator_authorization$replaceValue(Attribute attribute, double value) {
+    public void administrator_authorization$replaceValue(Holder<Attribute> attribute, double value) {
         AttributeInstance instance = this.getInstance(attribute);
         if (instance != null) {
             this.attributes.replace(attribute, new AttributeMap(AttributeSupplier.builder().add(attribute, value).build()).getInstance(attribute));
@@ -36,7 +37,7 @@ public abstract class AttributeMapMixin implements AttributeAccess {
     }
 
     @Override
-    public Map<Attribute, AttributeInstance> administrator_authorization$getAllAttributes() {
+    public Map<Holder<Attribute>, AttributeInstance> administrator_authorization$getAllAttributes() {
         return this.attributes;
     }
 }

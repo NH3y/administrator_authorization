@@ -1,19 +1,19 @@
 
 package net.mcreator.administratorauthorization.world.dimension;
 
+import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber
 public class AntiVoidDimension {
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber
     public static class AntiVoidSpecialEffectsHandler {
         @SubscribeEvent
         @OnlyIn(Dist.CLIENT)
@@ -29,7 +29,7 @@ public class AntiVoidDimension {
                     return false;
                 }
             };
-            event.register(new ResourceLocation("administrator_authorization:anti_void"), customEffect);
+            event.register(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "anti_void"), customEffect);
         }
     }
 }

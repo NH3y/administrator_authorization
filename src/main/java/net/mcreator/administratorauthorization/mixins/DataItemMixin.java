@@ -56,8 +56,8 @@ public abstract class DataItemMixin<T> implements DataItemAccess<T> {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(EntityDataAccessor<T> pAccessor, T pValue, CallbackInfo ci) {
-        this.administrator_authorization$name = pAccessor instanceof EntityDataAccessorsAccess access ? access.administrator_authorization$catchName() : "None";
-        this.administrator_authorization$container = new VarContainer<>(pValue, administrator_authorization$name + pAccessor.getId());
+        //this.administrator_authorization$name = ((EntityDataAccessorsAccess)pAccessor).administrator_authorization$catchName();
+        this.administrator_authorization$container = new VarContainer<>(pValue, administrator_authorization$name + pAccessor.id());
     }
 
     @Inject(method = "setDirty", at = @At("HEAD"), cancellable = true)

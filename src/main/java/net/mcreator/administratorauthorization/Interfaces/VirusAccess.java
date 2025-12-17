@@ -1,7 +1,8 @@
 package net.mcreator.administratorauthorization.Interfaces;
 
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.eventbus.api.Event;
+
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.event.entity.EntityEvent;
 
 import java.util.Set;
 

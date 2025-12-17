@@ -2,7 +2,6 @@ package net.mcreator.administratorauthorization.mixins;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
-import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.classes.PlayerRouter;
 import net.minecraft.world.damagesource.DamageSource;
@@ -48,7 +47,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerAccess {
     }
 
     @Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
-    public void disableShield(boolean p_36385_, CallbackInfo ci) {
+    public void disableShield(CallbackInfo ci) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             ci.cancel();
         }

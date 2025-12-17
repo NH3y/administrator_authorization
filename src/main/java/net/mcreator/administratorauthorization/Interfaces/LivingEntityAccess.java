@@ -1,5 +1,6 @@
 package net.mcreator.administratorauthorization.Interfaces;
 
+import net.minecraft.core.Holder;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.level.LevelAccessor;
@@ -10,7 +11,7 @@ public interface LivingEntityAccess {
 
     void Administrator_authorization$setNoAI(boolean administrator_authorization$NoAI);
 
-    void administrator_authorization$setAttributes(Attribute attribute, double value);
+    void administrator_authorization$setAttributes(Holder<Attribute> attribute, double value);
 
     float administrator_authorization$getFixedMaxHealth();
 

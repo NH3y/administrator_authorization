@@ -1,18 +1,19 @@
 package net.mcreator.administratorauthorization.configuration;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class AAInterceptorConfiguration {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.BooleanValue GET_HEALTH;
-    public static final ForgeConfigSpec.BooleanValue IS_DEAD;
-    public static final ForgeConfigSpec.BooleanValue IS_ALIVE;
-    public static final ForgeConfigSpec.BooleanValue SET_HEALTH;
-    public static final ForgeConfigSpec.BooleanValue DIE;
-    public static final ForgeConfigSpec.BooleanValue IS_IMMOBILE;
-    public static final ForgeConfigSpec.BooleanValue REMOVE;
+    public static final ModConfigSpec.ConfigValue<Boolean> GET_HEALTH;
+    public static final ModConfigSpec.ConfigValue<Boolean> IS_DEAD;
+    public static final ModConfigSpec.ConfigValue<Boolean> IS_ALIVE;
+    public static final ModConfigSpec.ConfigValue<Boolean> SET_HEALTH;
+    public static final ModConfigSpec.ConfigValue<Boolean> DIE;
+    public static final ModConfigSpec.ConfigValue<Boolean> IS_IMMOBILE;
+    public static final ModConfigSpec.ConfigValue<Boolean> REMOVE;
 
     static {
         BUILDER

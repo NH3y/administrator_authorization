@@ -6,10 +6,12 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.procedures.HealthDataOperant;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
@@ -24,7 +26,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.ForgeHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,9 +43,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
-
-    @Shadow
-    protected abstract void dropAllDeathLoot(DamageSource p_21192_);
 
     @Shadow
     @Nullable
@@ -76,9 +74,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Shadow
     public abstract float getHealth();
-
-    @Shadow
-    public abstract double getAttributeBaseValue(Attribute pAttribute);
 
     @Shadow
     public int deathTime;
@@ -148,6 +143,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Shadow
     protected abstract void updatingUsingItem();
+
+    @Shadow
+    public abstract double getAttributeBaseValue(Holder<Attribute> attribute);
+
+    @Shadow
+    protected abstract void dropAllDeathLoot(ServerLevel p_level, DamageSource damageSource);
 
     @Unique
     private boolean administrator_authorization$NoAI = false;
@@ -317,7 +318,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
                 this.administrator_authorization$getFixedMaxHealth()
         );
 
-        if (ForgeHooks.onLivingTick((LivingEntity) (Object) this)) return;
         super.tick();
         this.updatingUsingItem();
         this.updateSwimAmount();
@@ -450,11 +450,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Override
     public void administrator_authorization$accessDropLoot(LevelAccessor world) {
-        this.dropAllDeathLoot(new DamageSource(world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getHolderOrThrow(ResourceKey.create(
-                        Registries.DAMAGE_TYPE,
-                        new ResourceLocation("administrator_authorization:chaotic_void"))), this.getKillCredit())
-        );
+        if (this.level() instanceof ServerLevel serverLevel) {
+            this.dropAllDeathLoot(
+                    serverLevel,
+                    new DamageSource(world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                    .getHolderOrThrow(ResourceKey.create(
+                            Registries.DAMAGE_TYPE,
+                            ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "chaotic_void"))), this.getKillCredit())
+            );
+        }
     }
 
     @Override
@@ -463,7 +467,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Override
-    public void administrator_authorization$setAttributes(Attribute attribute, double value) {
+    public void administrator_authorization$setAttributes(Holder<Attribute> attribute, double value) {
         AttributeInstance instance = this.attributes.getInstance(attribute);
         if (instance == null) {
             return;

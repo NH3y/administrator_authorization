@@ -1,10 +1,9 @@
 package net.mcreator.administratorauthorization.mixins;
 
-import it.unimi.dsi.fastutil.objects.ObjectCollection;
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.*;
 import net.mcreator.administratorauthorization.classes.VarContainer;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.MinecraftServer;
@@ -17,8 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.capabilities.CapabilityProvider;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,23 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import javax.annotation.Nullable;
 import java.util.*;
 
-@SuppressWarnings("UnstableApiUsage")
 @Mixin(value = Entity.class, priority = Integer.MIN_VALUE)
-public abstract class EntityMixinMixin extends CapabilityProvider implements EntityAccess {
-    @SuppressWarnings("unchecked")
-    protected EntityMixinMixin() {
-        super(Entity.class);
-    }
-
-    @Shadow
-    public abstract void setRemoved(Entity.RemovalReason pRemovalReason);
-
-    @Shadow
-    private Level level;
-
-    @Shadow
-    protected abstract void unsetRemoved();
-
+public abstract class EntityMixin implements EntityAccess {
     @Shadow
     @Final
     protected SynchedEntityData entityData;
@@ -56,15 +38,12 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     public abstract void revive();
 
     @Shadow(remap = false)
-    public abstract void onRemovedFromWorld();
+    public abstract void onRemovedFromLevel();
 
     @Shadow
     @Nullable
     private Entity.RemovalReason removalReason;
 
-    @Shadow
-    @Final
-    private Set<String> tags;
     @Shadow
     private EntityInLevelCallback levelCallback;
 
@@ -75,18 +54,12 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     public abstract List<Entity> getPassengers();
 
     @Shadow
-    public abstract CompoundTag saveWithoutId(CompoundTag pCompound);
-
-    @Shadow
     public abstract Level level();
 
     @Shadow
     @Nullable
     public abstract MinecraftServer getServer();
 
-    @Shadow
-    @Final
-    private static Logger LOGGER;
     @Unique
     private final long CONSTANT_CODE = 66571993088L;
     @Unique
@@ -167,18 +140,17 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
             dataItemAccess.administrator_authorization$toLock(3);
 
             ((EntityDataAccess) this.entityData).Administrator_authorization$getBannedId().add(
-                    ((LivingEntityAccess) player).administrator_authorization$getAccessorHealth().getId()
+                    ((LivingEntityAccess) player).administrator_authorization$getAccessorHealth().id()
             );
-            ObjectCollection<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
-            dataItems.forEach(dataItem -> {
-                ((DataItemAccess<?>) dataItem).administrator_authorization$indexingItem();
-            });
+            List<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
+            dataItems.forEach(dataItem -> ((DataItemAccess<?>) dataItem).administrator_authorization$indexingItem());
 
 
             //start of attribute part
-            Set<Map.Entry<Attribute, AttributeInstance>> entries = ((AttributeAccess) player.getAttributes()).administrator_authorization$getAllAttributes().entrySet();
-            for (Map.Entry<Attribute, AttributeInstance> instanceEntry : entries) {
-                if (instanceEntry.getKey().getDescriptionId().toLowerCase().replace("_", "").replace(".", "").contains("resist")
+            Set<Map.Entry<Holder<Attribute>, AttributeInstance>> entries = ((AttributeAccess) player.getAttributes()).administrator_authorization$getAllAttributes().entrySet();
+            for (Map.Entry<Holder<Attribute>, AttributeInstance> instanceEntry : entries) {
+                String id = instanceEntry.getKey().value().getDescriptionId();
+                if (id.toLowerCase().replace("_", "").replace(".", "").contains("resist")
                         && instanceEntry.getKey() instanceof RangedAttribute rangedAttribute) {
                     try {
                         ((AttributeAccess) player.getAttributes()).administrator_authorization$replaceValue(
@@ -188,7 +160,7 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
                     } catch (RuntimeException ignore) {
 
                     }
-                    System.out.println(instanceEntry.getKey().getDescriptionId());
+                    System.out.println(id);
                 }
             }
             //end of attribute part
@@ -206,8 +178,7 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
         while (reason.hasNext()) {
             this.administrator_authorization$forceSetRemoved(reason.next());
         }
-        this.invalidateCaps();
-        this.onRemovedFromWorld();
+        this.onRemovedFromLevel();
     }
 
     @Override
@@ -252,14 +223,12 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
         }
     }
 
-    @Inject(method = "gameEvent(Lnet/minecraft/world/level/gameevent/GameEvent;)V", at = @At("HEAD"), cancellable = true)
-    public void gameEvent(GameEvent pEvent, CallbackInfo ci) {
+    @Inject(method = "gameEvent(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"), cancellable = true)
+    public void gameEvent(Holder<GameEvent> gameEvent, Entity entity, CallbackInfo ci) {
         if (this.administrator_authorization$getAuthorization()) {
-            switch (pEvent.getName()) {
-                case "entity_damage", "entity_die" -> {
-                    ci.cancel();
-                    AdministratorAuthorizationMod.LOGGER.info("Mixin : Block GameEvent");
-                }
+            if (gameEvent.is(GameEvent.ENTITY_DAMAGE.key()) || gameEvent.is(GameEvent.ENTITY_DIE.key())) {
+                ci.cancel();
+                this.revive();
             }
         }
     }

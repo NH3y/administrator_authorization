@@ -2,7 +2,6 @@ package net.mcreator.administratorauthorization.EventTrackers;
 
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
-import net.mcreator.administratorauthorization.capabilities.RouterDataProvider;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -10,23 +9,21 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class playerShift {
     static final Logger logger = Logger.getLogger("Event_Clone");
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onPlayerClone(Clone event) {
-        event.getOriginal().getCapability(RouterDataProvider.ROUTER_DATA).ifPresent(oldData -> event.getEntity().getCapability(RouterDataProvider.ROUTER_DATA).ifPresent(newData -> newData.setRouterIndex(oldData.getRouterIndex())));
+    public static void onPlayerClone(PlayerEvent.Clone event) {
         final boolean protect = ((EntityAccess) event.getOriginal()).administrator_authorization$getAuthorization();
         if (protect) {
             if (event.isWasDeath()) {

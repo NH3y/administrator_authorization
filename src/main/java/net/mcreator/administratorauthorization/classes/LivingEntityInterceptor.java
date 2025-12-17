@@ -7,6 +7,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public abstract class LivingEntityInterceptor extends LivingEntity {
@@ -48,7 +49,7 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
     }
 
     @Override
-    public void die(DamageSource pDamageSource) {
+    public void die(@NotNull DamageSource pDamageSource) {
         if (!AAInterceptorConfiguration.DIE.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             super.die(pDamageSource);
         }
@@ -63,7 +64,7 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
     }
 
     @Override
-    public void remove(RemovalReason pReason) {
+    public void remove(@NotNull RemovalReason pReason) {
         if (!AAInterceptorConfiguration.REMOVE.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             super.remove(pReason);
         }

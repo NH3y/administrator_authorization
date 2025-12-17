@@ -3,50 +3,38 @@ package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.procedures.CallAuthoritySwitchProcedure;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-import java.util.function.Supplier;
+public record SwitchAuthorityMessage(int messageType, int pressdms) implements CustomPacketPayload {
+    public static final Type<SwitchAuthorityMessage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "switch_authority"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, SwitchAuthorityMessage> STREAM_CODEC = StreamCodec.of((buffer, message) -> {
+        buffer.writeVarInt(message.messageType());
+        buffer.writeVarInt(message.pressdms());
+    }, (buffer) -> new SwitchAuthorityMessage(buffer.readVarInt(), buffer.readVarInt()));
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SwitchAuthorityMessage {
-    final int type;
-    final int pressedms;
-
-    public SwitchAuthorityMessage(int type, int pressedms) {
-        this.type = type;
-        this.pressedms = pressedms;
-    }
-
-    public SwitchAuthorityMessage(FriendlyByteBuf buffer) {
-        this.type = buffer.readInt();
-        this.pressedms = buffer.readInt();
-    }
-
-    public static void buffer(SwitchAuthorityMessage message, FriendlyByteBuf buffer) {
-        buffer.writeInt(message.type);
-        buffer.writeInt(message.pressedms);
-    }
-
-    public static void handler(SwitchAuthorityMessage message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> pressAction(Objects.requireNonNull(context.getSender()), message.type, message.pressedms));
-        context.setPacketHandled(true);
+    public static void handleData(final SwitchAuthorityMessage message, final IPayloadContext context) {
+        if (context.flow() == PacketFlow.CLIENTBOUND) {
+            context.enqueueWork(() -> {
+            }).exceptionally(e -> {
+                context.connection().disconnect(Component.literal(e.getMessage()));
+                return null;
+            });
+        }
     }
 
     public static void pressAction(Player entity, int type, int pressedms) {
         Level world = entity.level();
-        double x = entity.getX();
-        double y = entity.getY();
-        double z = entity.getZ();
         // security measure to prevent arbitrary chunk generation
-        if (!world.hasChunkAt(entity.blockPosition()))
+        if (!world.hasChunk(entity.blockPosition().getX(), entity.blockPosition().getZ()))
             return;
         if (type == 0) {
 
@@ -54,8 +42,8 @@ public class SwitchAuthorityMessage {
         }
     }
 
-    @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event) {
-        AdministratorAuthorizationMod.addNetworkMessage(SwitchAuthorityMessage.class, SwitchAuthorityMessage::buffer, SwitchAuthorityMessage::new, SwitchAuthorityMessage::handler);
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

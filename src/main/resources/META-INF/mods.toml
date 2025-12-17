@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[21,)"
 license="GPL-3.0"
 
 [[mods]]
@@ -16,7 +16,7 @@ authors="bliss, MCreator"
 [[dependencies.administrator_authorization]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20.1]"
+    versionRange="[1.21.1]"
     ordering="AFTER"
     side="BOTH"
 

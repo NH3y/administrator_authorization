@@ -4,45 +4,34 @@ package net.mcreator.administratorauthorization.network;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.LocalPlayerAccess;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-import java.util.function.Supplier;
+public record RouterButtonMessage(int messageType, int pressdms) implements CustomPacketPayload {
+    public static final Type<RouterButtonMessage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "router_button"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, RouterButtonMessage> STREAM_CODEC = StreamCodec.of((buffer, message) -> {
+        buffer.writeVarInt(message.messageType());
+        buffer.writeVarInt(message.pressdms());
+    }, (buffer) -> new RouterButtonMessage(buffer.readVarInt(), buffer.readVarInt()));
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class RouterButtonMessage {
-    final int type;
-    final int pressedms;
-
-    public RouterButtonMessage(int type, int pressedms) {
-        this.type = type;
-        this.pressedms = pressedms;
-    }
-
-    public RouterButtonMessage(FriendlyByteBuf buffer) {
-        this.type = buffer.readInt();
-        this.pressedms = buffer.readInt();
-    }
-
-    public static void buffer(RouterButtonMessage message, FriendlyByteBuf buffer) {
-        buffer.writeInt(message.type);
-        buffer.writeInt(message.pressedms);
-    }
-
-    public static void handler(RouterButtonMessage message, Supplier<NetworkEvent.Context> contextSupplier) {
-        NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> pressAction(Objects.requireNonNull(context.getSender()), message.type, message.pressedms));
-        context.setPacketHandled(true);
+    public static void handleData(final RouterButtonMessage message, final IPayloadContext context) {
+        if (context.flow() == PacketFlow.CLIENTBOUND) {
+            context.enqueueWork(() -> {
+            }).exceptionally(e -> {
+                context.connection().disconnect(Component.literal(e.getMessage()));
+                return null;
+            });
+        }
     }
 
     public static void pressAction(Player entity, int type, int pressedms) {
-        Level world = entity.level();
         // security measure to prevent arbitrary chunk generation
         if (!entity.getMainHandItem().is(AdministratorAuthorizationModItems.REALITY_DESTROYER.get())) return;
         if (entity instanceof LocalPlayerAccess playerAccess) {
@@ -55,8 +44,8 @@ public class RouterButtonMessage {
         }
     }
 
-    @SubscribeEvent
-    public static void registerMessage(FMLCommonSetupEvent event) {
-        AdministratorAuthorizationMod.addNetworkMessage(RouterButtonMessage.class, RouterButtonMessage::buffer, RouterButtonMessage::new, RouterButtonMessage::handler);
+    @Override
+    public @NotNull Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

@@ -16,8 +16,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class DestroyRouterProcedure {
+    private static final ResourceLocation chaoticVoid = ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "chaotic_void");
+
     @SuppressWarnings("NonAsciiCharacters")
     public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
         if (entity == null || sourceentity == null || entity.is(sourceentity))
@@ -50,7 +53,7 @@ public class DestroyRouterProcedure {
                         world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                                 .getHolderOrThrow(ResourceKey.create(
                                         Registries.DAMAGE_TYPE,
-                                        new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
+                                        chaoticVoid)), victim.getKillCredit()),
                 (float) 1024.0);
     }
 
@@ -59,7 +62,7 @@ public class DestroyRouterProcedure {
                         world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                                 .getHolderOrThrow(ResourceKey.create(
                                         Registries.DAMAGE_TYPE,
-                                        new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
+                                        chaoticVoid)), victim.getKillCredit()),
                 Float.MAX_VALUE);
         restrictHealth(victim);
     }
@@ -71,7 +74,7 @@ public class DestroyRouterProcedure {
                 world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                         .getHolderOrThrow(ResourceKey.create(
                                 Registries.DAMAGE_TYPE,
-                                new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit())
+                                chaoticVoid)), victim.getKillCredit())
         );
     }
 
@@ -140,7 +143,7 @@ public class DestroyRouterProcedure {
     private static void restrictHealth(LivingEntity victim) {
         HealthDataOperant.updateHealthLock(victim, true);
         HealthDataOperant.updateHealthLimit(victim, 0.0F);
-        AdministratorAuthorizationMod.PACKET_HANDLER
+        PacketDistributor
                 .sendToServer(new HealthDataPacket(0.0F, true));
     }
 }

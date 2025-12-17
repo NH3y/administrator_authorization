@@ -1,16 +1,17 @@
 package net.mcreator.administratorauthorization.configuration;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class AAAuthorizationConfiguration {
-    public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec SPEC;
+    public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec SPEC;
 
-    public static final ForgeConfigSpec.ConfigValue<Boolean> LOCK_DATA;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> BAN_NEUTRAL;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> RECORD_DEATH_POS;
-    public static final ForgeConfigSpec.ConfigValue<Boolean> SPACE_INTERFERE;
-    public static final ForgeConfigSpec.BooleanValue COMMAND_PROTECT;
+    public static final ModConfigSpec.ConfigValue<Boolean> LOCK_DATA;
+    public static final ModConfigSpec.ConfigValue<Boolean> BAN_NEUTRAL;
+    public static final ModConfigSpec.ConfigValue<Boolean> RECORD_DEATH_POS;
+    public static final ModConfigSpec.ConfigValue<Boolean> SPACE_INTERFERE;
+    public static final ModConfigSpec.BooleanValue COMMAND_PROTECT;
 
     static {
         COMMAND_PROTECT = BUILDER.comment("Prevent command attacks from players without authorization").define("command protect", false);
