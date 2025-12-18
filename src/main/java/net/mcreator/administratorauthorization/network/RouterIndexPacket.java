@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
+import net.mcreator.administratorauthorization.procedures.RouterDataOperant;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,6 +24,7 @@ public record RouterIndexPacket(int routerIndex) implements CustomPacketPayload 
                 return null;
             });
         }
+        RouterDataOperant.updatePlayerRouterIndex(context.player(),  message.routerIndex());
     }
 
     @Override

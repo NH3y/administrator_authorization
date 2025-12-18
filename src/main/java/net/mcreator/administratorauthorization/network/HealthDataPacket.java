@@ -1,12 +1,14 @@
 package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
+import net.mcreator.administratorauthorization.procedures.HealthDataOperant;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,6 +28,9 @@ public record HealthDataPacket(float healthLimit, boolean healthLock) implements
                 return null;
             });
         }
+        Player player = context.player();
+        HealthDataOperant.updateHealthLimit(player, message.healthLimit);
+        HealthDataOperant.updateHealthLock(player, message.healthLock);
     }
 
     @Override

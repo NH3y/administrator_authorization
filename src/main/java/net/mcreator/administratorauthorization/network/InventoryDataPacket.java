@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.network;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
+import net.mcreator.administratorauthorization.init.AttachmentRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,6 +23,9 @@ public record InventoryDataPacket(int slot) implements CustomPacketPayload {
                 return null;
             });
         }
+        context.player().getData(
+                AttachmentRegistry.INVENTORY_SLOT_DATA
+        ).setSlotIndex(message.slot());
     }
 
     @Override
