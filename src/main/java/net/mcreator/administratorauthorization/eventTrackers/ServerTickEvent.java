@@ -1,4 +1,4 @@
-package net.mcreator.administratorauthorization.EventTrackers;
+package net.mcreator.administratorauthorization.eventTrackers;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
@@ -8,19 +8,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @EventBusSubscriber
-public class serverTickEvent {
+public class ServerTickEvent {
 
     private static final Map<ServerPlayer, Float> healthMap = new HashMap<>();
 
     @SubscribeEvent
-    public static void tickStart(ServerTickEvent.Pre event) {
+    public static void tickStart(net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event) {
         List<ServerPlayer> admins = event.getServer().getPlayerList().getPlayers().stream().filter(serverPlayer -> ((EntityAccess) serverPlayer).administrator_authorization$getAuthorization()).toList();
         admins.iterator().forEachRemaining(admin -> {
             if (!(admin.getHealth() > 0.0f) && admin instanceof LivingEntityAccess living) {
@@ -36,7 +35,7 @@ public class serverTickEvent {
     }
 
     @SubscribeEvent
-    public static void tickEnd(ServerTickEvent.Post event) {
+    public static void tickEnd(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
         for (Map.Entry<ServerPlayer, Float> healthData : healthMap.entrySet()) {
             ServerPlayer tickedPlayer = event.getServer().getPlayerList().getPlayer(healthData.getKey().getUUID());
             if (tickedPlayer != null && tickedPlayer.getHealth() < healthData.getValue() && tickedPlayer instanceof LivingEntityAccess living) {

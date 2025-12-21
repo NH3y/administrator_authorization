@@ -1,5 +1,6 @@
 package net.mcreator.administratorauthorization.mixins;
 
+import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.*;
 import net.mcreator.administratorauthorization.classes.VarContainer;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
@@ -105,6 +106,13 @@ public abstract class EntityMixin implements EntityAccess {
         }
     }
 
+    @Inject(method = "getPercentFrozen", at = @At("RETURN"), cancellable = true)
+    public void getPercentFrozen(CallbackInfoReturnable<Float> cir) {
+        if (this.administrator_authorization$getAuthorization()) {
+            cir.setReturnValue(0.0F);
+        }
+    }
+
     @Override
     public boolean administrator_authorization$getAuthorization() {
         if ((Object) this instanceof Player)
@@ -130,20 +138,22 @@ public abstract class EntityMixin implements EntityAccess {
                 }
             }
 
-            DataItemAccess<?> dataItemAccess = (DataItemAccess<?>)
-                    ((EntityDataAccess)
-                            this.entityData)
-                            .administrator_authorization$publicGetItem(
-                                    ((LivingEntityAccess)
-                                            player)
-                                            .administrator_authorization$getAccessorHealth());
-            dataItemAccess.administrator_authorization$toLock(3);
+            if (AAAuthorizationConfiguration.LOCK_DATA.get()) {
+                DataItemAccess<?> dataItemAccess = (DataItemAccess<?>)
+                        ((EntityDataAccess)
+                                this.entityData)
+                                .administrator_authorization$publicGetItem(
+                                        ((LivingEntityAccess)
+                                                player)
+                                                .administrator_authorization$getAccessorHealth());
+                dataItemAccess.administrator_authorization$toLock(3);
 
-            ((EntityDataAccess) this.entityData).Administrator_authorization$getBannedId().add(
-                    ((LivingEntityAccess) player).administrator_authorization$getAccessorHealth().id()
-            );
-            List<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
-            dataItems.forEach(dataItem -> ((DataItemAccess<?>) dataItem).administrator_authorization$indexingItem());
+                ((EntityDataAccess) this.entityData).Administrator_authorization$getBannedId().add(
+                        ((LivingEntityAccess) player).administrator_authorization$getAccessorHealth().id()
+                );
+                List<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
+                dataItems.forEach(dataItem -> ((DataItemAccess<?>) dataItem).administrator_authorization$indexingItem());
+            }
 
 
             //start of attribute part
@@ -203,7 +213,7 @@ public abstract class EntityMixin implements EntityAccess {
     public void isInvulnerableTo(DamageSource p_20122_, CallbackInfoReturnable<Boolean> cir) {
         if (this.administrator_authorization$getAuthorization() && !cir.getReturnValue()) {
             cir.setReturnValue(true);
-            //AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
         }
     }
 
@@ -227,6 +237,7 @@ public abstract class EntityMixin implements EntityAccess {
     public void gameEvent(Holder<GameEvent> gameEvent, Entity entity, CallbackInfo ci) {
         if (this.administrator_authorization$getAuthorization()) {
             if (gameEvent.is(GameEvent.ENTITY_DAMAGE.key()) || gameEvent.is(GameEvent.ENTITY_DIE.key())) {
+                AdministratorAuthorizationMod.LOGGER.info("Mixin : GameEvent");
                 ci.cancel();
                 this.revive();
             }

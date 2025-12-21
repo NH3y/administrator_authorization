@@ -57,6 +57,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Hurt - Local");
             cir.setReturnValue(false);
         }
     }
@@ -88,6 +89,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
     public void actuallyHurt(DamageSource pDamageSrc, float pDamageAmount, CallbackInfo ci) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Actually Hurt");
             ci.cancel();
         }
     }

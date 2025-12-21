@@ -1,4 +1,4 @@
-package net.mcreator.administratorauthorization.EventTrackers;
+package net.mcreator.administratorauthorization.eventTrackers;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.network.*;

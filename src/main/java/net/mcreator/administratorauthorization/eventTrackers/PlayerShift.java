@@ -1,4 +1,4 @@
-package net.mcreator.administratorauthorization.EventTrackers;
+package net.mcreator.administratorauthorization.eventTrackers;
 
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 @EventBusSubscriber
-public class playerShift {
+public class PlayerShift {
     static final Logger logger = Logger.getLogger("Event_Clone");
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

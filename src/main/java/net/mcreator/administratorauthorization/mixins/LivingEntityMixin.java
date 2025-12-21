@@ -67,13 +67,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 
     @Shadow
     @Final
-    public static int HAND_SLOTS;
-    @Shadow
-    @Final
     public static int DEATH_DURATION;
-
-    @Shadow
-    public abstract float getHealth();
 
     @Shadow
     public int deathTime;
@@ -224,6 +218,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Inject(method = "handleDamageEvent", at = @At("HEAD"), cancellable = true)
     public void handleDamageEvent(DamageSource pDamageSource, CallbackInfo ci) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Damage Event");
             ci.cancel();
         }
     }
@@ -276,6 +271,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Inject(method = "isDamageSourceBlocked", at = @At("HEAD"), cancellable = true)
     public void isDamageSourceBlocked(DamageSource pDamageSource, CallbackInfoReturnable<Boolean> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Blocked DamageSource");
             cir.setReturnValue(true);
         }
     }
@@ -290,6 +286,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Inject(method = "getDamageAfterArmorAbsorb", at = @At("HEAD"), cancellable = true)
     public void getDamageAfterArmorAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Absorb Damage - Armor");
             cir.setReturnValue(0.0F);
         }
     }
@@ -297,6 +294,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Inject(method = "getDamageAfterMagicAbsorb", at = @At("HEAD"), cancellable = true)
     public void getDamageAfterMagicAbsorb(DamageSource pDamageSource, float pDamageAmount, CallbackInfoReturnable<Float> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Absorb Damage - Magic");
             cir.setReturnValue(0.0F);
         }
     }

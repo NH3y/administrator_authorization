@@ -7,7 +7,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 
 public class HealthData implements IHealthData, INBTSerializable<CompoundTag> {
-    private float HealthLimit = 0;
+    private float HealthLimit = Float.MAX_VALUE;
     private boolean HealthLock = false;
 
     @Override

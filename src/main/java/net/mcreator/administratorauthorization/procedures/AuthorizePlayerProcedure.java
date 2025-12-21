@@ -1,6 +1,10 @@
 package net.mcreator.administratorauthorization.procedures;
 
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
+import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
@@ -8,20 +12,12 @@ public class AuthorizePlayerProcedure {
     public static void execute(Entity entity) {
         if (entity == null)
             return;
-        if (new Object() {
-            int getPermissionLevel(Entity ent) {
-                int lvl = 0;
-                for (int Level = 0; Level < 4; Level++) {
-                    if (ent.hasPermissions(Level + 1)) {
-                        lvl = Level + 1;
-                    } else {
-                        break;
-                    }
+        if (entity.hasPermissions(AAAuthorizationConfiguration.REQUIRED_LEVEL.get())) {
+            if (entity instanceof Player player) {
+                if (player.isLocalPlayer()) {
+                    player.level().playLocalSound(player, SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.5F, 1.0F);
+                    player.displayClientMessage(Component.literal("Player " + player.getDisplayName().getString() + " is now authorized."), false);
                 }
-                return lvl;
-            }
-        }.getPermissionLevel(entity) >= 2) {
-            if (entity instanceof Player) {
                 ((EntityAccess) entity).administrator_authorization$setAuthorization();
             }
 

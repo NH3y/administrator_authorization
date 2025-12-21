@@ -1,4 +1,4 @@
-package net.mcreator.administratorauthorization.EventTrackers;
+package net.mcreator.administratorauthorization.eventTrackers;
 
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -30,7 +30,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 @EventBusSubscriber
-public class harmfulEvent {
+public class HarmfulEvent {
     static final Logger logger = Logger.getLogger("Event_Harmful");
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

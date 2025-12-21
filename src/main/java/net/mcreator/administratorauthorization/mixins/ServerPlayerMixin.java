@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.mixins;
 
 import com.mojang.authlib.GameProfile;
+import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,6 +24,7 @@ public abstract class ServerPlayerMixin extends Player {
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
     public void die(DamageSource pCause, CallbackInfo ci) {
         if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Die");
             ci.cancel();
         }
     }
@@ -30,6 +32,7 @@ public abstract class ServerPlayerMixin extends Player {
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir) {
         if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Hurt - Server");
             cir.setReturnValue(false);
         }
     }
@@ -44,6 +47,7 @@ public abstract class ServerPlayerMixin extends Player {
     @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
     public void isInvulnerableTo(DamageSource pSource, CallbackInfoReturnable<Boolean> cir) {
         if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Invulnerable");
             cir.setReturnValue(true);
         }
     }

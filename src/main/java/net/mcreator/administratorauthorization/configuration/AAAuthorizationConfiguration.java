@@ -7,6 +7,7 @@ public class AAAuthorizationConfiguration {
     public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec SPEC;
 
+    public static final ModConfigSpec.ConfigValue<Integer> REQUIRED_LEVEL;
     public static final ModConfigSpec.ConfigValue<Boolean> LOCK_DATA;
     public static final ModConfigSpec.ConfigValue<Boolean> BAN_NEUTRAL;
     public static final ModConfigSpec.ConfigValue<Boolean> RECORD_DEATH_POS;
@@ -14,10 +15,15 @@ public class AAAuthorizationConfiguration {
     public static final ModConfigSpec.BooleanValue COMMAND_PROTECT;
 
     static {
+
+        REQUIRED_LEVEL = BUILDER.comment("The permission levels required by AA items").define("required level", 2);
+
+        BUILDER.push("Protection");
         COMMAND_PROTECT = BUILDER.comment("Prevent command attacks from players without authorization").define("command protect", false);
         LOCK_DATA = BUILDER.comment("To lock the player's float data to resist special setHealth methods").define("lock data", false);
         BAN_NEUTRAL = BUILDER.comment("Avoid neutral effects").define("no neutral effects", false);
         SPACE_INTERFERE = BUILDER.comment("Interfere space to avoid being selected by most of attack").define("space interfere", false);
+        BUILDER.pop();
 
         BUILDER.push("Exception Dealing");
         BUILDER.comment("Exceptions means players still die even when the authorization is on");

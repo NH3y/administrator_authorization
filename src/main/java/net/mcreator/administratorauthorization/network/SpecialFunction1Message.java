@@ -29,17 +29,16 @@ public record SpecialFunction1Message(int messageType, int pressedms) implements
                 return null;
             });
         }
+
+        context.enqueueWork(() -> pressAction(context.player(), message.messageType(),  message.pressedms()));
     }
 
     public static void pressAction(Player entity, int type, int pressedms) {
         Level world = entity.level();
         // security measure to prevent arbitrary chunk generation
-        if (!world.hasChunk(entity.blockPosition().getX(), entity.blockPosition().getZ()))
-            return;
         if (type == 0) {
             ((PlayerAccess) entity).administrator_authorization$setPressAlter(true);
-        }
-        if (type == 1) {
+        } else if (type == 1) {
             ((PlayerAccess) entity).administrator_authorization$setPressAlter(false);
         }
     }

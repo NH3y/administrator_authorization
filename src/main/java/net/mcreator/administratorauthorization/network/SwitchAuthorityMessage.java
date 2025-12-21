@@ -14,11 +14,11 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public record SwitchAuthorityMessage(int messageType, int pressdms) implements CustomPacketPayload {
+public record SwitchAuthorityMessage(int messageType, int pressedms) implements CustomPacketPayload {
     public static final Type<SwitchAuthorityMessage> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "switch_authority"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SwitchAuthorityMessage> STREAM_CODEC = StreamCodec.of((buffer, message) -> {
         buffer.writeVarInt(message.messageType());
-        buffer.writeVarInt(message.pressdms());
+        buffer.writeVarInt(message.pressedms());
     }, (buffer) -> new SwitchAuthorityMessage(buffer.readVarInt(), buffer.readVarInt()));
 
     public static void handleData(final SwitchAuthorityMessage message, final IPayloadContext context) {
@@ -29,15 +29,14 @@ public record SwitchAuthorityMessage(int messageType, int pressdms) implements C
                 return null;
             });
         }
+
+        context.enqueueWork(() -> pressAction(context.player(), message.messageType(),  message.pressedms()));
     }
 
     public static void pressAction(Player entity, int type, int pressedms) {
         Level world = entity.level();
         // security measure to prevent arbitrary chunk generation
-        if (!world.hasChunk(entity.blockPosition().getX(), entity.blockPosition().getZ()))
-            return;
         if (type == 0) {
-
             CallAuthoritySwitchProcedure.execute(entity);
         }
     }

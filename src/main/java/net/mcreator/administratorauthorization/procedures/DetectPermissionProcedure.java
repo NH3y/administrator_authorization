@@ -1,5 +1,6 @@
 package net.mcreator.administratorauthorization.procedures;
 
+import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +13,7 @@ public class DetectPermissionProcedure {
     public static void execute(Entity entity, ItemStack itemstack) {
         if (entity == null)
             return;
-        if (entity.hasPermissions(2) && entity instanceof Player player) {
+        if (entity.hasPermissions(AAAuthorizationConfiguration.REQUIRED_LEVEL.get()) && entity instanceof Player player) {
             if (itemstack.is(AdministratorAuthorizationModItems.THE_PAPER)) {
                 ItemStack _setstack = new ItemStack(AdministratorAuthorizationModItems.AUTHORIZER.get()).copy();
                 _setstack.setCount(1);

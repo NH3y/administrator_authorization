@@ -1,4 +1,4 @@
-package net.mcreator.administratorauthorization.EventTrackers;
+package net.mcreator.administratorauthorization.eventTrackers;
 
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
@@ -11,7 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 
 @EventBusSubscriber
-public class beneficialEvent {
+public class BeneficialEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onHeal(LivingHealEvent event) {
         LivingEntity entity = event.getEntity();

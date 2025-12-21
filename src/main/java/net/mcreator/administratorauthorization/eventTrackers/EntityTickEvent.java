@@ -1,4 +1,4 @@
-package net.mcreator.administratorauthorization.EventTrackers;
+package net.mcreator.administratorauthorization.eventTrackers;
 
 import net.mcreator.administratorauthorization.Interfaces.*;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
@@ -18,12 +18,11 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber
-public class entityTickEvent {
+public class EntityTickEvent {
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void LivingTickClient(EntityTickEvent.Post event) {
+    public static void LivingTickClient(net.neoforged.neoforge.event.tick.EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!entity.level().isClientSide()) return;
         if (entity instanceof LivingEntity living && HealthDataOperant.getHealthLock(living)) {
@@ -57,7 +56,7 @@ public class entityTickEvent {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void LivingTickServer(EntityTickEvent.Post event) {
+    public static void LivingTickServer(net.neoforged.neoforge.event.tick.EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (entity.level().isClientSide()) {
             return;

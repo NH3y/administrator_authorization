@@ -35,7 +35,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerAccess {
     public void hurt(DamageSource p_36154_, float p_36155_, CallbackInfoReturnable<Boolean> cir) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(false);
-            AdministratorAuthorizationMod.LOGGER.info("Mixin : Hurt");
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Hurt - Player");
         }
     }
 
@@ -63,6 +63,7 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerAccess {
     @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
     public void actuallyHurt(DamageSource pDamageSrc, float pDamageAmount, CallbackInfo ci) {
         if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : Actually Hurt");
             ci.cancel();
         }
     }
