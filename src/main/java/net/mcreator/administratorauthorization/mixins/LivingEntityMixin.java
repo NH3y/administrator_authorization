@@ -56,9 +56,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     protected boolean dead;
 
     @Shadow
-    public abstract void setHealth(float pHealth);
-
-    @Shadow
     @Final
     private static EntityDataAccessor<Float> DATA_HEALTH_ID;
 
@@ -299,10 +296,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         }
     }
 
-    @Inject(method = "getWaterSlowDown", at = @At("RETURN"), cancellable = true)
-    public void getWaterSlowDown(CallbackInfoReturnable<Float> cir) {
+    @Inject(method = "tryAddFrost", at = @At("HEAD"), cancellable = true)
+    public void tryAddFrost(CallbackInfo ci) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
-            cir.setReturnValue(1.0F);
+            ci.cancel();
         }
     }
 

@@ -7,6 +7,7 @@ public class AAAuthorizationConfiguration {
     public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec SPEC;
 
+    public static final ModConfigSpec.ConfigValue<Boolean> SHOW_ADMIN;
     public static final ModConfigSpec.ConfigValue<Integer> REQUIRED_LEVEL;
     public static final ModConfigSpec.ConfigValue<Boolean> LOCK_DATA;
     public static final ModConfigSpec.ConfigValue<Boolean> BAN_NEUTRAL;
@@ -16,6 +17,7 @@ public class AAAuthorizationConfiguration {
 
     static {
 
+        SHOW_ADMIN = BUILDER.comment("Show \"Admin\" at right downside of screen if you are").define("show admin", false);
         REQUIRED_LEVEL = BUILDER.comment("The permission levels required by AA items").define("required level", 2);
 
         BUILDER.push("Protection");

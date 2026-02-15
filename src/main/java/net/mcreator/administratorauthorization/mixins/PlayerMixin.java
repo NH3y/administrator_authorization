@@ -4,12 +4,19 @@ import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.classes.PlayerRouter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,6 +25,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = Player.class, priority = Integer.MIN_VALUE)
 public abstract class PlayerMixin extends LivingEntity implements PlayerAccess {
+    @Shadow
+    @Final
+    private Inventory inventory;
     @Unique
     private boolean administrator_authorization$pressAlter = false;
 
@@ -72,6 +82,27 @@ public abstract class PlayerMixin extends LivingEntity implements PlayerAccess {
     public void isImmobile(CallbackInfoReturnable<Boolean> cir) {
         if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
             cir.setReturnValue(this.isSleeping());
+        }
+    }
+
+    @Inject(method = "getDigSpeed", at = @At("HEAD"),  cancellable = true)
+    public void getDigSpeed(BlockState p_36282_, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+        if (((Object) this) instanceof EntityAccess access && access.administrator_authorization$getAuthorization()) {
+            float f = this.inventory.getDestroySpeed(p_36282_);
+            if (f > 1.0F) {
+                f += (float)this.getAttributeValue(Attributes.MINING_EFFICIENCY);
+            }
+
+            if (MobEffectUtil.hasDigSpeed(this)) {
+                f *= 1.0F + (float)(MobEffectUtil.getDigSpeedAmplification(this) + 1) * 0.2F;
+            }
+
+            float f1 = f;
+            f = net.neoforged.neoforge.event.EventHooks.getBreakSpeed((Player)(Object) this, p_36282_, f, pos);
+            if (f1 > f) {
+                cir.setReturnValue(f1);
+            }
+            cir.setReturnValue(f);
         }
     }
 

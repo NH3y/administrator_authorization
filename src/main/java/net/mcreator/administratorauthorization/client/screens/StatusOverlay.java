@@ -2,10 +2,12 @@ package net.mcreator.administratorauthorization.client.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
+import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +20,8 @@ public class StatusOverlay implements LayeredDraw.Layer {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, @NotNull DeltaTracker deltaTracker) {
+        if (!AAAuthorizationConfiguration.SHOW_ADMIN.get()) return;
+
         PoseStack pose = guiGraphics.pose();
 
         int screenWidth = minecraft.getWindow().getGuiScaledWidth();
@@ -28,12 +32,12 @@ public class StatusOverlay implements LayeredDraw.Layer {
         pose.pushPose();
         pose.translate(centerX, centerY, 0);
 
-        if (minecraft.player != null) {
-            boolean switchBool = ((EntityAccess) minecraft.player).administrator_authorization$getSwitch();
-            int width = minecraft.font.width(String.valueOf(switchBool));
+        LocalPlayer player = minecraft.player;
+        if (player != null && ((EntityAccess) player).administrator_authorization$getAuthorization()) {
+            int width = minecraft.font.width("Admin");
             guiGraphics.drawString(
                     minecraft.font,
-                    Component.literal(String.valueOf(switchBool)),
+                    Component.literal("Admin"),
                     centerY - width / 2,
                     centerY - 10,
                     0xFFFFFF00

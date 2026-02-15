@@ -4,6 +4,7 @@ import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
 import net.mcreator.administratorauthorization.configuration.AAInterceptorConfiguration;
+import net.mcreator.administratorauthorization.configuration.AASecurityConfiguration;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
@@ -20,6 +21,7 @@ public class AdministratorAuthorizationModConfigs {
             activeContainer.registerConfig(ModConfig.Type.COMMON, AADestroyerConfiguration.SPEC, "AA-RealityDestroyer(RD).toml");
             activeContainer.registerConfig(ModConfig.Type.COMMON, AAAuthorizationConfiguration.SPEC, "AA-Authorization.toml");
             activeContainer.registerConfig(ModConfig.Type.COMMON, AAInterceptorConfiguration.SPEC, "AA-Interceptor.toml");
+            activeContainer.registerConfig(ModConfig.Type.COMMON, AASecurityConfiguration.SPEC, "AA-Security.toml");
         });
     }
 }

@@ -1,8 +1,11 @@
 package net.mcreator.administratorauthorization;
 
+import net.mcreator.administratorauthorization.configuration.AASecurityConfiguration;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModBlocks;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
 import net.mcreator.administratorauthorization.init.AttachmentRegistry;
+import net.mcreator.administratorauthorization.security.Detector;
+import net.mcreator.administratorauthorization.world.dimension.AntiVoidDimension;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -24,6 +27,10 @@ public class AdministratorAuthorizationMod {
     public static final Logger LOGGER = LogManager.getLogger(AdministratorAuthorizationMod.class);
     public static final String MODID = "administrator_authorization";
 
+    static {
+        System.setProperty("jdk.attach.allowAttachSelf", "false");
+    }
+
     public AdministratorAuthorizationMod(IEventBus modEventBus, ModContainer modContainer) {
         // Start of user code block mod constructor
         // End of user code block mod constructor
@@ -34,6 +41,12 @@ public class AdministratorAuthorizationMod {
         modEventBus.addListener(this::registerNetworking);
         // Start of user code block mod init
         // End of user code block mod init
+        if (
+                AASecurityConfiguration.ENABLED.get() &&
+                AASecurityConfiguration.AGENT_DETECT.get()
+        ) {
+            Detector.startAttachMonitoring();
+        }
     }
 
     private static boolean networkingRegistered = false;
