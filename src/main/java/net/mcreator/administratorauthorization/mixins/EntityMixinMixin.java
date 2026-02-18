@@ -219,7 +219,9 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
         this.stopRiding();
 
         this.getPassengers().forEach(Entity::stopRiding);
-        this.levelCallback.onRemove(pRemovalReason);
+        if (!this.levelCallback.equals(EntityInLevelCallback.NULL)) {
+            ((CallbackAccess) this.levelCallback).administrator_authorization$forceOnRemove(pRemovalReason);
+        }
 
     }
 

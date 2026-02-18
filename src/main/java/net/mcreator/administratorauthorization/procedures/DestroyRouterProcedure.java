@@ -5,11 +5,13 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
+import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
 import net.mcreator.administratorauthorization.network.HealthDataPacket;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -22,8 +24,8 @@ public class DestroyRouterProcedure {
     public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
         if (entity == null || sourceentity == null || entity.is(sourceentity))
             return;
+        int route = RouterDataOperant.getPlayerRouterIndex((Player) sourceentity);
         if (entity instanceof LivingEntity living) {
-            int route = RouterDataOperant.getPlayerRouterIndex((Player) sourceentity);
             if (sourceentity instanceof PlayerAccess player && player.administrator_authorization$isPressAlter()) {
                 switch (route) {
                     case 1 -> weaken(living);
@@ -42,7 +44,17 @@ public class DestroyRouterProcedure {
                     case 8 -> יוםהדין(living);
                 }
             }
+        }else if (shouldKill(entity)) {
+            switch (route) {
+                case 1, 2, 3, 4 -> {}
+                case 5 -> obliterate(entity);
+                case 8 -> יוםהדין(entity);
+            }
         }
+    }
+
+    private static boolean shouldKill(Entity entity) {
+        return entity instanceof Display || AADestroyerConfiguration.ACCEPT_ENTITY.get();
     }
 
     private static void damage(LivingEntity victim, LevelAccessor world) {
@@ -84,7 +96,7 @@ public class DestroyRouterProcedure {
         obliterate(victim);
     }
 
-    private static void obliterate(LivingEntity victim) {
+    private static void obliterate(Entity victim) {
         if (victim instanceof EntityAccess access) {
             access.administrator_authorization$forceRemove();
         } else {
@@ -99,7 +111,7 @@ public class DestroyRouterProcedure {
 
     //Last Judgment
     @SuppressWarnings({"NonAsciiCharacters"})
-    private static void יוםהדין(LivingEntity victim) {
+    private static void יוםהדין(Entity victim) {
         ((EntityAccess) victim).administrator_authorization$setRejectSave(true);
         obliterate(victim);
     }

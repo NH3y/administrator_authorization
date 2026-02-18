@@ -48,7 +48,7 @@ public class ServerLevelMixin implements ServerLevelAccess {
                 callback.onTrackingEnd(entity);
                 callback.onDestroyed(entity);
                 entity.setLevelCallback(EntityInLevelCallback.NULL);
-                ((PersistentEntitySectionManagerAccess<?>) this.entityManager).administrator_authorization$removeUuid(entity);
+                ((PersistentEntitySectionManagerAccess<? extends net.minecraft.world.level.entity.EntityAccess>) this.entityManager).administrator_authorization$removeUuid(entity);
             }
         });
     }

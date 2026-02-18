@@ -15,12 +15,14 @@
     "ForgeHooksMixin",
     "LevelMixin",
     "LivingEntityMixin",
+    "PersistentCallbackMixin",
     "PersistentEntitySectionManagerMixin",
     "PlayerListMixin",
     "PlayerMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",
     "SynchedEntityDataMixin",
+    "TransientCallbackMixin",
     "TransientEntitySectionManagerMixin"
   ],
   "client": [
