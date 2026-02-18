@@ -14,6 +14,7 @@ public class AADestroyerConfiguration {
     public static final ForgeConfigSpec.ConfigValue<Boolean> CAN_DESTROY_BLOCK;
     public static final ForgeConfigSpec.ConfigValue<Boolean> DROP_BLOCK;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ACCEPT_INTERACT;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> ACCEPT_ENTITY;
 
     static {
         BUILDER.push("Targets");
@@ -22,6 +23,10 @@ public class AADestroyerConfiguration {
         ACCEPT_MULTIPLE = BUILDER.comment("chose all entity found rather than only one").define("Right Click Accept Multiple Targets", false);
         SEARCH_DISTANCE = BUILDER.comment("The distance of right click search").define("Right Click Distance", 20);
         ACCEPT_INTERACT = BUILDER.comment("Use right click to apply effect by directly interacting with entity").define("Accept Interaction", false);
+        ACCEPT_ENTITY = BUILDER
+                .comment("destroy all the entity")
+                .comment("(Only obliterate and יוםהדין will work)")
+                .define("Accept ALL Entity", false);
         BUILDER.pop();
         BUILDER.push("Inventory");
         KEEP_IN_INVENTORY = BUILDER.comment("Prevent RD from being lost or seal").define("Protect RD", false);

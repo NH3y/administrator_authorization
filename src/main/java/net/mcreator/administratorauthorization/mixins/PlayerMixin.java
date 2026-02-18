@@ -2,7 +2,6 @@ package net.mcreator.administratorauthorization.mixins;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
-import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.classes.PlayerRouter;
 import net.minecraft.world.damagesource.DamageSource;
