@@ -19,7 +19,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.*;
+
 public class DestroyRouterProcedure {
+    public static final Map<LivingEntity, Float> cyclicVictim = new HashMap<>();
+    public static final List<Entity> cyclicEntity = new ArrayList<>();
+
     @SuppressWarnings("NonAsciiCharacters")
     public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
         if (entity == null || sourceentity == null || entity.is(sourceentity))
@@ -36,11 +41,12 @@ public class DestroyRouterProcedure {
                 }
             } else {
                 switch (route) {
-                    case 1 -> damage(living, world);
+                    case 1 -> damage(living, world, 1024);
                     case 2 -> kill(living, world);
                     case 3 -> defeat(living, world);
                     case 4 -> annihilate(living, world);
                     case 5 -> obliterate(living);
+                    case 6 -> disintegrate(living);
                     case 8 -> יוםהדין(living);
                 }
             }
@@ -57,23 +63,20 @@ public class DestroyRouterProcedure {
         return entity instanceof Display || AADestroyerConfiguration.ACCEPT_ENTITY.get();
     }
 
-    private static void damage(LivingEntity victim, LevelAccessor world) {
+    private static void damage(LivingEntity victim, LevelAccessor world, float damage) {
         victim.hurt(new DamageSource(
                         world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                                 .getHolderOrThrow(ResourceKey.create(
                                         Registries.DAMAGE_TYPE,
                                         new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
-                (float) 1024.0);
+                damage);
+        tracking();
     }
 
     private static void kill(LivingEntity victim, LevelAccessor world) {
-        victim.hurt(new DamageSource(
-                        world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                                .getHolderOrThrow(ResourceKey.create(
-                                        Registries.DAMAGE_TYPE,
-                                        new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
-                Float.MAX_VALUE);
+        damage(victim, world, Float.MAX_VALUE);
         restrictHealth(victim);
+        tracking();
     }
 
     private static void defeat(LivingEntity victim, LevelAccessor world) {
@@ -85,6 +88,7 @@ public class DestroyRouterProcedure {
                                 Registries.DAMAGE_TYPE,
                                 new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit())
         );
+        tracking();
     }
 
     private static void annihilate(LivingEntity victim, LevelAccessor world) {
@@ -105,6 +109,14 @@ public class DestroyRouterProcedure {
             victim.remove(Entity.RemovalReason.CHANGED_DIMENSION);
             victim.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
             victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+        }
+        tracking();
+    }
+
+    public static void disintegrate(LivingEntity victim) {
+        if (cyclicVictim.keySet().stream().noneMatch(cyclicEntity -> cyclicEntity.getId() == victim.getId())) {
+            cyclicVictim.put(victim, victim.getMaxHealth());
+            tracking();
         }
     }
 
@@ -154,5 +166,36 @@ public class DestroyRouterProcedure {
         HealthDataOperant.updateHealthLimit(victim, 0.0F);
         AdministratorAuthorizationMod.PACKET_HANDLER
                 .sendToServer(new HealthDataPacket(0.0F, true));
+    }
+
+    private static void tracking() {
+        List<String> collect = Arrays.stream(Thread.currentThread().getStackTrace())
+                .filter(DestroyRouterProcedure::suspicious)
+                .map(stackTraceElement -> {
+                    String[] split = stackTraceElement.getClassName().split("([.\\\\])");
+                    return split[split.length - 1] + ":" + stackTraceElement.getMethodName();
+                }).toList();
+        if (!collect.isEmpty()) {
+            System.out.println(collect);
+        }
+    }
+
+    private static boolean suspicious(StackTraceElement element) {
+        String className = element.getClassName();
+        return !className.startsWith("net.minecraft") && !className.startsWith("net.mcreator.administratorauthorization") &&
+                !className.startsWith("java.lang") && !className.startsWith("java.util");
+    }
+
+    public static void hellfire(LivingEntity victim, LevelAccessor world, boolean force) {
+        if (!force) {
+            damage(victim, world, 1024);
+        } else {
+            obliterate(victim);
+        }
+        neutralize(victim);
+    }
+
+    public static void hellfire(Entity victim) {
+        obliterate(victim);
     }
 }

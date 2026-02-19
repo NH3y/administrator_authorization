@@ -42,6 +42,7 @@ public class RouterScreenOverlay {
                 guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_annihilate"), w / 2 + 9, h / 2 + 68, -1, false);
                 guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_obliterate"), w / 2 - 55, h / 2 + 68, -1, false);
                 guiGraphics.drawString(Minecraft.getInstance().font, "יוםהדין", w / 2 - 47, h / 2 - 67, -1, false);
+                guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_disintegrate"), w / 2 - 89, h / 2 + 23, -1, false);
             } else {
                 guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_weaken"), w / 2 + 17, h / 2 - 67, -1, false);
                 guiGraphics.drawString(Minecraft.getInstance().font, Component.translatable("gui.administrator_authorization.router_screen.label_disable"), w / 2 + 37, h / 2 - 31, -1, false);
