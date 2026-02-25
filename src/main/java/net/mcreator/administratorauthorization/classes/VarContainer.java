@@ -27,7 +27,17 @@ public class VarContainer<T> {
                     newValue instanceof Number newNumber &&
                     point instanceof Number thePoint
             ) {
-                value = newNumber.doubleValue() > thePoint.doubleValue() ? newValue : value;
+                T t = newNumber.doubleValue() > thePoint.doubleValue() ? newValue : value;
+                value = t;
+                point = t;
+            } else if (
+                    status.equals(Lock.BEGIN_POINT) &&
+                    newValue instanceof Number newNumber &&
+                    point instanceof  Number thePoint
+            ) {
+                T t = newNumber.doubleValue() > thePoint.doubleValue() ? value : newValue;
+                value = t;
+                point = t;
             } else {
                 value = newValue;
             }
@@ -41,11 +51,20 @@ public class VarContainer<T> {
         return stored;
     }
 
+    public T getPoint() {
+        return point;
+    }
+
+    public void setPoint(T point) {
+        this.point = point;
+    }
+
     public void lock(String name) {
         try {
             Lock lock = Lock.valueOf(name);
+            if (lock.equals(status)) return ;
             this.status = lock;
-            if (lock.equals(Lock.STOP_POINT)) {
+            if (lock.equals(Lock.STOP_POINT) || lock.equals(Lock.BEGIN_POINT)) {
                 this.point = this.value;
             }
             System.out.println("Var Container " + varName + " is currently " + lock.name());
@@ -63,14 +82,15 @@ public class VarContainer<T> {
 
     public void indexing() {
         byName.put(varName, this);
-        System.out.println("Indexing " + varName + " for later use");
     }
 
     private enum Lock {
         READ_ONLY(true, false),
         FULL_ACCESS(true, true),
         NO_ACCESS(false, false),
-        STOP_POINT(true, true);
+        STOP_POINT(true, true),
+
+        BEGIN_POINT(true, true);
 
         public final boolean readable;
         public final boolean writable;

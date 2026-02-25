@@ -5,18 +5,22 @@ import net.mcreator.administratorauthorization.Interfaces.AttributeAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
+import net.mcreator.administratorauthorization.classes.Vault;
 import net.mcreator.administratorauthorization.procedures.HealthDataOperant;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -24,7 +28,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.ForgeHooks;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -149,11 +155,85 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Shadow
     protected abstract void updatingUsingItem();
 
+    @Shadow
+    protected int deathScore;
+
+    @Shadow
+    public abstract void stopSleeping();
+
+    @Shadow
+    protected int noActionTime;
+
+    @Shadow
+    public abstract boolean isDamageSourceBlocked(DamageSource pDamageSource);
+
+    @Shadow
+    protected abstract void hurtCurrentlyUsedShield(float pDamageAmount);
+
+    @Shadow
+    protected abstract void blockUsingShield(LivingEntity pAttacker);
+
+    @Shadow
+    @Final
+    public WalkAnimationState walkAnimation;
+    @Shadow
+    protected float lastHurt;
+
+    @Shadow
+    protected abstract void actuallyHurt(DamageSource pDamageSource, float pDamageAmount);
+
+    @Shadow
+    public abstract boolean hurt(@NotNull DamageSource pSource, float pAmount);
+
+    @Shadow
+    public abstract void setLastHurtByMob(@org.jetbrains.annotations.Nullable LivingEntity pLivingEntity);
+
+    @Shadow
+    protected int lastHurtByPlayerTime;
+    @Shadow
+    @Nullable
+    protected Player lastHurtByPlayer;
+
+    @Shadow
+    public abstract void knockback(double pStrength, double pX, double pZ);
+
+    @Shadow
+    public abstract void indicateDamage(double pXDistance, double pZDistance);
+
+    @Shadow
+    public abstract boolean isDeadOrDying();
+
+    @Shadow
+    @Nullable
+    protected abstract SoundEvent getDeathSound();
+
+    @Shadow
+    protected abstract float getSoundVolume();
+
+    @Shadow
+    public abstract float getVoicePitch();
+
+    @Shadow
+    protected abstract void playHurtSound(DamageSource pSource);
+
+    @Shadow
+    @Nullable
+    private DamageSource lastDamageSource;
+    @Shadow
+    private long lastDamageStamp;
+
+    @Shadow
+    public abstract float getAbsorptionAmount();
+
+    @Shadow
+    public abstract void setAbsorptionAmount(float pAbsorptionAmount);
+
     @Unique
     private boolean administrator_authorization$NoAI = false;
 
     @Inject(method = "setHealth", at = @At("HEAD"), cancellable = true)
-    public void administrator_authorization$setHealth(float p_21154_, CallbackInfo ci) {
+    public void setHealth_head(float p_21154_, CallbackInfo ci) {
+        Vault.EntityCallContext.push(this);
         if ((Object) this instanceof Player) {
             if (((EntityAccess) this).administrator_authorization$getAuthorization() && !(p_21154_ >= this.administrator_authorization$getFixedMaxHealth())) {
                 ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(DATA_HEALTH_ID, this.administrator_authorization$getFixedMaxHealth());
@@ -162,11 +242,16 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
             }
         }
         if ((Object) this instanceof LivingEntity living) {
-            if (HealthDataOperant.getHealthLimit(living) < p_21154_ && HealthDataOperant.getHealthLock(living)) {
+            if (p_21154_ >= getHealth() && HealthDataOperant.getHealthLimit(living) < p_21154_ && HealthDataOperant.getHealthLock(living) ) {
                 System.out.println("Health Limit : " + HealthDataOperant.getHealthLimit(living) + " Excess!");
                 ci.cancel();
             }
         }
+    }
+
+    @Inject(method = "setHealth", at = @At("RETURN"))
+    public void setHealth_return(float p_21154_, CallbackInfo ci) {
+        Vault.EntityCallContext.clear();
     }
 
     @Inject(method = "getHealth", at = @At("HEAD"), cancellable = true)
@@ -305,6 +390,28 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
             cir.setReturnValue(1.0F);
         }
+    }
+
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    public void hurt(DamageSource pSource, float pAmount, CallbackInfoReturnable<Boolean> cir) {
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            cir.setReturnValue(false);
+            this.dead = false;
+        }
+    }
+
+    @Inject(method = "actuallyHurt", at = @At("HEAD"), cancellable = true)
+    public void actuallyHurt(DamageSource pDamageSource, float pDamageAmount, CallbackInfo ci) {
+        Vault.HurtByContext.push(new Vault.HurtByContext.Context(pDamageSource, pDamageAmount));
+        if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
+            ci.cancel();
+            this.dead = false;
+        }
+    }
+
+    @Inject(method = "actuallyHurt", at = @At("RETURN"))
+    public void actuallyHurt_return(DamageSource pDamageSource, float pDamageAmount, CallbackInfo ci) {
+        Vault.HurtByContext.clear();
     }
 
     @Unique
@@ -491,5 +598,148 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     @Override
     public EntityDataAccessor<Float> administrator_authorization$getAccessorHealth() {
         return DATA_HEALTH_ID;
+    }
+
+    @Override
+    public void administrator_authorization$die(DamageSource pDamageSource) {
+        if (net.minecraftforge.common.ForgeHooks.onLivingDeath((LivingEntity)(Object) this, pDamageSource)) return;
+        if (!this.isRemoved() && !this.dead) {
+            Entity entity = pDamageSource.getEntity();
+            LivingEntity livingentity = this.getKillCredit();
+            if (this.deathScore >= 0 && livingentity != null) {
+                livingentity.awardKillScore(this, this.deathScore, pDamageSource);
+            }
+
+            if (this.isSleeping()) {
+                this.stopSleeping();
+            }
+
+            this.dead = true;
+            this.getCombatTracker().recheckStatus();
+            Level level = this.level();
+            if (level instanceof ServerLevel serverlevel) {
+                if (entity != null) {
+                    entity.killedEntity(serverlevel, (LivingEntity) (Object) this);
+                }
+                this.gameEvent(GameEvent.ENTITY_DIE);
+                this.dropAllDeathLoot(pDamageSource);
+
+                this.level().broadcastEntityEvent(this, (byte)3);
+            }
+
+            this.setPose(Pose.DYING);
+        }
+    }
+
+    @Override
+    public void administrator_authorization$hurt(DamageSource pSource, float pAmount) {
+        if (!this.level().isClientSide) {
+            if (this.isSleeping() && !this.level().isClientSide) {
+                this.stopSleeping();
+            }
+
+            this.noActionTime = 0;
+            boolean flag = false;
+            float f1 = 0.0F;
+
+            this.walkAnimation.setSpeed(1.5F);
+            this.lastHurt = pAmount;
+            this.administrator_authorization$actuallyHurt(pSource, pAmount);
+
+            Entity entity1 = pSource.getEntity();
+            if (entity1 != null) {
+                if (entity1 instanceof LivingEntity livingentity1) {
+                    if (!pSource.is(DamageTypeTags.NO_ANGER)) {
+                        this.setLastHurtByMob(livingentity1);
+                    }
+                }
+
+                if (entity1 instanceof Player player1) {
+                    this.lastHurtByPlayerTime = 100;
+                    this.lastHurtByPlayer = player1;
+                } else if (entity1 instanceof net.minecraft.world.entity.TamableAnimal tamableEntity) {
+                    if (tamableEntity.isTame()) {
+                        this.lastHurtByPlayerTime = 100;
+                        LivingEntity livingentity2 = tamableEntity.getOwner();
+                        if (livingentity2 instanceof Player) {
+                            this.lastHurtByPlayer = (Player)livingentity2;
+                        } else {
+                            this.lastHurtByPlayer = null;
+                        }
+                    }
+                }
+            }
+
+            this.level().broadcastDamageEvent(this, pSource);
+
+            if (!pSource.is(DamageTypeTags.NO_IMPACT)) {
+                this.markHurt();
+            }
+
+            if (entity1 != null && !pSource.is(DamageTypeTags.IS_EXPLOSION)) {
+                double d0 = entity1.getX() - this.getX();
+
+                double d1;
+                for(d1 = entity1.getZ() - this.getZ(); d0 * d0 + d1 * d1 < 1.0E-4D; d1 = (Math.random() - Math.random()) * 0.01D) {
+                    d0 = (Math.random() - Math.random()) * 0.01D;
+                }
+
+                this.knockback(0.4F, d0, d1);
+                if (!flag) {
+                    this.indicateDamage(d0, d1);
+                }
+            }
+
+            if (this.isDeadOrDying()) {
+                SoundEvent soundevent = this.getDeathSound();
+                if (soundevent != null) {
+                    this.playSound(soundevent, this.getSoundVolume(), this.getVoicePitch());
+                }
+
+                this.administrator_authorization$die(pSource);
+            } else {
+                this.playHurtSound(pSource);
+            }
+
+            this.lastDamageSource = pSource;
+            this.lastDamageStamp = this.level().getGameTime();
+
+            if ((Object)this instanceof ServerPlayer serverPlayer) {
+                CriteriaTriggers.ENTITY_HURT_PLAYER.trigger(serverPlayer, pSource, pAmount, pAmount, flag);
+                if (f1 > 0.0F && f1 < 3.4028235E37F) {
+                    serverPlayer.awardStat(Stats.CUSTOM.get(Stats.DAMAGE_BLOCKED_BY_SHIELD), Math.round(f1 * 10.0F));
+                }
+            }
+
+            if (entity1 instanceof ServerPlayer) {
+                CriteriaTriggers.PLAYER_HURT_ENTITY.trigger((ServerPlayer)entity1, this, pSource, pAmount, pAmount, flag);
+            }
+
+        }
+    }
+
+    @Override
+    public void administrator_authorization$actuallyHurt(DamageSource pDamageSource, float pDamageAmount) {
+        pDamageAmount = ForgeHooks.onLivingHurt((LivingEntity) (Object) this, pDamageSource, pDamageAmount);
+        if (pDamageAmount <= 0) return;
+        float f1 = Math.max(pDamageAmount - this.getAbsorptionAmount(), 0.0F);
+        this.setAbsorptionAmount(0);
+        float f = pDamageAmount;
+        Entity entity = pDamageSource.getEntity();
+        if (entity instanceof ServerPlayer serverplayer) {
+            serverplayer.awardStat(Stats.DAMAGE_DEALT_ABSORBED, Math.round(f * 10.0F));
+        }
+
+        f1 = ForgeHooks.onLivingDamage((LivingEntity) (Object) this, pDamageSource, f1);
+        if (f1 != 0.0F) {
+            this.getCombatTracker().recordDamage(pDamageSource, f1);
+            this.administrator_authorization$setHealth(this.getHealth() - f1);
+            this.setAbsorptionAmount(0);
+            this.gameEvent(GameEvent.ENTITY_DAMAGE);
+        }
+    }
+
+    static {
+        Vault.healthId.setData(DATA_HEALTH_ID.getId());
     }
 }

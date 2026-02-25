@@ -37,7 +37,7 @@ public class Gehenna {
     public static void atonement(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             for (Map.Entry<LivingEntity, Float> entity : DestroyRouterProcedure.cyclicVictim.entrySet()) {
-                DestroyRouterProcedure.hellfire(entity.getKey(), event.player.level(), false);
+                DestroyRouterProcedure.hellfire(entity.getKey(), event.player.level(), false, event.player);
             }
             DestroyRouterProcedure.cyclicVictim.replaceAll(((living, aFloat) -> aFloat - 1000));
             HashMap<LivingEntity, Float> checkMap = new HashMap<>(DestroyRouterProcedure.cyclicVictim);

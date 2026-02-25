@@ -188,7 +188,6 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
                     } catch (RuntimeException ignore) {
 
                     }
-                    System.out.println(instanceEntry.getKey().getDescriptionId());
                 }
             }
             //end of attribute part
@@ -223,11 +222,6 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
             ((CallbackAccess) this.levelCallback).administrator_authorization$forceOnRemove(pRemovalReason);
         }
 
-    }
-
-    @Override
-    public EntityInLevelCallback administrator_authorization$getLevelCallback() {
-        return this.levelCallback;
     }
 
     @Inject(method = "isInvulnerableTo", at = @At("RETURN"), cancellable = true)

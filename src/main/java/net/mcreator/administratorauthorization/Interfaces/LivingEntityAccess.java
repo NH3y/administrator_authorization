@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.Interfaces;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.level.LevelAccessor;
 
@@ -11,6 +12,13 @@ public interface LivingEntityAccess {
     void Administrator_authorization$setNoAI(boolean administrator_authorization$NoAI);
 
     void administrator_authorization$setAttributes(Attribute attribute, double value);
+
+    void administrator_authorization$die(DamageSource damageSource);
+
+    @SuppressWarnings("unused")
+    void administrator_authorization$hurt(DamageSource pSource, float pAmount);
+
+    void administrator_authorization$actuallyHurt(DamageSource pSource, float pAmount);
 
     float administrator_authorization$getFixedMaxHealth();
 

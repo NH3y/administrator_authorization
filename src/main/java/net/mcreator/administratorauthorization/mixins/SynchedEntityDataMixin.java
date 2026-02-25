@@ -4,13 +4,18 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.*;
+import net.mcreator.administratorauthorization.classes.Vault;
+import net.mcreator.administratorauthorization.configuration.AAAuthorizationConfiguration;
+import net.mcreator.administratorauthorization.security.EntryAnalyzer;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -25,9 +30,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.function.Consumer;
 
 @Mixin(value = SynchedEntityData.class, priority = Integer.MIN_VALUE)
 public abstract class SynchedEntityDataMixin implements EntityDataAccess {
+
+    @SuppressWarnings("unused")
+    @Unique
+    private static Consumer<Vault.HurtByContext.Context> administrator_authorization$AUDIT = context -> {
+        Entity entity1 = context.source().getEntity();
+        if (entity1 != null && !entity1.getClass().getName().startsWith("net.minecraft.")) {
+            System.out.println(entity1.getClass());
+        }
+    };
+
     @Shadow
     @Final
     private Entity entity;
@@ -62,26 +78,86 @@ public abstract class SynchedEntityDataMixin implements EntityDataAccess {
     @Shadow
     @Final
     private static Logger LOGGER;
+
+    @Shadow
+    protected abstract <T> void createDataItem(EntityDataAccessor<T> pKey, T pValue);
+
     @Unique
     private final Set<Integer> administrator_authorization$bannedId = new HashSet<>(4);
 
     @Inject(method = "set(Lnet/minecraft/network/syncher/EntityDataAccessor;Ljava/lang/Object;Z)V", at = @At("HEAD"), cancellable = true)
     public <T> void set(EntityDataAccessor<T> pKey, T pValue, boolean pForce, CallbackInfo ci) {
-        if (((EntityAccess) this.entity).administrator_authorization$getAuthorization()) {
-            if (this.administrator_authorization$bannedId.contains(pKey.getId())) {
+        EntryAnalyzer instance = EntryAnalyzer.getInstance();
+        instance.mixinMethods();
+        instance.recordHurtMethod();
+        if (instance.has("net.minecraft.world.entity.player.Player", "m_6256_")) {
+            System.out.println("has player attack");
+        }
+        if (Vault.EntityCallContext.isPresent() && Vault.EntityCallContext.get() instanceof LivingEntity living) {
+            if (((EntityAccess) living).administrator_authorization$getAuthorization()) {
                 ci.cancel();
-                AdministratorAuthorizationMod.LOGGER.info("Mixin : setEntityData");
             }
-            @SuppressWarnings("unchecked")
-            DataItemAccess<T> item = (DataItemAccess<T>) this.getItem(pKey);
+            if (AAAuthorizationConfiguration.PENETRATION.get()) {
+                administrator_authorization$penetrate(pKey, ci);
+            }
+        }
 
-            if (item != null && (pForce || ObjectUtils.notEqual(pValue, item.administrator_authorization$directlyInteract(false, null)))) {
-                item.administrator_authorization$directlyInteract(true, pValue);
-                this.entity.onSyncedDataUpdated(pKey);
-                item.administrator_authorization$dirty();
-                this.isDirty = true;
+        if (((EntityAccess) this.entity).administrator_authorization$getAuthorization()) {
+            administrator_authorization$ifAuthorized(pKey, pValue, pForce, ci);
+        }
+    }
+
+    @Unique
+    private <T> void administrator_authorization$penetrate(EntityDataAccessor<T> pKey, CallbackInfo ci) {
+        if (Vault.HurtByContext.isPresent(administrator_authorization$AUDIT)) {
+            Vault.HurtByContext.Context context = Vault.HurtByContext.get();
+            Entity entity1 = context.source().getEntity();
+            if (entity1 != null && ((EntityAccess) entity1).administrator_authorization$getAuthorization()) {
+                administrator_authorization$ensureSet(pKey, (int) -context.damage(), context.source());
+                ci.cancel();
             }
+        }
+    }
+
+    @Unique
+    private <T> void administrator_authorization$ifAuthorized(EntityDataAccessor<T> pKey, T pValue, boolean pForce, CallbackInfo ci) {
+        if (pKey.getId() == Vault.healthId.getData())
             ci.cancel();
+        if (this.administrator_authorization$bannedId.contains(pKey.getId())) {
+            ci.cancel();
+            AdministratorAuthorizationMod.LOGGER.info("Mixin : setEntityData");
+        }
+        @SuppressWarnings("unchecked")
+        DataItemAccess<T> item = (DataItemAccess<T>) this.getItem(pKey);
+
+        if (item != null && (pForce || ObjectUtils.notEqual(pValue, item.administrator_authorization$directlyInteract(false, null)))) {
+            item.administrator_authorization$directlyInteract(true, pValue);
+            this.entity.onSyncedDataUpdated(pKey);
+            item.administrator_authorization$dirty();
+            this.isDirty = true;
+        }
+        ci.cancel();
+    }
+
+    @Unique
+    private <T> void administrator_authorization$ensureSet(EntityDataAccessor<T> pKey, int alter, DamageSource source) {
+        SynchedEntityData.DataItem<T> item = getItem(pKey);
+        if (item != null) {
+            try {
+                SynchedEntityData.DataItem<Float> floatDataItem = (SynchedEntityData.DataItem<Float>) item;
+                float health = Math.max(floatDataItem.getValue() + alter, 0);
+                floatDataItem.setValue(health);
+                if (health == 0 && entity instanceof LivingEntity living) {
+                    if (AAAuthorizationConfiguration.CLEAR_DIRECTLY.get()) {
+                        ((EntityAccess) entity).administrator_authorization$forceRemove();
+                    } else {
+                        living.die(source);
+                    }
+                }
+            } catch (ClassCastException ignored) {}
+            this.entity.onSyncedDataUpdated(pKey);
+            item.setDirty(true);
+            this.isDirty = true;
         }
     }
 

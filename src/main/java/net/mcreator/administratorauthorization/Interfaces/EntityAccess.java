@@ -1,7 +1,6 @@
 package net.mcreator.administratorauthorization.Interfaces;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.entity.EntityInLevelCallback;
 
 public interface EntityAccess {
     default boolean administrator_authorization$getAuthorization() {
@@ -19,8 +18,6 @@ public interface EntityAccess {
     void administrator_authorization$forceRemove();
 
     void administrator_authorization$forceSetRemoved(Entity.RemovalReason pRemovalReason);
-
-    EntityInLevelCallback administrator_authorization$getLevelCallback();
 
     boolean Administrator_authorization$isForgotten();
 

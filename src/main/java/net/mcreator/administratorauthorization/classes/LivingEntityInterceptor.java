@@ -17,7 +17,7 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
 
     @Override
     public float getHealth() {
-        if (!AAInterceptorConfiguration.GET_HEALTH.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.GET_HEALTH.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             return super.getHealth();
         }
         return this.entityData.get(
@@ -27,7 +27,7 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
 
     @Override
     public boolean isDeadOrDying() {
-        if (!AAInterceptorConfiguration.IS_DEAD.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.IS_DEAD.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             return super.isDeadOrDying();
         }
         return false;
@@ -35,7 +35,7 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
 
     @Override
     public boolean isAlive() {
-        if (!AAInterceptorConfiguration.IS_ALIVE.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.IS_ALIVE.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             return super.isAlive();
         }
         return true;
@@ -43,21 +43,21 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
 
     @Override
     public void setHealth(float pHealth) {
-        if (!AAInterceptorConfiguration.SET_HEALTH.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.SET_HEALTH.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             super.setHealth(pHealth);
         }
     }
 
     @Override
     public void die(@NotNull DamageSource pDamageSource) {
-        if (!AAInterceptorConfiguration.DIE.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.DIE.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             super.die(pDamageSource);
         }
     }
 
     @Override
     protected boolean isImmobile() {
-        if (!AAInterceptorConfiguration.IS_IMMOBILE.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.IS_IMMOBILE.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             return super.isImmobile();
         }
         return false;
@@ -65,7 +65,7 @@ public abstract class LivingEntityInterceptor extends LivingEntity {
 
     @Override
     public void remove(@NotNull RemovalReason pReason) {
-        if (!AAInterceptorConfiguration.REMOVE.get() || (this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
+        if (!AAInterceptorConfiguration.REMOVE.get() || !(this instanceof EntityAccess entityAccess && entityAccess.administrator_authorization$getAuthorization())) {
             super.remove(pReason);
         }
         if (!pReason.equals(RemovalReason.KILLED)) {

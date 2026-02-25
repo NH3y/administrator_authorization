@@ -1,8 +1,6 @@
 package net.mcreator.administratorauthorization.security;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import net.mcreator.administratorauthorization.security.runnable.RunAgentEnsure;
-import net.mcreator.administratorauthorization.security.runnable.RunPropertyEnsure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,7 @@ public class MonitoringService {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(
             1,
             new ThreadFactoryBuilder()
-                    .setNameFormat("monitor-fixed-%d")
+                    .setNameFormat("monitor-%d")
                     .setDaemon(true)
                     .setUncaughtExceptionHandler(((t, e) -> log.error(
                             "Monitor thread {} fail", t.getName(), e
@@ -28,27 +26,7 @@ public class MonitoringService {
     );
 
     static {
-        RunPropertyEnsure propertyEnsure = new RunPropertyEnsure();
-        Thread thread1 = new Thread(propertyEnsure);
-        thread1.setName("monitor-thread-0");
-        thread1.setDaemon(true);
-        thread1.start();
 
-        monitoringThreads.add(thread1);
-
-        RunAgentEnsure agentEnsure = new RunAgentEnsure();
-        ScheduledFuture<?> agentFuture = scheduler.scheduleWithFixedDelay(() -> {
-            try {
-                agentEnsure.run();
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
-        },
-                0,
-                10,
-                TimeUnit.SECONDS
-        );
-        monitoringTasks.add(agentFuture);
     }
 
     public void shutdown() {

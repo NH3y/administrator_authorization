@@ -76,4 +76,8 @@ public class playerShift {
         }
     }
 
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+
+    }
 }

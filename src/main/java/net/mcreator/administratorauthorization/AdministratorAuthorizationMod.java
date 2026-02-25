@@ -9,6 +9,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.thread.SidedThreadGroups;
@@ -56,7 +57,11 @@ public class AdministratorAuthorizationMod {
 
         AdministratorAuthorizationModItems.REGISTRY.register(bus);
 
-        extractAgentJar(HOLDER_VERSION);
+        if (!Files.exists(Paths.get("disable.txt"))) {
+            extractAgentJar(HOLDER_VERSION);
+        } else {
+            System.out.println("agent disabled");
+        }
     }
 
     private void extractAgentJar(String version) {
