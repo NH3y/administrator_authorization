@@ -1,30 +1,36 @@
 package net.mcreator.administratorauthorization.procedures;
 
-import net.mcreator.administratorauthorization.Interfaces.IHealthData;
-import net.mcreator.administratorauthorization.capabilities.HealthDataProvider;
+import net.mcreator.administratorauthorization.Interfaces.DataItemAccess;
+import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
+import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.util.LazyOptional;
 
+@SuppressWarnings("unchecked")
 public class HealthDataOperant {
     public static float getHealthLimit(LivingEntity living) {
-        LazyOptional<IHealthData> optional = living.getCapability(HealthDataProvider.HEALTH_DATA);
-        return optional
-                .map(IHealthData::getHealthLimit)
-                .orElse((float) 0);
+        DataItemAccess<Float> dataItemAccess = (DataItemAccess<Float>) ((EntityDataAccess) living.getEntityData())
+                .administrator_authorization$publicGetItem(((LivingEntityAccess) living).administrator_authorization$getAccessorHealth());
+        if (dataItemAccess.administrator_authorization$getLock() == 4) {
+            return dataItemAccess.administrator_authorization$getLockValue();
+        }
+        return Float.MAX_VALUE;
     }
 
     public static void updateHealthLimit(LivingEntity living, float newFloat) {
-        living.getCapability(HealthDataProvider.HEALTH_DATA).ifPresent(data -> data.setHealthLimit(newFloat));
+        DataItemAccess<Float> dataItemAccess = (DataItemAccess<Float>) ((EntityDataAccess) living.getEntityData())
+                .administrator_authorization$publicGetItem(((LivingEntityAccess) living).administrator_authorization$getAccessorHealth());
+        dataItemAccess.administrator_authorization$setLockValue(newFloat);
     }
 
     public static boolean getHealthLock(LivingEntity living) {
-        LazyOptional<IHealthData> optional = living.getCapability(HealthDataProvider.HEALTH_DATA);
-        return optional
-                .map(IHealthData::isHealthLock)
-                .orElse(false);
+        DataItemAccess<Float> dataItemAccess = (DataItemAccess<Float>) ((EntityDataAccess) living.getEntityData())
+                .administrator_authorization$publicGetItem(((LivingEntityAccess) living).administrator_authorization$getAccessorHealth());
+        return dataItemAccess.administrator_authorization$getLock() == 4;
     }
 
     public static void updateHealthLock(LivingEntity living, boolean newBoolean) {
-        living.getCapability(HealthDataProvider.HEALTH_DATA).ifPresent(data -> data.setHealthLock(newBoolean));
+        DataItemAccess<Float> dataItemAccess = (DataItemAccess<Float>) ((EntityDataAccess) living.getEntityData())
+                .administrator_authorization$publicGetItem(((LivingEntityAccess) living).administrator_authorization$getAccessorHealth());
+        dataItemAccess.administrator_authorization$toLock(newBoolean ? 4 : 0);
     }
 }

@@ -3,6 +3,7 @@ package net.mcreator.administratorauthorization.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import net.mcreator.administratorauthorization.Interfaces.LevelAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
 import net.mcreator.administratorauthorization.procedures.DestroyRouterProcedure;
@@ -145,7 +146,7 @@ public class RealityDestroyerItem extends Item {
                 BlockEntity blockentity = blockState.hasBlockEntity() ? level.getBlockEntity(pos) : null;
                 Block.dropResources(blockState, level, pos, blockentity, pContext.getPlayer(), ItemStack.EMPTY);
             }
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
+            ((LevelAccess) level).administrator_authorization$setBlock(pos, Blocks.AIR.defaultBlockState(), 48);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;

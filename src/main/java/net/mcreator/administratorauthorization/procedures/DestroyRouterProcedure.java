@@ -1,12 +1,11 @@
 package net.mcreator.administratorauthorization.procedures;
 
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
+import net.mcreator.administratorauthorization.classes.Vault;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
-import net.mcreator.administratorauthorization.network.HealthDataPacket;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class DestroyRouterProcedure {
@@ -41,12 +41,13 @@ public class DestroyRouterProcedure {
                 }
             } else {
                 switch (route) {
-                    case 1 -> damage(living, world, 1024);
-                    case 2 -> kill(living, world);
-                    case 3 -> defeat(living, world);
+                    case 1 -> damage(living, world, 1024, sourceentity);
+                    case 2 -> kill(living, world, sourceentity);
+                    case 3 -> defeat(living, world, sourceentity);
                     case 4 -> annihilate(living, world);
                     case 5 -> obliterate(living);
                     case 6 -> disintegrate(living);
+                    case 7 -> selfDestruct(living, world);
                     case 8 -> יוםהדין(living);
                 }
             }
@@ -63,30 +64,33 @@ public class DestroyRouterProcedure {
         return entity instanceof Display || AADestroyerConfiguration.ACCEPT_ENTITY.get();
     }
 
-    private static void damage(LivingEntity victim, LevelAccessor world, float damage) {
+    private static void damage(LivingEntity victim, LevelAccessor world, float damage, Entity sourceentity) {
+        if (sourceentity instanceof Player player) {
+            player.attack(victim);
+        }
         victim.hurt(new DamageSource(
                         world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                                 .getHolderOrThrow(ResourceKey.create(
                                         Registries.DAMAGE_TYPE,
-                                        new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
+                                        new ResourceLocation("administrator_authorization:chaotic_void"))), sourceentity),
                 damage);
         tracking();
     }
 
-    private static void kill(LivingEntity victim, LevelAccessor world) {
-        damage(victim, world, Float.MAX_VALUE);
+    private static void kill(LivingEntity victim, LevelAccessor world, Entity sourceentity) {
+        damage(victim, world, Float.MAX_VALUE, sourceentity);
         restrictHealth(victim);
         tracking();
     }
 
-    private static void defeat(LivingEntity victim, LevelAccessor world) {
+    private static void defeat(LivingEntity victim, LevelAccessor world, Entity sourceentity) {
         ((LivingEntityAccess) victim).administrator_authorization$setHealth(0.0F);
         restrictHealth(victim);
         victim.die(new DamageSource(
                 world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                         .getHolderOrThrow(ResourceKey.create(
                                 Registries.DAMAGE_TYPE,
-                                new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit())
+                                new ResourceLocation("administrator_authorization:chaotic_void"))), sourceentity)
         );
         tracking();
     }
@@ -118,6 +122,20 @@ public class DestroyRouterProcedure {
             cyclicVictim.put(victim, victim.getMaxHealth());
             tracking();
         }
+    }
+
+    public static void selfDestruct(LivingEntity victim,  LevelAccessor world) {
+        Vault.damageMethods.getData().forEach(method -> {
+            try {
+                method.invoke(victim, new DamageSource(
+                        world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                                .getHolderOrThrow(ResourceKey.create(
+                                        Registries.DAMAGE_TYPE,
+                                        new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
+                        Float.MAX_VALUE - 1);
+            } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException ignore) {
+            }
+        });
     }
 
 
@@ -164,8 +182,6 @@ public class DestroyRouterProcedure {
     private static void restrictHealth(LivingEntity victim) {
         HealthDataOperant.updateHealthLock(victim, true);
         HealthDataOperant.updateHealthLimit(victim, 0.0F);
-        AdministratorAuthorizationMod.PACKET_HANDLER
-                .sendToServer(new HealthDataPacket(0.0F, true));
     }
 
     private static void tracking() {
@@ -186,9 +202,9 @@ public class DestroyRouterProcedure {
                 !className.startsWith("java.lang") && !className.startsWith("java.util");
     }
 
-    public static void hellfire(LivingEntity victim, LevelAccessor world, boolean force) {
+    public static void hellfire(LivingEntity victim, LevelAccessor world, boolean force, Player player) {
         if (!force) {
-            damage(victim, world, 1024);
+            damage(victim, world, 1024, player);
         } else {
             obliterate(victim);
         }

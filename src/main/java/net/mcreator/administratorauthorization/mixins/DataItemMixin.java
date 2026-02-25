@@ -1,6 +1,5 @@
 package net.mcreator.administratorauthorization.mixins;
 
-import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.DataItemAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityDataAccessorsAccess;
 import net.mcreator.administratorauthorization.classes.VarContainer;
@@ -39,20 +38,13 @@ public abstract class DataItemMixin<T> implements DataItemAccess<T> {
     private VarContainer<T> administrator_authorization$container;
 
     @Unique
-    private boolean administrator_authorization$isProtected = false;
-
-    @Unique
     private T administrator_authorization$lockValue;
 
     @Unique
     private String administrator_authorization$name;
 
-    @Override
-    public void administrator_authorization$setProtected(boolean value) {
-        administrator_authorization$isProtected = value;
-        this.administrator_authorization$lockValue = this.value;
-        AdministratorAuthorizationMod.LOGGER.info("{}'s data has been protected", this.administrator_authorization$name);
-    }
+    @Unique
+    private int administrator_authorization$lock = 0;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(EntityDataAccessor<T> pAccessor, T pValue, CallbackInfo ci) {
@@ -60,28 +52,16 @@ public abstract class DataItemMixin<T> implements DataItemAccess<T> {
         this.administrator_authorization$container = new VarContainer<>(pValue, administrator_authorization$name + pAccessor.getId());
     }
 
-    @Inject(method = "setDirty", at = @At("HEAD"), cancellable = true)
-    public void setDirty(boolean pDirty, CallbackInfo ci) {
-        if (administrator_authorization$isProtected) {
-            ci.cancel();
-            this.dirty = false;
-        }
-    }
-
-    @Inject(method = "setValue", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "setValue", at = @At("HEAD"))
     public void setValue(T pValue, CallbackInfo ci) {
-        if (this.administrator_authorization$isProtected) {
-            this.value = administrator_authorization$lockValue;
-            ci.cancel();
-        }
         this.administrator_authorization$container.set(pValue);
+        if (administrator_authorization$lock == 4 || administrator_authorization$lock == 3) {
+            ;administrator_authorization$lockValue = administrator_authorization$container.getPoint();
+        }
     }
 
     @Inject(method = "getValue", at = @At("RETURN"), cancellable = true)
     public void getValue(CallbackInfoReturnable<T> cir) {
-        if (this.administrator_authorization$isProtected) {
-            cir.setReturnValue(administrator_authorization$lockValue);
-        }
         cir.setReturnValue(this.administrator_authorization$container.get());
     }
 
@@ -145,8 +125,29 @@ public abstract class DataItemMixin<T> implements DataItemAccess<T> {
                     case 1 -> "READ_ONLY";
                     case 2 -> "NO_ACCESS";
                     case 3 -> "STOP_POINT";
+                    case 4 -> "BEGIN_POINT";
                     default -> "FULL_ACCESS";
                 }
         );
+        administrator_authorization$lock = level;
+        if (level == 4) {
+            this.administrator_authorization$lockValue = this.value;
+        }
+    }
+
+    @Override
+    public int administrator_authorization$getLock() {
+        return administrator_authorization$lock;
+    }
+
+    @Override
+    public T administrator_authorization$getLockValue() {
+        return administrator_authorization$lockValue;
+    }
+
+    @Override
+    public void administrator_authorization$setLockValue(T value) {
+        this.administrator_authorization$lockValue = value;
+        administrator_authorization$container.setPoint(value);
     }
 }

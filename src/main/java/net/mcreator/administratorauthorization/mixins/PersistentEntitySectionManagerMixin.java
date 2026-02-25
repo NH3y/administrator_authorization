@@ -31,6 +31,10 @@ public abstract class PersistentEntitySectionManagerMixin<T extends EntityAccess
     @Final
     EntitySectionStorage<T> sectionStorage;
 
+    @Shadow
+    @Final
+    private LevelEntityGetter<T> entityGetter;
+
     @Override
     public LevelCallback<T> administrator_authorization$getLevelCallbackBack() {
         return this.callbacks;

@@ -4,6 +4,8 @@
 /build/classes/java/main/
 /elements/
 /run/
+/.idea/
+/.mcreator/
 administrator_authorization.mcreator
 
 *.log
