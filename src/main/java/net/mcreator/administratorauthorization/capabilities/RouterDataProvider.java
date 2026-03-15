@@ -31,7 +31,7 @@ public class RouterDataProvider implements ICapabilityProvider, INBTSerializable
     @Override
     public CompoundTag serializeNBT() {
         if (routerData instanceof RouterData) {
-            ((RouterData) routerData).serializeNBT();
+            return ((RouterData) routerData).serializeNBT();
         }
         return new CompoundTag();
     }

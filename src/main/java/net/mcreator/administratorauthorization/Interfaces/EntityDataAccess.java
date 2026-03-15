@@ -13,5 +13,5 @@ public interface EntityDataAccess {
 
     ObjectCollection<SynchedEntityData.DataItem<?>> administrator_authorization$getAllItems();
 
-    Set<Integer> Administrator_authorization$getBannedId();
+    Set<Integer> administrator_authorization$getBannedId();
 }

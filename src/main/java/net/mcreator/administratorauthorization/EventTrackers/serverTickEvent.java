@@ -50,9 +50,6 @@ public class serverTickEvent {
                             living.administrator_authorization$getAccessorHealth(),
                             1024.0F
                     );
-                    ((EntityAccess) living).administrator_authorization$setEmergency(
-                            true
-                    );
                 }
             }
             healthMap.clear();

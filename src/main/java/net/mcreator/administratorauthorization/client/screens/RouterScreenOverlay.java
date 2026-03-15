@@ -43,7 +43,7 @@ public class RouterScreenOverlay {
                 guiGraphics.drawString(font, Component.translatable("gui.administrator_authorization.router_screen.label_defeat"), w / 2 + 57, h / 2 + 23, -1, false);
                 guiGraphics.drawString(font, Component.translatable("gui.administrator_authorization.router_screen.label_annihilate"), w / 2 + 9, h / 2 + 68, -1, false);
                 guiGraphics.drawString(font, Component.translatable("gui.administrator_authorization.router_screen.label_obliterate"), w / 2 - 55, h / 2 + 68, -1, false);
-                guiGraphics.drawString(font, Component.translatable("gui.administrator_authorization.router_screen.label_disintegrate"), w / 2 - 89, h / 2 + 23, -1, false);
+                guiGraphics.drawString(font, Component.translatable("gui.administrator_authorization.router_screen.label_terminus"), w / 2 - 89, h / 2 + 23, -1, false);
                 guiGraphics.drawString(font, Component.translatable("gui.administrator_authorization.router_screen.label_selfDestruct"), w / 2 - 95, h / 2 - 23, -1, false);
                 guiGraphics.drawString(font, "יוםהדין", w / 2 - 47, h / 2 - 67, -1, false);
             } else {

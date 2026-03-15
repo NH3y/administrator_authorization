@@ -217,7 +217,7 @@ public abstract class SynchedEntityDataMixin implements EntityDataAccess {
     }
 
     @Override
-    public Set<Integer> Administrator_authorization$getBannedId() {
+    public Set<Integer> administrator_authorization$getBannedId() {
         return administrator_authorization$bannedId;
     }
 }

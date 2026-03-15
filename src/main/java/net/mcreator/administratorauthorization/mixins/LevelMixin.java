@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
@@ -44,17 +43,17 @@ public abstract class LevelMixin implements LevelAccess, IForgeLevel, LevelAcces
     @Shadow
     public abstract LevelChunk getChunkAt(BlockPos pPos);
 
-    @Shadow
+    @Shadow(remap = false)
     public boolean captureBlockSnapshots;
 
-    @Shadow
+    @Shadow(remap = false)
     public ArrayList<BlockSnapshot> capturedBlockSnapshots;
 
     @Shadow
     @Final
     private ResourceKey<Level> dimension;
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract void markAndNotifyBlock(BlockPos pPos, @Nullable LevelChunk levelchunk, BlockState blockstate, BlockState pState, int pFlags, int pRecursionLeft);
 
     @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true)

@@ -78,7 +78,6 @@ public class RealityDestroyerItem extends Item {
 
     @Override
     public boolean hurtEnemy(@NotNull ItemStack itemstack, @NotNull LivingEntity entity, @NotNull LivingEntity sourceentity) {
-        boolean retval = super.hurtEnemy(itemstack, entity, sourceentity);
         if (AADestroyerConfiguration.RANGED.get()) {
             double range = AADestroyerConfiguration.RADIUS.get();
             AABB aabb = new AABB(entity.position().subtract(range, 0, range), entity.getEyePosition().subtract(-range, -1, -range));
@@ -89,7 +88,7 @@ public class RealityDestroyerItem extends Item {
         } else {
             DestroyRouterProcedure.execute(entity, sourceentity, sourceentity.level());
         }
-        return retval;
+        return true;
     }
 
     @Override

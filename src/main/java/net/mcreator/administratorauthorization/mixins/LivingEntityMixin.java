@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -326,13 +325,9 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         }
     }
 
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "tick", at = @At("HEAD"))
     public void tickHead(CallbackInfo ci) {
         if (((EntityAccess) this).administrator_authorization$getAuthorization()) {
-            if (((EntityAccess) this).administrator_authorization$isEmergency()) {
-                this.administrator_authorization$protectedTick();
-                ci.cancel();
-            }
             this.dead = false;
             this.deathTime = 0;
             ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
@@ -414,147 +409,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
         Vault.HurtByContext.clear();
     }
 
-    @Unique
-    private void administrator_authorization$protectedTick() {
-        ((EntityAccess) this).administrator_authorization$tickEmergency();
-        this.dead = false;
-        this.deathTime = 0;
-        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
-                this.administrator_authorization$getAccessorHealth(),
-                this.administrator_authorization$getFixedMaxHealth()
-        );
-
-        if (ForgeHooks.onLivingTick((LivingEntity) (Object) this)) return;
-        super.tick();
-        this.updatingUsingItem();
-        this.updateSwimAmount();
-        if (!this.level().isClientSide) {
-            int i = this.getArrowCount();
-            if (i > 0) {
-                if (this.removeArrowTime <= 0) {
-                    this.removeArrowTime = 20 * (30 - i);
-                }
-
-                --this.removeArrowTime;
-                if (this.removeArrowTime <= 0) {
-                    this.setArrowCount(i - 1);
-                }
-            }
-
-            int j = this.getStingerCount();
-            if (j > 0) {
-                if (this.removeStingerTime <= 0) {
-                    this.removeStingerTime = 20 * (30 - j);
-                }
-
-                --this.removeStingerTime;
-                if (this.removeStingerTime <= 0) {
-                    this.setStingerCount(j - 1);
-                }
-            }
-
-            this.detectEquipmentUpdates();
-            if (this.tickCount % 20 == 0) {
-                this.getCombatTracker().recheckStatus();
-            }
-
-            if (this.isSleeping() && !this.checkBedExists()) {
-                this.stopRiding();
-            }
-        }
-
-        if (!this.isRemoved()) {
-            this.aiStep();
-        }
-
-        double d1 = this.getX() - this.xo;
-        double d0 = this.getZ() - this.zo;
-        float f = (float) (d1 * d1 + d0 * d0);
-        float f1 = this.yBodyRot;
-        float f2 = 0.0F;
-        this.oRun = this.run;
-        float f3 = 0.0F;
-        if (f > 0.0025000002F) {
-            f3 = 1.0F;
-            f2 = (float) Math.sqrt(f) * 3.0F;
-            float f4 = (float) Mth.atan2(d0, d1) * (180F / (float) Math.PI) - 90.0F;
-            float f5 = Mth.abs(Mth.wrapDegrees(this.getYRot()) - f4);
-            if (95.0F < f5 && f5 < 265.0F) {
-                f1 = f4 - 180.0F;
-            } else {
-                f1 = f4;
-            }
-        }
-
-        if (this.attackAnim > 0.0F) {
-            f1 = this.getYRot();
-        }
-
-        if (!this.onGround()) {
-            f3 = 0.0F;
-        }
-
-        this.run += (f3 - this.run) * 0.3F;
-        this.level().getProfiler().push("headTurn");
-        f2 = this.tickHeadTurn(f1, f2);
-        this.level().getProfiler().pop();
-        this.level().getProfiler().push("rangeChecks");
-
-        while (this.getYRot() - this.yRotO < -180.0F) {
-            this.yRotO -= 360.0F;
-        }
-
-        while (this.getYRot() - this.yRotO >= 180.0F) {
-            this.yRotO += 360.0F;
-        }
-
-        while (this.yBodyRot - this.yBodyRotO < -180.0F) {
-            this.yBodyRotO -= 360.0F;
-        }
-
-        while (this.yBodyRot - this.yBodyRotO >= 180.0F) {
-            this.yBodyRot += 360.0F;
-        }
-
-        while (this.getXRot() - this.xRotO < -180.0F) {
-            this.xRotO -= 360.0F;
-        }
-
-        while (this.getXRot() - this.xRotO >= 180.0F) {
-            this.xRotO += 360.0F;
-        }
-
-        while (this.yHeadRot - this.yHeadRotO < -180.0F) {
-            this.yHeadRotO -= 360.0F;
-        }
-
-        while (this.yHeadRot - this.yHeadRotO >= 180.0F) {
-            this.yHeadRotO += 360.0F;
-        }
-
-        this.level().getProfiler().pop();
-        this.animStep += f2;
-        if (this.isFallFlying()) {
-            ++this.fallFlyTicks;
-        } else {
-            this.fallFlyTicks = 0;
-        }
-
-        if (this.isSleeping()) {
-            this.setXRot(0.0F);
-        }
-
-        this.dead = false;
-        this.deathTime = 0;
-        ((EntityDataAccess) this.entityData).administrator_authorization$forceSet(
-                this.administrator_authorization$getAccessorHealth(),
-                this.administrator_authorization$getFixedMaxHealth()
-        );
-        if (this.getPose() == Pose.DYING) {
-            this.setPose(Pose.STANDING);
-        }
-    }
-
     @Override
     public void administrator_authorization$accessDropLoot(LevelAccessor world) {
         this.dropAllDeathLoot(new DamageSource(world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
@@ -565,7 +419,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
     }
 
     @Override
-    public void Administrator_authorization$setNoAI(boolean Disable) {
+    public void administrator_authorization$setNoAI(boolean Disable) {
         this.administrator_authorization$NoAI = Disable;
     }
 
@@ -737,6 +591,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
             this.setAbsorptionAmount(0);
             this.gameEvent(GameEvent.ENTITY_DAMAGE);
         }
+    }
+
+    @Override
+    public boolean administrator_authorization$deadOperation(boolean put, boolean value) {
+        if (put) {
+            dead = value;
+            return value;
+        }
+        return dead;
     }
 
     static {

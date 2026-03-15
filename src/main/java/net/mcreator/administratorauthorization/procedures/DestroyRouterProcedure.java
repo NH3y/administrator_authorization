@@ -1,12 +1,15 @@
 package net.mcreator.administratorauthorization.procedures;
 
+import net.mcreator.administratorauthorization.EventTrackers.Destiny;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
-import net.mcreator.administratorauthorization.classes.Vault;
+import net.mcreator.administratorauthorization.classes.TerminalClassFactory;
+import net.mcreator.administratorauthorization.classes.interceptor.InterceptorAware;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,13 +20,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class DestroyRouterProcedure {
     public static final Map<LivingEntity, Float> cyclicVictim = new HashMap<>();
     public static final List<Entity> cyclicEntity = new ArrayList<>();
+    private static final Logger log = LoggerFactory.getLogger(DestroyRouterProcedure.class);
 
     @SuppressWarnings("NonAsciiCharacters")
     public static void execute(Entity entity, Entity sourceentity, LevelAccessor world) {
@@ -37,6 +42,7 @@ public class DestroyRouterProcedure {
                     case 2 -> disable(living);
                     case 3 -> neutralize(living);
                     case 4 -> DamnatioMemoriae(living, world);
+                    case 5 -> freeze(living);
 
                 }
             } else {
@@ -46,8 +52,8 @@ public class DestroyRouterProcedure {
                     case 3 -> defeat(living, world, sourceentity);
                     case 4 -> annihilate(living, world);
                     case 5 -> obliterate(living);
-                    case 6 -> disintegrate(living);
-                    case 7 -> selfDestruct(living, world);
+                    case 6 -> terminus(living, sourceentity);
+                    case 7 -> selfDestruct(living, world, sourceentity);
                     case 8 -> יוםהדין(living);
                 }
             }
@@ -55,6 +61,7 @@ public class DestroyRouterProcedure {
             switch (route) {
                 case 1, 2, 3, 4 -> {}
                 case 5 -> obliterate(entity);
+                case 6 -> terminus(entity, sourceentity);
                 case 8 -> יוםהדין(entity);
             }
         }
@@ -65,15 +72,16 @@ public class DestroyRouterProcedure {
     }
 
     private static void damage(LivingEntity victim, LevelAccessor world, float damage, Entity sourceentity) {
-        if (sourceentity instanceof Player player) {
-            player.attack(victim);
-        }
         victim.hurt(new DamageSource(
                         world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
                                 .getHolderOrThrow(ResourceKey.create(
                                         Registries.DAMAGE_TYPE,
                                         new ResourceLocation("administrator_authorization:chaotic_void"))), sourceentity),
                 damage);
+        EntityAccess access = (EntityAccess) victim;
+        if (access.administrator_authorization$getAttackedCode() >= 0 && access.administrator_authorization$getAttackedCode() < 100) {
+            access.administrator_authorization$setAttackedCode(access.administrator_authorization$getAttackedCode() + 1);
+        }
         tracking();
     }
 
@@ -81,10 +89,16 @@ public class DestroyRouterProcedure {
         damage(victim, world, Float.MAX_VALUE, sourceentity);
         restrictHealth(victim);
         tracking();
+
+        EntityAccess access = (EntityAccess) victim;
+        if (access.administrator_authorization$getAttackedCode() >= 0 && access.administrator_authorization$getAttackedCode() < 100 ) {
+            access.administrator_authorization$setAttackedCode(101);
+        }
     }
 
     private static void defeat(LivingEntity victim, LevelAccessor world, Entity sourceentity) {
         ((LivingEntityAccess) victim).administrator_authorization$setHealth(0.0F);
+        victim.setHealth(0.0F);
         restrictHealth(victim);
         victim.die(new DamageSource(
                 world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
@@ -93,6 +107,11 @@ public class DestroyRouterProcedure {
                                 new ResourceLocation("administrator_authorization:chaotic_void"))), sourceentity)
         );
         tracking();
+
+        EntityAccess access = (EntityAccess) victim;
+        if (access.administrator_authorization$getAttackedCode() >= 0) {
+            access.administrator_authorization$setAttackedCode(-1);
+        }
     }
 
     private static void annihilate(LivingEntity victim, LevelAccessor world) {
@@ -115,35 +134,90 @@ public class DestroyRouterProcedure {
             victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
         }
         tracking();
+
+        EntityAccess access = (EntityAccess) victim;
+        if (access.administrator_authorization$getAttackedCode() >= 0) {
+            access.administrator_authorization$setAttackedCode(-2);
+        }
     }
 
+    @Deprecated
     public static void disintegrate(LivingEntity victim) {
         if (cyclicVictim.keySet().stream().noneMatch(cyclicEntity -> cyclicEntity.getId() == victim.getId())) {
             cyclicVictim.put(victim, victim.getMaxHealth());
             tracking();
+
+            EntityAccess access = (EntityAccess) victim;
+            if (access.administrator_authorization$getAttackedCode() >= 0) {
+                access.administrator_authorization$setAttackedCode(-3);
+            }
         }
     }
 
-    public static void selfDestruct(LivingEntity victim,  LevelAccessor world) {
-        Vault.damageMethods.getData().forEach(method -> {
-            try {
-                method.invoke(victim, new DamageSource(
-                        world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                                .getHolderOrThrow(ResourceKey.create(
-                                        Registries.DAMAGE_TYPE,
-                                        new ResourceLocation("administrator_authorization:chaotic_void"))), victim.getKillCredit()),
-                        Float.MAX_VALUE - 1);
-            } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException ignore) {
+    private static final List<String> dialog = List.of(
+            "Terminus is about to arrive for the poor victim...",
+            "Maybe we can leave for a second"
+    );
+    private static void terminus(Entity victim, Entity sourceentity) {
+        Class<? extends Entity> aClass = victim.getClass();
+        if (
+                TerminalClassFactory.getInstance()
+                .createFor(aClass, TerminalClassFactory.Settings.NULL) &&
+                sourceentity instanceof Player player
+        ) {
+            for (String string : dialog) {
+                player.displayClientMessage(
+                        Component.literal(string),
+                        false
+                );
             }
-        });
+        }
+        if (victim instanceof InterceptorAware interceptorAware) {
+            interceptorAware.getHaltingValve().addAll();
+        }
     }
 
+    private static void selfDestruct(LivingEntity victim,  LevelAccessor world, Entity sourceentity) {
+        Destiny.addVictim(victim);
+
+        //Vault.damageMethods.getData().forEach(method -> {
+        //    try {
+        //        method.invoke(victim, new DamageSource(
+        //                        world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+        //                                .getHolderOrThrow(DamageTypes.CHAOTIC_VOID), sourceentity),
+        //                Float.MAX_VALUE - 1);
+        //    } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException ignore) {
+        //    }
+        //});
+        //Set<Method> health = Vault.sortedMixinMethods.get("HEALTH");
+        //if (health == null) return;
+        //health.forEach(method -> {
+        //    Parameter[] parameters = method.getParameters();
+        //    if (parameters.length == 2 && parameters[0].getType().isAssignableFrom(DamageSource.class) && parameters[1].getType().isAssignableFrom(Float.class)) {
+        //        try {
+        //            if (method.getName().toLowerCase().contains("set")) {
+        //                method.invoke(victim, new DamageSource(world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.CHAOTIC_VOID), sourceentity), 0F);
+        //            } else {
+        //                method.invoke(victim, new DamageSource(world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(DamageTypes.CHAOTIC_VOID), sourceentity), Float.MAX_VALUE);
+        //            }
+        //        } catch (InvocationTargetException | IllegalAccessException e) {
+        //            throw new RuntimeException(e);
+        //        }
+        //    }
+        //});
+        //EntityAccess access = (EntityAccess) victim;
+        //if (access.administrator_authorization$getAttackedCode() >= 0) {
+        //    access.administrator_authorization$setAttackedCode(-4);
+        //}
+    }
 
     //Last Judgment
     @SuppressWarnings({"NonAsciiCharacters"})
     private static void יוםהדין(Entity victim) {
         ((EntityAccess) victim).administrator_authorization$setRejectSave(true);
         obliterate(victim);
+        EntityAccess access = (EntityAccess) victim;
+        access.administrator_authorization$setAttackedCode(-5);
     }
 
     private static void weaken(LivingEntity victim) {
@@ -166,7 +240,7 @@ public class DestroyRouterProcedure {
     private static void neutralize(LivingEntity victim) {
         weaken(victim);
         disable(victim);
-        ((LivingEntityAccess) victim).Administrator_authorization$setNoAI(true);
+        ((LivingEntityAccess) victim).administrator_authorization$setNoAI(true);
     }
 
     private static void DamnatioMemoriae(LivingEntity victim, LevelAccessor world) {
@@ -175,8 +249,13 @@ public class DestroyRouterProcedure {
             victim.setPos(new Vec3(Integer.MAX_VALUE, -Integer.MAX_VALUE, Integer.MAX_VALUE));
 
             serverLevel.administrator_authorization$getEntityTickList().remove(victim);
-            ((EntityAccess) victim).Administrator_authorization$setForgotten(true);
+            ((EntityAccess) victim).administrator_authorization$setForgotten(true);
         }
+    }
+
+
+    private static void freeze(LivingEntity living) {
+        ((EntityAccess) living).administrator_authorization$setFreeze(true);
     }
 
     private static void restrictHealth(LivingEntity victim) {

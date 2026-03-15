@@ -2,16 +2,16 @@ package net.mcreator.administratorauthorization.classes;
 
 import net.mcreator.administratorauthorization.errors.MultipleAccessException;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
+    private static final Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
     private final Class<?> targetClass;
     private final boolean INDEPENDENT;
 
@@ -30,8 +30,8 @@ public class ReflectionUtils {
             source.setAccessible(true);
             try {
                 return source.get(body);
-            } catch (IllegalAccessException ignored) {
-
+            } catch (Throwable e) {
+                return null;
             }
         }
         throw new MultipleAccessException("More than one field has been found");
@@ -44,8 +44,8 @@ public class ReflectionUtils {
             try {
                 injector.setAccessible(true);
                 injector.set(body, value);
-            } catch (IllegalAccessException ignored) {
-
+            } catch (Exception e) {
+                log.warn(e.getMessage());
             }
         }
     }
@@ -56,10 +56,23 @@ public class ReflectionUtils {
             try {
                 fields.add(aClass.getDeclaredField(name));
             } catch (NoSuchFieldException e) {
-                throw new RuntimeException(e);
+                return new ArrayList<>();
             }
         }
         return fields;
+    }
+
+    public List<Object> unwrap(List<Field> fields, Object body) {
+        List<Object> objects = new ArrayList<>();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                objects.add(field.get(body));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return objects;
     }
 
     public ArrayList<Field> getAllFieldsWithType(Class<?> type) {
@@ -68,6 +81,14 @@ public class ReflectionUtils {
             fields.addAll(Arrays.stream(aClass.getDeclaredFields()).filter(field -> type.isAssignableFrom(field.getType())).collect(Collectors.toSet()));
         }
         return fields;
+    }
+
+    public List<Method> getAllMethodsWithType(Class<?> type) {
+        ArrayList<Method> methods = new ArrayList<>();
+        for (Class<?> aClass : this.getAllClasses()) {
+            methods.addAll(Arrays.stream(aClass.getDeclaredMethods()).filter(method -> type.isAssignableFrom(method.getReturnType())).collect(Collectors.toSet()));
+        }
+        return methods;
     }
 
     public ArrayList<Field> getSuspiciousFields(String involve) {

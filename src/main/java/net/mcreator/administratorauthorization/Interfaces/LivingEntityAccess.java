@@ -9,7 +9,7 @@ public interface LivingEntityAccess {
 
     void administrator_authorization$accessDropLoot(LevelAccessor world);
 
-    void Administrator_authorization$setNoAI(boolean administrator_authorization$NoAI);
+    void administrator_authorization$setNoAI(boolean administrator_authorization$NoAI);
 
     void administrator_authorization$setAttributes(Attribute attribute, double value);
 
@@ -25,4 +25,6 @@ public interface LivingEntityAccess {
     void administrator_authorization$setHealth(float value);
 
     EntityDataAccessor<Float> administrator_authorization$getAccessorHealth();
+
+    boolean administrator_authorization$deadOperation(boolean put, boolean value);
 }

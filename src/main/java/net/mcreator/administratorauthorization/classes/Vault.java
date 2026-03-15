@@ -14,8 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -155,4 +155,70 @@ public class Vault {
         public record Context(DamageSource source, float damage) {
         }
     }
+
+    public static final Map<String, Set<Method>> sortedMixinMethods = new HashMap<>();
+    public static final Map<String, Set<String>> keyWordSorter = new HashMap<>();
+    static {
+        Set<String> forceKeyWords = new HashSet<>();
+        forceKeyWords.add("forced");
+        forceKeyWords.add("forcing");
+        forceKeyWords.add("force");
+        keyWordSorter.put("FORCE", forceKeyWords);
+        Set<String> setAndGetKeyWords = new HashSet<>();
+        setAndGetKeyWords.add("set");
+        setAndGetKeyWords.add("get");
+        setAndGetKeyWords.add("is");
+        keyWordSorter.put("SET_GET", setAndGetKeyWords);
+        Set<String> healthKeyWords = new HashSet<>();
+        healthKeyWords.add("health");
+        healthKeyWords.add("hurt");
+        healthKeyWords.add("damage");
+        keyWordSorter.put("HEALTH",  healthKeyWords);
+        Set<String> techKeyWords = new HashSet<>();
+        techKeyWords.add("inject");
+        techKeyWords.add("transform");
+        techKeyWords.add("intercept");
+        techKeyWords.add("field");
+        techKeyWords.add("method");
+        techKeyWords.add("class");
+        keyWordSorter.put("TECH", techKeyWords);
+        Set<String> eventKeyWords = new HashSet<>();
+        eventKeyWords.add("event");
+        eventKeyWords.add("fire");
+        eventKeyWords.add("publish");
+        eventKeyWords.add("broadcast");
+        eventKeyWords.add("subscribe");
+        keyWordSorter.put("EVENT",  eventKeyWords);
+    }
+
+    public static Integer sortMixin(Set<Method> set) {
+        Set<Method> toSort = new HashSet<>();
+        set.forEach(method -> {
+            if (!mixinMethods.getData().contains(method)) {
+                toSort.add(method);
+                mixinMethods.add(method);
+            }
+        });
+        AtomicInteger counter = new AtomicInteger();
+        toSort.forEach(method -> {
+            boolean hasSorted = false;
+            for (Map.Entry<String, Set<String>> entry : keyWordSorter.entrySet()) {
+                for (String word : entry.getValue()) {
+                    if (method.getName().toLowerCase().contains(word)) {
+                        sortedMixinMethods.computeIfAbsent(entry.getKey(),k -> new HashSet<>()).add(method);
+                        System.out.println(entry.getKey() + "\t" + method.getName() + "\t" + word);
+                        hasSorted = true;
+                        counter.getAndIncrement();
+                        break;
+                    }
+                }
+            }
+            if (!hasSorted) {
+                sortedMixinMethods.computeIfAbsent("UNSORTED", k -> new HashSet<>()).add(method);
+            }
+        });
+
+        return counter.get();
+    }
+
 }
