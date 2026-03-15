@@ -1,6 +1,5 @@
 package net.mcreator.administratorauthorization.classes.interceptor;
 
-import net.bytebuddy.implementation.bind.annotation.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.slf4j.Logger;

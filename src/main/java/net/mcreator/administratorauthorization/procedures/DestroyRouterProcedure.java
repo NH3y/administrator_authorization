@@ -6,10 +6,8 @@ import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
 import net.mcreator.administratorauthorization.classes.TerminalClassFactory;
-import net.mcreator.administratorauthorization.classes.Vault;
 import net.mcreator.administratorauthorization.classes.interceptor.InterceptorAware;
 import net.mcreator.administratorauthorization.configuration.AADestroyerConfiguration;
-import net.mcreator.administratorauthorization.init.DamageTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -25,9 +23,6 @@ import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class DestroyRouterProcedure {

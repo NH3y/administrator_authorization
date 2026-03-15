@@ -5,7 +5,6 @@ import net.mcreator.administratorauthorization.procedures.DestroyRouterProcedure
 import net.minecraft.nbt.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;

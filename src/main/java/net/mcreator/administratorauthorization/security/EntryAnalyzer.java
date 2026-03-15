@@ -3,7 +3,6 @@ package net.mcreator.administratorauthorization.security;
 import net.mcreator.administratorauthorization.classes.Vault;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import org.spongepowered.asm.mixin.injection.Inject;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
