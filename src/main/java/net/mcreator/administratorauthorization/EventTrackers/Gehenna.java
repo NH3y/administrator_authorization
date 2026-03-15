@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
+@Deprecated
 @Mod.EventBusSubscriber
 public class Gehenna {
     private static final CompoundTag tag = new CompoundTag();
@@ -33,7 +34,7 @@ public class Gehenna {
     }
     private static final List<LivingEntity> diabolos = new ArrayList<>();
 
-    @SubscribeEvent
+    //@SubscribeEvent
     public static void atonement(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             for (Map.Entry<LivingEntity, Float> entity : DestroyRouterProcedure.cyclicVictim.entrySet()) {
@@ -55,7 +56,7 @@ public class Gehenna {
         }
     }
 
-    @SubscribeEvent
+    //@SubscribeEvent
     public static void atheos(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             for (LivingEntity entity : diabolos) {

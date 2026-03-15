@@ -30,7 +30,7 @@ public class InventoryDataProvider implements ICapabilityProvider, INBTSerializa
     @Override
     public CompoundTag serializeNBT() {
         if (slotData instanceof InventorySlotData) {
-            ((InventorySlotData) slotData).serializeNBT();
+            return ((InventorySlotData) slotData).serializeNBT();
         }
         return new CompoundTag();
     }

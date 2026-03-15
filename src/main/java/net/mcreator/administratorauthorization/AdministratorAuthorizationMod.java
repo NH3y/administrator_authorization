@@ -1,10 +1,12 @@
 package net.mcreator.administratorauthorization;
 
+import net.mcreator.administratorauthorization.classes.ReflectionUtils;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModBlocks;
 import net.mcreator.administratorauthorization.init.AdministratorAuthorizationModItems;
 import net.mcreator.administratorauthorization.security.MonitoringService;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -21,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

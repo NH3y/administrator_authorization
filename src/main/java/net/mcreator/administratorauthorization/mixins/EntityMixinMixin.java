@@ -33,8 +33,7 @@ import java.util.*;
 
 @SuppressWarnings("UnstableApiUsage")
 @Mixin(value = Entity.class, priority = Integer.MIN_VALUE)
-public abstract class EntityMixinMixin extends CapabilityProvider implements EntityAccess {
-    @SuppressWarnings("unchecked")
+public abstract class EntityMixinMixin extends CapabilityProvider<Entity> implements EntityAccess {
     protected EntityMixinMixin() {
         super(Entity.class);
     }
@@ -100,9 +99,9 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     @Unique
     private long administrator_authorization$identityCode = 0;
     @Unique
-    private boolean administrator_authorization$emergency = false;
+    private int administrator_authorization$attackedCode = 0;
     @Unique
-    private int administrator_authorization$emergencyTime = 0;
+    private boolean administrator_authorization$freeze = false;
 
     @Inject(method = "isOnFire", at = @At("HEAD"), cancellable = true)
     public void isOnFire(CallbackInfoReturnable<Boolean> cir) {
@@ -166,7 +165,7 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
                                             .administrator_authorization$getAccessorHealth());
             dataItemAccess.administrator_authorization$toLock(3);
 
-            ((EntityDataAccess) this.entityData).Administrator_authorization$getBannedId().add(
+            ((EntityDataAccess) this.entityData).administrator_authorization$getBannedId().add(
                     ((LivingEntityAccess) player).administrator_authorization$getAccessorHealth().getId()
             );
             ObjectCollection<SynchedEntityData.DataItem<?>> dataItems = ((EntityDataAccess) this.entityData).administrator_authorization$getAllItems();
@@ -285,12 +284,12 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Override
-    public boolean Administrator_authorization$isForgotten() {
+    public boolean administrator_authorization$isForgotten() {
         return administrator_authorization$forgotten;
     }
 
     @Override
-    public void Administrator_authorization$setForgotten(boolean administrator_authorization$forgotten) {
+    public void administrator_authorization$setForgotten(boolean administrator_authorization$forgotten) {
         this.administrator_authorization$forgotten = administrator_authorization$forgotten;
     }
 
@@ -309,25 +308,27 @@ public abstract class EntityMixinMixin extends CapabilityProvider implements Ent
     }
 
     @Override
-    public boolean administrator_authorization$isEmergency() {
-        return administrator_authorization$emergency;
+    public void administrator_authorization$setAttackedCode(int attackedCode) {
+        this.administrator_authorization$identityCode = attackedCode;
     }
 
     @Override
-    public void administrator_authorization$setEmergency(boolean administrator_authorization$emergency) {
-        this.administrator_authorization$emergency = administrator_authorization$emergency;
-        if (administrator_authorization$emergency) {
-            this.administrator_authorization$emergencyTime = 1200;
-        }
+    public int administrator_authorization$getAttackedCode() {
+        return administrator_authorization$attackedCode;
     }
 
     @Override
-    public void administrator_authorization$tickEmergency() {
-        if (this.administrator_authorization$emergencyTime > 0) {
-            this.administrator_authorization$emergencyTime--;
-        } else {
-            this.administrator_authorization$emergency = false;
-            this.administrator_authorization$emergencyTime = 0;
-        }
+    public boolean administrator_authorization$isFreeze() {
+        return administrator_authorization$freeze;
+    }
+
+    @Override
+    public void administrator_authorization$setFreeze(boolean administrator_authorization$freeze) {
+        this.administrator_authorization$freeze = administrator_authorization$freeze;
+    }
+
+    @Override
+    public EntityInLevelCallback administrator_authorization$getLevelCallback() {
+        return this.levelCallback;
     }
 }

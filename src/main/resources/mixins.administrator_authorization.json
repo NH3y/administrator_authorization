@@ -11,6 +11,8 @@
     "EntityDataAccessorsMixin",
     "EntityMixinMixin",
     "EntitySectionMixin",
+    "EntityTickListMixin",
+    "EntityTypeMixin",
     "EventBusMixin",
     "ForgeHooksMixin",
     "LevelMixin",

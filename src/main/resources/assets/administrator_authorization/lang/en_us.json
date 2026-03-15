@@ -24,5 +24,6 @@
   "gui.administrator_authorization.router_screen.label_damnatio_memoriae_A": "damnatio",
   "gui.administrator_authorization.router_screen.label_damnatio_memoriae_B": "memoriae",
   "gui.administrator_authorization.router_screen.label_disintegrate": "disintegrate",
-  "gui.administrator_authorization.router_screen.label_selfDestruct": "Self-Destruct"
+  "gui.administrator_authorization.router_screen.label_selfDestruct": "Self-Destruct",
+  "gui.administrator_authorization.router_screen.label_terminus": "terminus"
 }

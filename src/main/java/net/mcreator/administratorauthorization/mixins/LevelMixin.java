@@ -44,17 +44,17 @@ public abstract class LevelMixin implements LevelAccess, IForgeLevel, LevelAcces
     @Shadow
     public abstract LevelChunk getChunkAt(BlockPos pPos);
 
-    @Shadow
+    @Shadow(remap = false)
     public boolean captureBlockSnapshots;
 
-    @Shadow
+    @Shadow(remap = false)
     public ArrayList<BlockSnapshot> capturedBlockSnapshots;
 
     @Shadow
     @Final
     private ResourceKey<Level> dimension;
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract void markAndNotifyBlock(BlockPos pPos, @Nullable LevelChunk levelchunk, BlockState blockstate, BlockState pState, int pFlags, int pRecursionLeft);
 
     @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true)

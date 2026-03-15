@@ -9,6 +9,8 @@ version = '3.0'
 group = 'net.mcreator.administratorauthorization'
 archivesBaseName = 'administrator_authorization'
 
+jarJar.enable()
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
@@ -51,6 +53,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.7'
     implementation 'org.ow2.asm:asm-commons:9.7'
     implementation 'org.ow2.asm:asm-tree:9.7'
+    implementation(jarJar(group: 'net.bytebuddy', name: 'byte-buddy', version: '[1.14.0,1.15.0)'))
 }
 
 mixin {

@@ -13,9 +13,12 @@ import net.minecraft.ReportedException;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Husk;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -217,7 +220,7 @@ public abstract class SynchedEntityDataMixin implements EntityDataAccess {
     }
 
     @Override
-    public Set<Integer> Administrator_authorization$getBannedId() {
+    public Set<Integer> administrator_authorization$getBannedId() {
         return administrator_authorization$bannedId;
     }
 }
