@@ -5,10 +5,14 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
+import net.mcreator.administratorauthorization.client.screens.DataViewerOverlay;
 import net.mcreator.administratorauthorization.network.HealthDataPacket;
+import net.mcreator.administratorauthorization.network.OpenDataViewerPacket;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,6 +21,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class DestroyRouterProcedure {
     private static final ResourceLocation chaoticVoid = ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "chaotic_void");
@@ -42,10 +49,25 @@ public class DestroyRouterProcedure {
                     case 3 -> defeat(living, world);
                     case 4 -> annihilate(living, world);
                     case 5 -> obliterate(living);
+                    case 6 -> controller(living, sourceentity);
+                    case 7 -> speedUp(living, world);
                     case 8 -> יוםהדין(living);
                 }
             }
         }
+    }
+
+    private static void speedUp(LivingEntity living, LevelAccessor world) {
+        try {
+            Method tick = living.getClass().getDeclaredMethod("tick");
+            for (int i = 0; i < 100; i++) {
+                tick.invoke(living);
+                damage(living, world);
+            }
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private static void damage(LivingEntity victim, LevelAccessor world) {
@@ -96,6 +118,12 @@ public class DestroyRouterProcedure {
             victim.remove(Entity.RemovalReason.CHANGED_DIMENSION);
             victim.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK);
             victim.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+        }
+    }
+
+    private static void controller(LivingEntity victim, Entity sourceentity) {
+        if (sourceentity instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, new OpenDataViewerPacket(victim));
         }
     }
 

@@ -1,6 +1,7 @@
 package net.mcreator.administratorauthorization.eventTrackers;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
+import net.mcreator.administratorauthorization.client.screens.DataViewerOverlay;
 import net.mcreator.administratorauthorization.client.screens.StatusOverlay;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;

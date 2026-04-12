@@ -15,6 +15,7 @@ public class AADestroyerConfiguration {
     public static final ModConfigSpec.ConfigValue<Boolean> CAN_DESTROY_BLOCK;
     public static final ModConfigSpec.ConfigValue<Boolean> DROP_BLOCK;
     public static final ModConfigSpec.ConfigValue<Boolean> ACCEPT_INTERACT;
+    public static final ModConfigSpec.ConfigValue<Double> SEARCH_INFLATION;
 
     static {
         BUILDER.push("Targets");
@@ -22,6 +23,7 @@ public class AADestroyerConfiguration {
         RADIUS = BUILDER.comment("the radius of ranged attack").define("Range", (double) 0);
         ACCEPT_MULTIPLE = BUILDER.comment("chose all entity found rather than only one").define("Right Click Accept Multiple Targets", false);
         SEARCH_DISTANCE = BUILDER.comment("The distance of right click search").define("Right Click Distance", 20);
+        SEARCH_INFLATION = BUILDER.comment("The size of searching box").define("Searching Inflation", 0.5);
         ACCEPT_INTERACT = BUILDER.comment("Use right click to apply effect by directly interacting with entity").define("Accept Interaction", false);
         BUILDER.pop();
         BUILDER.push("Inventory");

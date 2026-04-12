@@ -17,5 +17,6 @@ public class RegisterMessage {
         AdministratorAuthorizationMod.addNetworkMessage(RouterIndexPacket.TYPE, RouterIndexPacket.STREAM_CODEC, RouterIndexPacket::handleData);
         AdministratorAuthorizationMod.addNetworkMessage(SpecialFunction1Message.TYPE, SpecialFunction1Message.STREAM_CODEC, SpecialFunction1Message::handleData);
         AdministratorAuthorizationMod.addNetworkMessage(SwitchAuthorityMessage.TYPE, SwitchAuthorityMessage.STREAM_CODEC, SwitchAuthorityMessage::handleData);
+        AdministratorAuthorizationMod.addNetworkMessage(OpenDataViewerPacket.TYPE, OpenDataViewerPacket.STREAM_CODEC, OpenDataViewerPacket::handleData);
     }
 }

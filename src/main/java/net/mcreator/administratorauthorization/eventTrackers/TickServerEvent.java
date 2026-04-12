@@ -4,8 +4,10 @@ import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.EntityDataAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
+import net.mcreator.administratorauthorization.classes.ObjectVault;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -14,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 @EventBusSubscriber
-public class ServerTickEvent {
+public class TickServerEvent {
 
     private static final Map<ServerPlayer, Float> healthMap = new HashMap<>();
 
     @SubscribeEvent
-    public static void tickStart(net.neoforged.neoforge.event.tick.ServerTickEvent.Pre event) {
+    public static void tickStart(ServerTickEvent.Pre event) {
         List<ServerPlayer> admins = event.getServer().getPlayerList().getPlayers().stream().filter(serverPlayer -> ((EntityAccess) serverPlayer).administrator_authorization$getAuthorization()).toList();
         admins.iterator().forEachRemaining(admin -> {
             if (!(admin.getHealth() > 0.0f) && admin instanceof LivingEntityAccess living) {
@@ -35,7 +37,7 @@ public class ServerTickEvent {
     }
 
     @SubscribeEvent
-    public static void tickEnd(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+    public static void tickEnd(ServerTickEvent.Post event) {
         for (Map.Entry<ServerPlayer, Float> healthData : healthMap.entrySet()) {
             ServerPlayer tickedPlayer = event.getServer().getPlayerList().getPlayer(healthData.getKey().getUUID());
             if (tickedPlayer != null && tickedPlayer.getHealth() < healthData.getValue() && tickedPlayer instanceof LivingEntityAccess living) {
@@ -52,5 +54,15 @@ public class ServerTickEvent {
             }
         }
         healthMap.clear();
+    }
+
+    private static int accumulated = 0;
+    @SubscribeEvent
+    public static void tick(ServerTickEvent.Post event) {
+        accumulated++;
+        if (accumulated > 24000) {
+            accumulated = 0;
+            ObjectVault.resetId();
+        }
     }
 }

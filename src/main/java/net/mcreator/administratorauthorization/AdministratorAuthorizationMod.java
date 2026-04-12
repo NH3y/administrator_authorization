@@ -41,12 +41,12 @@ public class AdministratorAuthorizationMod {
         modEventBus.addListener(this::registerNetworking);
         // Start of user code block mod init
         // End of user code block mod init
-        if (
-                AASecurityConfiguration.ENABLED.get() &&
-                AASecurityConfiguration.AGENT_DETECT.get()
-        ) {
-            Detector.startAttachMonitoring();
-        }
+        //if (
+        //        AASecurityConfiguration.ENABLED.get() &&
+        //        AASecurityConfiguration.AGENT_DETECT.get()
+        //) {
+        //    Detector.startAttachMonitoring();
+        //}
     }
 
     private static boolean networkingRegistered = false;

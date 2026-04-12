@@ -2,7 +2,6 @@ package net.mcreator.administratorauthorization.mixins;
 
 import net.mcreator.administratorauthorization.AdministratorAuthorizationMod;
 import net.mcreator.administratorauthorization.Interfaces.DataItemAccess;
-import net.mcreator.administratorauthorization.Interfaces.EntityDataAccessorsAccess;
 import net.mcreator.administratorauthorization.classes.VarContainer;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -56,7 +55,7 @@ public abstract class DataItemMixin<T> implements DataItemAccess<T> {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(EntityDataAccessor<T> pAccessor, T pValue, CallbackInfo ci) {
-        //this.administrator_authorization$name = ((EntityDataAccessorsAccess)pAccessor).administrator_authorization$catchName();
+        //this.administrator_authorization$name = ((EntityDataAccessorsAccess<T>) pAccessor).administrator_authorization$catchName();
         this.administrator_authorization$container = new VarContainer<>(pValue, administrator_authorization$name + pAccessor.id());
     }
 

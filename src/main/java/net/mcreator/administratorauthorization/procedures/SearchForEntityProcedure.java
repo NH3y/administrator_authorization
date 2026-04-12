@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class SearchForEntityProcedure {
     public static ArrayList<Entity> execute(LevelAccessor world, Entity source) {
         final ArrayList<Entity> targets = new ArrayList<>();
-        AABB aabb = new AABB(source.getEyePosition(), source.getEyePosition()).inflate(0.5);
+        AABB aabb = new AABB(source.getEyePosition(), source.getEyePosition()).inflate(AADestroyerConfiguration.SEARCH_INFLATION.get());
         for (int i = 0; i < AADestroyerConfiguration.SEARCH_DISTANCE.get(); i++) {
             targets.addAll(world.getEntities(EntityTypeTest.forClass(Entity.class), aabb.move(source.getLookAngle().scale(i)), entity ->
                     entity != null && !entity.is(source)
