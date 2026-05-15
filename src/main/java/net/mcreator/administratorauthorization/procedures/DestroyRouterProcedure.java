@@ -5,10 +5,8 @@ import net.mcreator.administratorauthorization.Interfaces.EntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.LivingEntityAccess;
 import net.mcreator.administratorauthorization.Interfaces.PlayerAccess;
 import net.mcreator.administratorauthorization.Interfaces.ServerLevelAccess;
-import net.mcreator.administratorauthorization.client.screens.DataViewerOverlay;
 import net.mcreator.administratorauthorization.network.HealthDataPacket;
 import net.mcreator.administratorauthorization.network.OpenDataViewerPacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +24,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class DestroyRouterProcedure {
+    private DestroyRouterProcedure() {}
+
     private static final ResourceLocation chaoticVoid = ResourceLocation.fromNamespaceAndPath(AdministratorAuthorizationMod.MODID, "chaotic_void");
 
     @SuppressWarnings("NonAsciiCharacters")
@@ -40,7 +40,7 @@ public class DestroyRouterProcedure {
                     case 2 -> disable(living);
                     case 3 -> neutralize(living);
                     case 4 -> DamnatioMemoriae(living, world);
-
+                    default -> throw new IllegalArgumentException("Invalid route number");
                 }
             } else {
                 switch (route) {
@@ -52,6 +52,7 @@ public class DestroyRouterProcedure {
                     case 6 -> controller(living, sourceentity);
                     case 7 -> speedUp(living, world);
                     case 8 -> יוםהדין(living);
+                    default -> throw new IllegalArgumentException("Invalid route number");
                 }
             }
         }
